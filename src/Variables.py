@@ -10,7 +10,6 @@ TIMER_FILE = path.join(path.realpath(resolveFilename(SCOPE_CONFIG)), PLUGIN, PLU
 NODATA_FILE = path.join(path.realpath(resolveFilename(SCOPE_CONFIG)), PLUGIN, PLUGIN + ".nodata")
 RESUMEPOINTS_FILE = path.join(path.realpath(resolveFilename(SCOPE_CONFIG)), PLUGIN, "resumepoints.pkl")
 PLUGIN_FOLDER = path.dirname(path.realpath(__file__))
-PLUGIN_ICON = "plugin.png"
 BOUQUET_FILE = "userbouquet.plutotvcockpit_%s.tv"
 BOUQUET_NAME = "Pluto TV Cockpit (%s)"
 CHANNELLIST_FILE = "channellist.plutotvcockpit_%s.m3u8"

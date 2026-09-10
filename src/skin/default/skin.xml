@@ -15,14 +15,13 @@
 		<color name="cyan" value="#57ffff"/>
 		<color name="blue" value="#1e4ab5"/>
 	</colors>
-	<scrollbarstyle backgroundColor="black" borderColor="white" borderWidth="1" foregroundColor="white" mode="showOnDemand" width="10"/>
 	<screen backgroundColor="backgroundMedium" flags="wfNoBorder" name="PlutoTVCockpit" position="fill" resolution="1920,1080" size="1920,1080">
 		<eLabel backgroundColor="backgroundDark" position="0,0" size="1920,55"/>
 		<widget font="Bold;38" position="10,0" render="Label" size="1900,55" source="Title" transparent="1" valign="center" zPosition="1"/>
 		<eLabel backgroundColor="separator" position="0,54" size="1920,2"/>
 		<ePixmap pixmap="~/../images/backdrop.jpg" position="0,0" scale="scale" size="1920,1020" zPosition="-1"/>
 		<eLabel backgroundColor="backgroundMedium" position="61,150" size="615,740" zPosition="1"/>
-		<widget enableWrapAround="1" position="61,150" render="Listbox" scrollbarMode="showOnDemand" size="615,740" source="feedlist" transparent="1" zPosition="5">
+		<widget enableWrapAround="1" position="61,150" render="Listbox" scrollbarBackgroundColor="backgroundMedium" scrollbarBorderColor="backgroundLight" scrollbarMode="showOnDemand" size="615,740" source="feedlist" transparent="1" zPosition="5">
 			<convert type="COCTemplatedMultiContentEx">
 			{
 				"var": (

@@ -4,6 +4,7 @@
 
 from pathlib import Path
 from Tools.Directories import SCOPE_SKIN
+from Components.SystemInfo import BoxInfo
 from skin import loadSkin, findSkinScreen
 from .ScreenSummaryFix import patchScreenApplySkin
 
@@ -18,4 +19,5 @@ def loadPluginSkin(screen_name=None, file_name="skin.xml", session=None):  # pyl
         return
     skin_file = str(Path(__file__).parent / "skin" / "default" / file_name)
     loadSkin(skin_file, scope=SCOPE_SKIN)
-    patchScreenApplySkin()
+    if BoxInfo.getItem("distro") != "openvix":
+        patchScreenApplySkin()

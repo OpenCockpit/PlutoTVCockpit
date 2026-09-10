@@ -11,7 +11,6 @@ from . import _
 from .PlutoTVRequest import playServiceExtension, recordServiceExtension, startProactiveRefresh
 from .PlutoTVDownload import PlutoTVDownload, Silent
 from .PlutoTVCockpit import PlutoTVCockpit
-from .Variables import PLUGIN_ICON
 from .SkinUtils import loadPluginSkin
 from .Version import PLUGIN, VERSION
 from .Debug import logger
@@ -46,7 +45,7 @@ def Plugins(**_kwargs):
         PluginDescriptor(
             name=_("PlutoTVCockpit"),
             where=PluginDescriptor.WHERE_PLUGINMENU,
-            icon=PLUGIN_ICON,
+            icon="plugin.png",
             description=_("View video on demand and download a bouquet of live tv channels"),
             fnc=system,
             needsRestart=True

@@ -7,6 +7,8 @@
     enableWrapAround: "1"
     position: "0,0"
     render: "Listbox"
+    scrollbarBackgroundColor: "backgroundMedium"
+    scrollbarBorderColor: "backgroundLight"
     scrollbarMode: "showOnDemand"
     size: "615,740"
     source: "feedlist"
