@@ -42,7 +42,7 @@
 			<convert type="ConditionalShowHide"/>
 		</widget>
 		<widget alphatest="blend" backgroundColor="black" cornerRadius="27" font="Regular;0" foregroundColor="black" name="posterBG" position="724,213" size="472,679" widgetBorderColor="yellow" widgetBorderWidth="2" zPosition="3"/>
-		<widget alphatest="blend" backgroundColor="black" cornerRadius="25" name="poster" position="726,215" scaleFlags="scaleCenter" size="468,675" transparent="1" zPosition="5"/>
+		<widget alphatest="blend" cornerRadius="25" name="poster" position="726,215" scaleFlags="scaleCenter" size="468,675" transparent="1" zPosition="5"/>
 		<widget backgroundColor="backgroundMedium" font="Regular;32" name="info" position="1241,215" size="615,675" transparent="0" zPosition="5"/>
 		<eLabel backgroundColor="separator" position="0,1024" size="1920,2"/>
 		<eLabel backgroundColor="backgroundDark" position="0,1025" size="1920,55"/>
@@ -55,8 +55,8 @@
 	</screen>
 	<screen backgroundColor="transparent" flags="wfNoBorder" name="DownloadProgress" position="60,60" resolution="1920,1080" size="620,200">
 		<eLabel alphatest="blend" backgroundColor="backgroundLight" cornerRadius="8" position="0,0" size="620,200" widgetBorderColor="gray" widgetBorderWidth="2" zPosition="-1"/>
-		<widget backgroundColor="black" borderWidth="1" font="Regular;26" foregroundColor="white" halign="left" name="action" noWrap="1" position="15,10" size="590,30" transparent="1" valign="center"/>
+		<widget borderWidth="1" font="Regular;26" foregroundColor="white" halign="left" name="action" noWrap="1" position="15,10" size="590,30" transparent="1" valign="center"/>
 		<widget alphatest="blend" backgroundColor="backgroundDark" borderWidth="0" name="progress" pixmap="~/../images/progress.png" position="15,100" size="590,12" zPosition="2"/>
-		<widget backgroundColor="black" borderColor="black" borderWidth="1" font="Regular;26" foregroundColor="white" halign="center" name="status" noWrap="1" position="15,120" size="590,30" transparent="1" valign="center"/>
+		<widget borderColor="black" borderWidth="1" font="Regular;26" foregroundColor="white" halign="center" name="status" noWrap="1" position="15,120" size="590,30" transparent="1" valign="center"/>
 	</screen>
 </skin>

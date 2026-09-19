@@ -14,7 +14,6 @@ screen:
         widgetBorderWidth: "2"
         zPosition: "-1"
     - widget:
-        backgroundColor: "black"
         borderWidth: "1"
         font: "$FR_small"
         foregroundColor: "white"
@@ -35,7 +34,6 @@ screen:
         size: "590,12"
         zPosition: "2"
     - widget:
-        backgroundColor: "black"
         borderColor: "black"
         borderWidth: "1"
         font: "$FR_small"
