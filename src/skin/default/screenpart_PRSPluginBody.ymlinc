@@ -64,7 +64,6 @@
     zPosition: "3"
 - widget:
     alphatest: "blend"
-    backgroundColor: "black"
     cornerRadius: "25"
     scaleFlags: "scaleCenter"
     name: "poster"
