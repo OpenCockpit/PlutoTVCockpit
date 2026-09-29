@@ -21,7 +21,7 @@
 		<eLabel backgroundColor="separator" position="0,54" size="1920,2"/>
 		<ePixmap pixmap="~/../images/backdrop.jpg" position="0,0" scale="scale" size="1920,1020" zPosition="-1"/>
 		<eLabel backgroundColor="backgroundMedium" position="61,150" size="615,740" zPosition="1"/>
-		<widget enableWrapAround="1" position="61,150" render="Listbox" scrollbarBackgroundColor="backgroundMedium" scrollbarBorderColor="backgroundLight" scrollbarMode="showOnDemand" size="615,740" source="feedlist" transparent="1" zPosition="5">
+		<widget backgroundColorSelected="blue" enableWrapAround="1" position="61,150" render="Listbox" scrollbarBackgroundColor="backgroundMedium" scrollbarBorderColor="backgroundLight" scrollbarMode="showOnDemand" size="615,740" source="feedlist" transparent="1" zPosition="5">
 			<convert type="COCTemplatedMultiContentEx">
 			{
 				"var": (
