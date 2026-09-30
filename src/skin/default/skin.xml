@@ -21,7 +21,7 @@
 		<eLabel backgroundColor="separator" position="0,54" size="1920,2"/>
 		<ePixmap pixmap="~/../images/backdrop.jpg" position="0,0" scale="scale" size="1920,1020" zPosition="-1"/>
 		<eLabel backgroundColor="backgroundMedium" position="61,150" size="615,740" zPosition="1"/>
-		<widget backgroundColorSelected="blue" enableWrapAround="1" position="61,150" render="Listbox" scrollbarBackgroundColor="backgroundMedium" scrollbarBorderColor="backgroundLight" scrollbarMode="showOnDemand" size="615,740" source="feedlist" transparent="1" zPosition="5">
+		<widget backgroundColorSelected="blue" enableWrapAround="1" position="61,150" render="Listbox" scrollbarMode="showOnDemand" size="615,740" source="feedlist" transparent="1" zPosition="5">
 			<convert type="COCTemplatedMultiContentEx">
 			{
 				"var": (
@@ -46,12 +46,12 @@
 		<widget backgroundColor="backgroundMedium" font="Regular;32" name="info" position="1241,215" size="615,675" transparent="0" zPosition="5"/>
 		<eLabel backgroundColor="separator" position="0,1024" size="1920,2"/>
 		<eLabel backgroundColor="backgroundDark" position="0,1025" size="1920,55"/>
-		<widget conditional="key_red" font="Regular;32" foregroundColor="red" halign="center" name="key_red" position="0,1032" size="435,38" transparent="1" valign="center" zPosition="2"/>
-		<widget conditional="key_green" font="Regular;32" foregroundColor="green" halign="center" name="key_green" position="435,1032" size="435,38" transparent="1" valign="center" zPosition="2"/>
-		<widget conditional="key_yellow" font="Regular;32" foregroundColor="yellow" halign="center" name="key_yellow" position="870,1032" size="435,38" transparent="1" valign="center" zPosition="2"/>
-		<widget conditional="key_blue" font="Regular;32" foregroundColor="blue" halign="center" name="key_blue" position="1305,1032" size="435,38" transparent="1" valign="center" zPosition="2"/>
-		<widget conditional="key_menu" font="Regular;32" foregroundColor="white" halign="center" name="key_menu" position="1740,1032" size="90,38" transparent="1" valign="center" zPosition="2"/>
-		<widget conditional="key_info" font="Regular;32" foregroundColor="white" halign="center" name="key_info" position="1830,1032" size="90,38" transparent="1" valign="center" zPosition="2"/>
+		<widget conditional="key_red" font="Regular;32" foregroundColor="red" halign="center" name="key_red" position="0,1025" size="435,55" transparent="1" valign="center" zPosition="2"/>
+		<widget conditional="key_green" font="Regular;32" foregroundColor="green" halign="center" name="key_green" position="435,1025" size="435,55" transparent="1" valign="center" zPosition="2"/>
+		<widget conditional="key_yellow" font="Regular;32" foregroundColor="yellow" halign="center" name="key_yellow" position="870,1025" size="435,55" transparent="1" valign="center" zPosition="2"/>
+		<widget conditional="key_blue" font="Regular;32" foregroundColor="blue" halign="center" name="key_blue" position="1305,1025" size="435,55" transparent="1" valign="center" zPosition="2"/>
+		<widget conditional="key_menu" font="Regular;32" foregroundColor="white" halign="center" name="key_menu" position="1740,1025" size="90,55" transparent="1" valign="center" zPosition="2"/>
+		<widget conditional="key_info" font="Regular;32" foregroundColor="white" halign="center" name="key_info" position="1830,1025" size="90,55" transparent="1" valign="center" zPosition="2"/>
 	</screen>
 	<screen backgroundColor="transparent" flags="wfNoBorder" name="DownloadProgress" position="60,60" resolution="1920,1080" size="620,200">
 		<eLabel alphatest="blend" backgroundColor="backgroundLight" cornerRadius="8" position="0,0" size="620,200" widgetBorderColor="gray" widgetBorderWidth="2" zPosition="-1"/>
