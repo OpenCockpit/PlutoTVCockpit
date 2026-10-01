@@ -30,6 +30,7 @@ _SEG_DURATION = 5.0
 _MAX_SEG_CACHE = 200
 _SEQ_REPROCESS_WINDOW = 10
 _PREFETCH_LEAD_SEGMENTS = 20
+_MAX_UNCONSUMED_AUDIO_EPOCHS = 8
 _AUDIO_BUFFER_RETAIN_EPOCHS = 1
 _MAX_AUDIO_EPOCH_LAG = 2
 _DISC_LOOKAHEAD_SEGMENTS = 30
@@ -909,9 +910,15 @@ def _prune_audio_bufs(state: '_ChannelState'):
     now = time.monotonic()
     kept = []
     closed_kept = 0
+    unconsumed_kept = 0
+    video_epoch = state._video_epoch
     for b in state._audio_bufs:
         if b.closed_at is None:
             kept.append(b)
+            continue
+        if b.epoch >= video_epoch - 1 and unconsumed_kept < _MAX_UNCONSUMED_AUDIO_EPOCHS:
+            kept.append(b)
+            unconsumed_kept += 1
             continue
         if now - b.closed_at > max_age:
             continue
