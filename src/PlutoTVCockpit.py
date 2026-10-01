@@ -234,14 +234,16 @@ class PlutoTVCockpit(Screen, HelpableScreen):
 
     def buildlist(self, category):
         name = category["name"].encode("utf-8")
-        self.lvod[name] = []
-
-        self.menu.append(name)
+        if name not in self.lvod:
+            self.lvod[name] = []
+            self.menu.append(name)
+        known_ids = {film[0] for film in self.lvod[name]}
         items = category.get("items", [])
         for item in items:
             itemid = item.get("_id", "")
-            if not itemid:
+            if not itemid or itemid in known_ids:
                 continue
+            known_ids.add(itemid)
             itemname = item.get("name", "").encode("utf-8")
             itemsummary = item.get("summary", "").encode("utf-8")
             itemgenre = item.get("genre", "").encode("utf-8")
