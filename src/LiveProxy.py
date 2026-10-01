@@ -514,7 +514,7 @@ class _ChannelState:
                  '_audio_prefetch_thread', '_audio_prefetch_stop',
                  '_video_prefetch_thread', '_video_prefetch_stop', '_lock', '_cc_state',
                  '_cc_resync_pending', '_last_playlist_out', '_last_segment_out',
-                 '_pending_audio_floors')
+                 '_pending_audio_floors', '_vod_complete')
 
     def __init__(self, master_url: str):
         self.master_url = master_url
@@ -546,6 +546,7 @@ class _ChannelState:
         self._cc_resync_pending = False
         self._last_playlist_out: 'dict[int, tuple[bytes, float]]' = {}
         self._last_segment_out: 'tuple[int, bytes] | None' = None
+        self._vod_complete = False
         self._pending_audio_floors: 'list[tuple[int, int]]' = []
 
     def current_audio_epoch(self) -> int:
@@ -1347,6 +1348,7 @@ def _audio_prefetch_loop(channel_id: str, state: '_ChannelState'):
     fetched_seqs: set[int] = set()
     stale_aseq_base: 'int | None' = None
     stale_since: 'float | None' = None
+    idle_log_at = 0.0
 
     while True:
         if state._audio_prefetch_stop.is_set():
@@ -1397,7 +1399,19 @@ def _audio_prefetch_loop(channel_id: str, state: '_ChannelState'):
                              ' last_requested_seq=%s | Action: pair with silence until this clears',
                              channel_id, aseq_base, bound_hit_at, last_seq_ok,
                              state.last_requested_seq())
-            if aseq_base != stale_aseq_base:
+            if bound_hit_at is None:
+                now = time.monotonic()
+                if now - idle_log_at >= 10.0:
+                    idle_log_at = now
+                    logger.debug('%s: audio poll idle: aseq_base=%s segments=%s last_seq=%s'
+                                 ' endlist=%s fetched_max=%s last_requested_seq=%s',
+                                 channel_id, aseq_base, len(asegs), aseq_base + len(asegs) - 1,
+                                 '#EXT-X-ENDLIST' in atext,
+                                 max(fetched_seqs) if fetched_seqs else None,
+                                 state.last_requested_seq())
+            if channel_id.startswith('vod'):
+                pass
+            elif aseq_base != stale_aseq_base:
                 stale_aseq_base = aseq_base
                 stale_since = time.monotonic()
             elif time.monotonic() - stale_since >= state.seg_duration * 3:
@@ -1495,6 +1509,7 @@ def _video_prefetch_loop(channel_id: str, state: '_ChannelState',
     is_vod = channel_id.startswith('vod')
     vod_pending_video: 'dict | None' = None
     fetched_seqs: set = set()
+    idle_log_at = 0.0
     bumped_disc_seqs: set = set()
     video_epoch = state.current_video_epoch()
     with state._lock:
@@ -1699,9 +1714,26 @@ def _video_prefetch_loop(channel_id: str, state: '_ChannelState',
             vod_pending_video = None
             video_epoch = state.current_video_epoch()
 
+        if (is_vod and vod_pending_video is None and '#EXT-X-ENDLIST' in vtext
+                and vsegs and all(vseq + i in fetched_seqs for i in range(len(vsegs)))):
+            if not state._vod_complete:
+                logger.debug('%s: Event: whole VOD asset fetched and muxed (segments %s-%s)'
+                             ' | Action: advertise #EXT-X-ENDLIST', channel_id, vseq,
+                             vseq + len(vsegs) - 1)
+            state._vod_complete = True
+
         if state._video_prefetch_stop.is_set():
             break
         if new_seqs == 0:
+            now = time.monotonic()
+            if now - idle_log_at >= 10.0:
+                idle_log_at = now
+                logger.debug('%s: video poll idle: vseq=%s segments=%s last_seq=%s endlist=%s'
+                             ' pending_vod_segment=%s fetched_max=%s last_requested_seq=%s',
+                             channel_id, vseq, len(vsegs), vseq + len(vsegs) - 1,
+                             '#EXT-X-ENDLIST' in vtext, vod_pending_video is not None,
+                             max(fetched_seqs) if fetched_seqs else None,
+                             state.last_requested_seq())
             if state._video_prefetch_stop.wait(timeout=state.seg_duration / 5):
                 break
 
@@ -1790,6 +1822,7 @@ def register_channel(channel_id: str, real_master_url: str, url_refresher=None) 
             was_closed = existing._audio_prefetch_stop.is_set()
             if was_closed or (new_sid is not None and new_sid != old_sid):
                 with existing._lock:
+                    existing._vod_complete = False
                     existing._ready_segs.clear()
                     existing._window_meta.clear()
                     existing._provisional_segs.clear()
@@ -2165,6 +2198,9 @@ class HLSProxyHandler(BaseHTTPRequestHandler):
                 f'http://{PROXY_HOST}:{PROXY_PORT}'
                 f'/seg/{channel_id}/{cseq}.ts'
             )
+
+        if channel_id.startswith('vod') and state._vod_complete:
+            out.append('#EXT-X-ENDLIST')
 
         out_bytes = '\n'.join(out).encode()
         state._last_playlist_out[idx] = (out_bytes, time.monotonic())
