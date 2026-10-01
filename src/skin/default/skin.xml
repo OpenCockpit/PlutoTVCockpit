@@ -53,10 +53,10 @@
 		<widget conditional="key_menu" font="Regular;32" foregroundColor="white" halign="center" name="key_menu" position="1740,1025" size="90,55" transparent="1" valign="center" zPosition="2"/>
 		<widget conditional="key_info" font="Regular;32" foregroundColor="white" halign="center" name="key_info" position="1830,1025" size="90,55" transparent="1" valign="center" zPosition="2"/>
 	</screen>
-	<screen backgroundColor="transparent" flags="wfNoBorder" name="DownloadProgress" position="60,60" resolution="1920,1080" size="620,200">
+	<screen backgroundColor="transparent" flags="wfNoBorder" name="PRSDownloadProgress" position="60,60" resolution="1920,1080" size="620,200">
 		<eLabel alphatest="blend" backgroundColor="backgroundLight" cornerRadius="8" position="0,0" size="620,200" widgetBorderColor="gray" widgetBorderWidth="2" zPosition="-1"/>
-		<widget borderWidth="1" font="Regular;26" foregroundColor="white" halign="left" name="action" noWrap="1" position="15,10" size="590,30" transparent="1" valign="center"/>
-		<widget alphatest="blend" backgroundColor="backgroundDark" borderWidth="0" name="progress" pixmap="~/../images/progress.png" position="15,100" size="590,12" zPosition="2"/>
-		<widget borderColor="black" borderWidth="1" font="Regular;26" foregroundColor="white" halign="center" name="status" noWrap="1" position="15,120" size="590,30" transparent="1" valign="center"/>
+		<widget borderWidth="1" font="Regular;26" foregroundColor="white" halign="left" name="action" noWrap="1" position="15,32" size="590,30" transparent="1" valign="center"/>
+		<widget alphatest="blend" backgroundColor="backgroundDark" borderWidth="0" name="progress" pixmap="~/../images/progress.png" position="15,94" size="590,12" zPosition="2"/>
+		<widget borderColor="black" borderWidth="1" font="Regular;26" foregroundColor="white" halign="left" name="status" noWrap="1" position="15,138" size="590,30" transparent="1" valign="center"/>
 	</screen>
 </skin>

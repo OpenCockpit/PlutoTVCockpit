@@ -5,4 +5,4 @@ skin:
     - xmlinc:
         file: "screen_PRSPlugin.ymlinc"
     - xmlinc:
-        file: "screen_DownloadProgress.ymlinc"
+        file: "screen_PRSDownloadProgress.ymlinc"
