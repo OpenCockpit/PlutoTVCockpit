@@ -1,2 +1,3 @@
 installdir = $(libdir)/enigma2/python/Plugins/Extensions/PlutoTVCockpit/skin/images
-install_DATA = *.png *.jpg
+SUBDIRS = dvr_controls
+install_DATA = *.png *.jpg *.svg

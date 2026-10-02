@@ -1,0 +1,6 @@
+- ePixmap:
+    alphatest: "on"
+    pixmap: "$imagepath/display_bg.png"
+    position: "0,0"
+    size: "$screen_width,$screen_height"
+    zPosition: "-10"

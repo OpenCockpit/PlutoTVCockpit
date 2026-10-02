@@ -424,6 +424,13 @@ class PlutoTVRequest:
             for ch_id in elem.get('channelIDs', []):
                 categories[ch_id] = cat_name
 
+        if any(ch.get('id') not in categories for ch in channel_list):
+            legacy = self._getLegacyCategories(country)
+            for ch in channel_list:
+                ch_id = ch.get('id', '')
+                if ch_id not in categories and legacy.get(ch_id):
+                    categories[ch_id] = legacy[ch_id]
+
         result = []
         for ch in channel_list:
             ch_id = ch.get('id', '')
@@ -441,6 +448,18 @@ class PlutoTVRequest:
             })
 
         return result
+
+    def _getLegacyCategories(self, country):
+        """Channel id -> category name from the legacy api.pluto.tv channel list."""
+        params = {'sid': self._sid, 'deviceId': self._deviceId}
+        try:
+            response = requests.get(self.LEGACY_CHANNELS_URL, params=params, headers=self._legacyHeaders(country), timeout=10)
+            response.raise_for_status()
+            channels = response.json()
+            return {ch.get('_id', ''): ch.get('category', '') for ch in channels} if isinstance(channels, list) else {}
+        except Exception as e:
+            logger.debug('getChannels legacy category lookup error for %s: %s', country, e)
+            return {}
 
     def _getChannelsLegacy(self, country):
         """Fetch channels via the legacy api.pluto.tv/v2/channels.json endpoint."""

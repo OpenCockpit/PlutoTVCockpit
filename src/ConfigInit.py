@@ -5,7 +5,7 @@
 import ipaddress
 import random
 
-from Components.config import ConfigDirectory, ConfigSelection, ConfigSubsection, config
+from Components.config import ConfigDirectory, ConfigSelection, ConfigSubsection, ConfigYesNo, config
 
 from . import _
 from .CountryCodes import ISO3166
@@ -78,6 +78,8 @@ config.plugins.plutotv.picons = ConfigSelection(default="snp", choices=[("snp", 
 config.plugins.plutotv.live_tv_mode = ConfigSelection(default="jmp2", choices=[("stitcher", _("Stitcher")), ("jmp2", _("JMP2 proxy")), ("mjh", _("i.mjh.nz"))])
 config.plugins.plutotv.auto_update_check = ConfigSelection(default="yes", choices=[("yes", _("Yes")), ("no", _("No"))])
 config.plugins.plutotv.config_folder = ConfigDirectory(default="/etc/enigma2")
+config.plugins.plutotv.movie_resume_at_last_pos = ConfigYesNo(default=False)
+config.plugins.plutotv.movie_start_position = ConfigSelection(default="beginning", choices=[("beginning", _("beginning"))])
 
 
 getselectedcountries = setupLocationSlots(config.plugins.plutotv, "live_tv_country", COUNTRY_NAMES, NUMBER_OF_LIVETV_BOUQUETS, _("None"))

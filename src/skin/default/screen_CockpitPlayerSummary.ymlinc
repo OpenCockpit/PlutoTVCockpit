@@ -1,0 +1,69 @@
+screen:
+  name: "CockpitPlayerSummary"
+  position: "fill"
+  resolution: "396,240"
+  children:
+    - xmlinc:
+        file: "screenpart_LCDBackground.ymlinc"
+        imagepath: "~/../images"
+    - widget:
+        font: "$F_big"
+        halign: "center"
+        position: "0,0"
+        render: "Label"
+        size: "$screen_width-4,130"
+        source: "parent.Service"
+        transparent: "1"
+        valign: "center"
+        children:
+          - convert:
+              type: "COCEventName"
+              text: "Name"
+    - widget:
+        alphatest: "blend"
+        borderColor: "FdLcdAmber"
+        borderWidth: "2"
+        foregroundColor: "FdLcdAmber"
+        position: "0,140"
+        render: "Progress"
+        size: "$screen_width-4,20"
+        source: "parent.Service"
+        transparent: "1"
+        zPosition: "2"
+        children:
+          - convert:
+              type: "COCServicePosition"
+              text: "Position"
+    - widget:
+        alphatest: "blend"
+        borderColor: "FdLcdAmber"
+        borderWidth: "2"
+        foregroundColor: "darkgrey"
+        position: "0,140"
+        render: "Progress"
+        size: "$screen_width-4,20"
+        source: "parent.Service"
+        transparent: "1"
+        zPosition: "3"
+        children:
+          - convert:
+              type: "COCBeforeTSPosition"
+              text: "Position"
+    - widget:
+        alphatest: "blend"
+        borderColor: "FdLcdAmber"
+        borderWidth: "2"
+        foregroundColor: "FdLcdRed"
+        position: "0,140"
+        render: "Progress"
+        size: "$screen_width-4,20"
+        source: "parent.Service"
+        transparent: "1"
+        zPosition: "1"
+        children:
+          - convert:
+              type: "COCRecordPosition"
+              text: "Position"
+    - xmlinc:
+        file: "screenpart_endtimeremaining.ymlinc"
+        source: "parent.Service"

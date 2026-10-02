@@ -3,4 +3,4 @@ Plugin: PlutoTVCockpit
 Description: PlutoTVCockpit plugin for enigma2
 Maintainer: xcentaurix
 Architecture: all
-Depends: python3-pycryptodome, enigma2-plugin-extensions-epgimport
+Depends: python3-pycryptodome, enigma2-plugin-extensions-epgimport, enigma2-plugin-skincomponents-componentscockpit, enigma2-plugin-systemplugins-jobcockpit

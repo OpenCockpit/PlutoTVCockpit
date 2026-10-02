@@ -33,7 +33,8 @@ from .CockpitTVUtils import pickBestImage
 from .Variables import TIMER_FILE, NODATA_FILE, BOUQUET_FILE
 from .PRSList import PRSList
 from .PlutoSetup import PlutoSetup
-from .PRSPlayer import PRSPlayer
+from .PRSCockpitPlayer import PRSCockpitPlayer
+from .PRSServiceCenter import ServiceCenter
 
 _utils = PRSUtils(config.plugins.plutotv)
 downloadPoster = _utils.downloadPoster
@@ -47,6 +48,8 @@ class PlutoTVCockpit(Screen, HelpableScreen):
         Screen.__init__(self, session)
         self.skinName = "PlutoTVCockpit"
         HelpableScreen.__init__(self)
+        self.service_center = ServiceCenter()
+        self.last_service = None
 
         self["feedlist"] = PRSList([], icons=("menu.png", "series.png", "cine.png", "cine_half.png", "cine_end.png"), resume_points=resumePointsInstance)
         self["loading"] = Label(_("Loading data... Please wait"))
@@ -328,13 +331,13 @@ class PlutoTVCockpit(Screen, HelpableScreen):
             sid = film[0]
             name = film[1].decode("utf-8")
             url = film[9]
-            self.playVOD(name, sid, url)
+            self.playVOD(name, sid, url, film[2].decode("utf-8"), film[5])
         elif __type == "episode":
             film = self.chapters[_id][index]
             sid = film[0]
             name = film[1].decode("utf-8")
             url = film[9]
-            self.playVOD(name, sid, url)
+            self.playVOD(name, sid, url, film[3].decode("utf-8"), film[5])
 
     def back(self):
         if not (selection := self.getSelection()):
@@ -383,10 +386,12 @@ class PlutoTVCockpit(Screen, HelpableScreen):
         self["feedlist"].moveToIndex(0)
         self["loading"].hide()
 
-    def playVOD(self, name, sid, url=None):
+    def playVOD(self, name, sid, url=None, description="", duration=0):
         if url:
             self._play_name = name
             self._play_sid = sid
+            self._play_description = description
+            self._play_duration = duration
             threads.deferToThread(plutoRequest.buildVodStreamURL, url, self.country).addCallback(self._playVODCallback)
 
     def _playVODCallback(self, url):
@@ -394,7 +399,13 @@ class PlutoTVCockpit(Screen, HelpableScreen):
             string = f"4097:0:0:0:0:0:0:0:0:0:{quote(url)}:{quote(self._play_name)}"
             reference = eServiceReference(string)
             if "m3u8" in url.lower() or "127.0.0.1" in url:
-                self.session.open(PRSPlayer, service=reference, sid=self._play_sid, resume_points=resumePointsInstance)
+                self.service_center.setMovie(self._play_name, self._play_description, self._play_duration)
+                self.last_service = self.session.nav.getCurrentlyPlayingServiceOrGroup()
+                self.session.openWithCallback(self._playerClosed, PRSCockpitPlayer, reference, self._play_sid, resumePointsInstance, self.service_center, config.plugins.plutotv)
+
+    def _playerClosed(self, *_args):
+        self.session.nav.playService(self.last_service)
+        self["feedlist"].refresh()
 
     def green(self):
         locations = [x for x in getselectedcountries() if x] or [config.plugins.plutotv.country.value]

@@ -56,6 +56,13 @@ class PRSList(List):
     def moveToIndex(self, index):
         self.index = index
 
+    def refresh(self):
+        """Rebuild every entry in place, keeping the selection, so icons that
+        depend on playback progress (cine/cine_half/cine_end) pick up resume
+        points saved since the list was built - e.g. after leaving the player."""
+        if self.list:
+            self.updateList([self.listentry(*entry[0]) for entry in self.list])
+
     def listentry(self, name, data, _id, epid=0):
         png = None
         if data == "menu":
@@ -72,7 +79,7 @@ class PRSList(List):
                     cine_end_png = self._pixmaps.get("cine_end")
                     if cine_half_png and (last > 900000) and (not length or (last < length - 900000)):
                         png = cine_half_png
-                    elif cine_end_png and last >= length - 900000:
+                    elif cine_end_png and length and last >= length - 900000:
                         png = cine_end_png
         else:
             png = self._pixmaps.get("menu")

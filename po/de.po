@@ -240,6 +240,33 @@ msgstr "PlutoTV Bouquet, Picons und EPG Download"
 msgid "Silently download PlutoTV"
 msgstr "Download von PlutoTV im Hintergrund"
 
+msgid "Other"
+msgstr "Sonstige"
+
+msgid "End"
+msgstr "Ende"
+
+msgid "Infobar/Play"
+msgstr "Infobar/Play"
+
+msgid "Play/Pause"
+msgstr "Play/Pause"
+
+msgid "Stop playback"
+msgstr "Stoppe Playback"
+
+msgid "Skip forward"
+msgstr "Springe vorwärts"
+
+msgid "Skip backward"
+msgstr "Springe zurück"
+
+msgid "EPG Info"
+msgstr "EPG Information"
+
+msgid "Do you want to resume playback at position: %d:%02d:%02d?"
+msgstr "Soll Playback an Position %d:%02d:%02d fortgesetzt werden?"
+
 msgid "Afghanistan"
 msgstr "Afghanistan"
 
@@ -986,12 +1013,6 @@ msgstr "Sambia"
 
 msgid "Zimbabwe"
 msgstr "Simbabwe"
-
-msgid "Do you want to resume this playback?"
-msgstr "Soll Playback fortgesetzt werden?"
-
-msgid "Resume position at %s"
-msgstr "An Position %s fortsetzen"
 
 msgid "%s has been updated. Restart Enigma2 now to use the new version?"
 msgstr "Für %s wurde eine neue Version installiert. Soll Enigma2 neu gestartet werden, um die neue Version zu laden?"

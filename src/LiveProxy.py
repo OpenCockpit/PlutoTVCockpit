@@ -2206,7 +2206,8 @@ class HLSProxyHandler(BaseHTTPRequestHandler):
                 f'/seg/{channel_id}/{cseq}.ts'
             )
 
-        if channel_id.startswith('vod') and state._vod_complete:
+        if (channel_id.startswith('vod') and state._vod_complete and advertise_seqs
+                and state.last_requested_seq() >= advertise_seqs[-1]):
             out.append('#EXT-X-ENDLIST')
 
         out_bytes = '\n'.join(out).encode()

@@ -3,6 +3,15 @@ skin:
     - xmlinc:
         file: "screenpart_globals.ymlinc"
     - xmlinc:
+        file: "display_globals.ymlinc"
+    - xmlinc:
         file: "screen_PRSPlugin.ymlinc"
     - xmlinc:
         file: "screen_PRSDownloadProgress.ymlinc"
+    - xmlinc:
+        file: "screen_CockpitPlayer.ymlinc"
+        imagepath: "/usr/lib/enigma2/python/Plugins/SystemPlugins/ComponentsCockpit/skin/images"
+    - xmlinc:
+        file: "screen_CockpitPlayerSummary.ymlinc"
+    - xmlinc:
+        file: "screen_ScreenPVRState.ymlinc"

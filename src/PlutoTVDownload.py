@@ -175,7 +175,7 @@ class PlutoTVDownloadBase(TVDownloadBase):
 
     def buildM3U(self, channel):
         logo = (channel.get("colorLogoPNG", {}).get("path", None) or None)
-        group = channel.get("category", "")
+        group = channel.get("category", "") or _("Other")
         _id = channel["_id"]
 
         if group not in self.channelsList:

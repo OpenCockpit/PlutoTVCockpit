@@ -961,3 +961,27 @@ msgstr "%s on päivitetty. Käynnistetäänkö Enigma2 uudelleen nyt uuden versi
 
 msgid "A newer %s package (%s) is available. Do you want to install it now?"
 msgstr "Uudempi %s-paketti (%s) on saatavilla. Haluatko asentaa sen nyt?"
+
+msgid "End"
+msgstr ""
+
+msgid "Infobar/Play"
+msgstr ""
+
+msgid "Play/Pause"
+msgstr ""
+
+msgid "Stop playback"
+msgstr ""
+
+msgid "Skip forward"
+msgstr ""
+
+msgid "Skip backward"
+msgstr ""
+
+msgid "EPG Info"
+msgstr ""
+
+msgid "Do you want to resume playback at position: %d:%02d:%02d?"
+msgstr ""

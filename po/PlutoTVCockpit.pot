@@ -246,6 +246,33 @@ msgstr ""
 msgid "Silently download PlutoTV"
 msgstr ""
 
+msgid "Other"
+msgstr ""
+
+msgid "End"
+msgstr ""
+
+msgid "Infobar/Play"
+msgstr ""
+
+msgid "Play/Pause"
+msgstr ""
+
+msgid "Stop playback"
+msgstr ""
+
+msgid "Skip forward"
+msgstr ""
+
+msgid "Skip backward"
+msgstr ""
+
+msgid "EPG Info"
+msgstr ""
+
+msgid "Do you want to resume playback at position: %d:%02d:%02d?"
+msgstr ""
+
 msgid "Afghanistan"
 msgstr ""
 
@@ -991,12 +1018,6 @@ msgid "Zambia"
 msgstr ""
 
 msgid "Zimbabwe"
-msgstr ""
-
-msgid "Do you want to resume this playback?"
-msgstr ""
-
-msgid "Resume position at %s"
 msgstr ""
 
 msgid "%s has been updated. Restart Enigma2 now to use the new version?"

@@ -1,0 +1,14 @@
+colors:
+  children:
+    - color:
+        name: "FdLcdTitleForeground"
+        value: "#7fffff"
+    - color:
+        name: "FdLcdRed"
+        value: "#00f50808"
+    - color:
+        name: "FdLcdBlack"
+        value: "#00000000"
+    - color:
+        name: "FdLcdAmber"
+        value: "#fcc800"

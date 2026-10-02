@@ -1,0 +1,20 @@
+screen:
+  name: "ScreenPVRState"
+  backgroundColor: "transparent"
+  position: "center,center"
+  size: "100,160"
+  zPosition: "1000"
+  children:
+    - widget:
+        alphatest: "blend"
+        name: "state_pic"
+        position: "0,0"
+        size: "100,100"
+    - widget:
+        font: "$FR_big"
+        halign: "center"
+        name: "state"
+        position: "0,110"
+        size: "100,54"
+        transparent: "1"
+        valign: "center"

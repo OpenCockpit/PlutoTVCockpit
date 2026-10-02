@@ -15,6 +15,16 @@
 		<color name="cyan" value="#57ffff"/>
 		<color name="blue" value="#1e4ab5"/>
 	</colors>
+	<colors>
+		<color name="FdLcdTitleForeground" value="#7fffff"/>
+		<color name="FdLcdRed" value="#00f50808"/>
+		<color name="FdLcdBlack" value="#00000000"/>
+		<color name="FdLcdAmber" value="#fcc800"/>
+	</colors>
+	<fonts>
+		<font filename="nmsbd.ttf" name="FdLcD" scale="100"/>
+		<font filename="OpenSans-Regular.ttf" name="FdLcDLight" scale="100"/>
+	</fonts>
 	<screen backgroundColor="backgroundMedium" flags="wfNoBorder" name="PlutoTVCockpit" position="fill" resolution="1920,1080" size="1920,1080">
 		<eLabel backgroundColor="backgroundDark" position="0,0" size="1920,55"/>
 		<widget font="Bold;38" position="10,0" render="Label" size="1900,55" source="Title" transparent="1" valign="center" zPosition="1"/>
@@ -58,5 +68,64 @@
 		<widget borderWidth="1" font="Regular;26" foregroundColor="white" halign="left" name="action" noWrap="1" position="15,32" size="590,30" transparent="1" valign="center"/>
 		<widget alphatest="blend" backgroundColor="backgroundDark" borderWidth="0" name="progress" pixmap="~/../images/progress.png" position="15,94" size="590,12" zPosition="2"/>
 		<widget borderColor="black" borderWidth="1" font="Regular;26" foregroundColor="white" halign="left" name="status" noWrap="1" position="15,138" size="590,30" transparent="1" valign="center"/>
+	</screen>
+	<screen backgroundColor="transparent" flags="wfNoBorder" name="CockpitPlayer" position="center,center" resolution="1920,1080" size="1920,1080">
+		<ePixmap alphatest="blend" pixmap="~/../images/player_bg_gradient.png" position="0,860" size="1920,220" zPosition="-1"/>
+		<widget font="Regular;32" halign="right" position="960,1010" render="Label" size="225,50" source="Service" transparent="1" valign="center">
+			<convert type="COCServicePosition">Position,Negate</convert>
+		</widget>
+		<widget font="Regular;38" halign="center" position="860,1010" render="Label" size="200,50" source="Service" transparent="1" valign="center">
+			<convert type="COCMovieInfo">MovieDuration</convert>
+			<convert type="ClockToText">InMinutes</convert>
+		</widget>
+		<widget font="Regular;32" halign="left" position="735,1010" render="Label" size="225,50" source="Service" transparent="1" valign="center">
+			<convert type="COCServicePosition">Remaining</convert>
+		</widget>
+		<widget alphatest="blend" name="player_icon" position="30,900" size="60,60" zPosition="2"/>
+		<widget font="Regular;44" noWrap="1" position="105,900" render="Label" size="1650,60" source="Service" transparent="1" valign="center">
+			<convert type="COCEventName">Name</convert>
+		</widget>
+		<widget font="Bold;38" halign="center" position="1770,900" render="Label" size="120,60" source="Service" transparent="1" valign="center">
+			<convert type="COCServicePosition">EndTime,ShowNoSeconds</convert>
+		</widget>
+		<eLabel backgroundColor="backgroundLight" position="30,980" size="1860,10" zPosition="0"/>
+		<widget alphatest="blend" foregroundColor="yellow" position="30,980" render="Progress" size="1860,10" source="Service" transparent="1" zPosition="2">
+			<convert type="COCServicePosition">Position</convert>
+		</widget>
+		<widget alphatest="blend" foregroundColor="darkgrey" position="30,980" render="Progress" size="1860,10" source="Service" transparent="1" zPosition="3">
+			<convert type="COCBeforeTSPosition">Position</convert>
+		</widget>
+		<widget alphatest="blend" foregroundColor="red" position="30,980" render="Progress" size="1860,10" source="Service" transparent="1" zPosition="1">
+			<convert type="COCRecordPosition">Position</convert>
+		</widget>
+		<widget font="Regular;32" foregroundColor="foreground" halign="left" position="30,1010" render="Label" size="300,45" source="session.CurrentService" transparent="1" valign="center" zPosition="2">
+			<convert type="COCExtraInfo">ResolutionString</convert>
+		</widget>
+		<widget addon="COCServiceInfoBar" alignment="right" audioChannelsIconPath="/usr/lib/enigma2/python/Plugins/SystemPlugins/ComponentsCockpit/skin/images" audioCodecIconPath="/usr/lib/enigma2/python/Plugins/SystemPlugins/ComponentsCockpit/skin/images" autoresizeMode="condensed" connection="session" elements="videoRes,audioChannels,audioCodec,videoCodec,gamma" pixmaps="IS_HD:/usr/lib/enigma2/python/Plugins/SystemPlugins/ComponentsCockpit/skin/images/icon_hd.png,IS_4K:/usr/lib/enigma2/python/Plugins/SystemPlugins/ComponentsCockpit/skin/images/icon_4k.png,IS_SD:/usr/lib/enigma2/python/Plugins/SystemPlugins/ComponentsCockpit/skin/images/icon_sd.png,IS_HDR:/usr/lib/enigma2/python/Plugins/SystemPlugins/ComponentsCockpit/skin/images/icon_hdr.png,IS_HDR10:/usr/lib/enigma2/python/Plugins/SystemPlugins/ComponentsCockpit/skin/images/icon_hdr10.png,IS_HLG:/usr/lib/enigma2/python/Plugins/SystemPlugins/ComponentsCockpit/skin/images/icon_hlg.png,icon_a-law:/usr/lib/enigma2/python/Plugins/SystemPlugins/ComponentsCockpit/skin/images/icon_a-law.png,icon_aac:/usr/lib/enigma2/python/Plugins/SystemPlugins/ComponentsCockpit/skin/images/icon_aac.png,icon_aac-eld:/usr/lib/enigma2/python/Plugins/SystemPlugins/ComponentsCockpit/skin/images/icon_aac-eld.png,icon_aac-lc:/usr/lib/enigma2/python/Plugins/SystemPlugins/ComponentsCockpit/skin/images/icon_aac-lc.png,icon_aac-ld:/usr/lib/enigma2/python/Plugins/SystemPlugins/ComponentsCockpit/skin/images/icon_aac-ld.png,icon_alac:/usr/lib/enigma2/python/Plugins/SystemPlugins/ComponentsCockpit/skin/images/icon_alac.png,icon_amr:/usr/lib/enigma2/python/Plugins/SystemPlugins/ComponentsCockpit/skin/images/icon_amr.png,icon_amr-wb:/usr/lib/enigma2/python/Plugins/SystemPlugins/ComponentsCockpit/skin/images/icon_amr-wb.png,icon_ape:/usr/lib/enigma2/python/Plugins/SystemPlugins/ComponentsCockpit/skin/images/icon_ape.png,icon_dolby-ac4:/usr/lib/enigma2/python/Plugins/SystemPlugins/ComponentsCockpit/skin/images/icon_dolby-ac4.png,icon_dolby-atmos:/usr/lib/enigma2/python/Plugins/SystemPlugins/ComponentsCockpit/skin/images/icon_dolby-atmos.png,icon_dolby-digital:/usr/lib/enigma2/python/Plugins/SystemPlugins/ComponentsCockpit/skin/images/icon_dolby-digital.png,icon_dolby-digital-plus:/usr/lib/enigma2/python/Plugins/SystemPlugins/ComponentsCockpit/skin/images/icon_dolby-digital-plus.png,icon_dolby-truehd:/usr/lib/enigma2/python/Plugins/SystemPlugins/ComponentsCockpit/skin/images/icon_dolby-truehd.png,icon_dsd:/usr/lib/enigma2/python/Plugins/SystemPlugins/ComponentsCockpit/skin/images/icon_dsd.png,icon_dts:/usr/lib/enigma2/python/Plugins/SystemPlugins/ComponentsCockpit/skin/images/icon_dts.png,icon_dts-96-24:/usr/lib/enigma2/python/Plugins/SystemPlugins/ComponentsCockpit/skin/images/icon_dts-96-24.png,icon_dts-es:/usr/lib/enigma2/python/Plugins/SystemPlugins/ComponentsCockpit/skin/images/icon_dts-es.png,icon_dts-express:/usr/lib/enigma2/python/Plugins/SystemPlugins/ComponentsCockpit/skin/images/icon_dts-express.png,icon_dts-hd:/usr/lib/enigma2/python/Plugins/SystemPlugins/ComponentsCockpit/skin/images/icon_dts-hd.png,icon_dts-hd-hra:/usr/lib/enigma2/python/Plugins/SystemPlugins/ComponentsCockpit/skin/images/icon_dts-hd-hra.png,icon_dts-hd-ma:/usr/lib/enigma2/python/Plugins/SystemPlugins/ComponentsCockpit/skin/images/icon_dts-hd-ma.png,icon_dts-x:/usr/lib/enigma2/python/Plugins/SystemPlugins/ComponentsCockpit/skin/images/icon_dts-x.png,icon_dts-x-imax:/usr/lib/enigma2/python/Plugins/SystemPlugins/ComponentsCockpit/skin/images/icon_dts-x-imax.png,icon_dts-x-pro:/usr/lib/enigma2/python/Plugins/SystemPlugins/ComponentsCockpit/skin/images/icon_dts-x-pro.png,icon_flac:/usr/lib/enigma2/python/Plugins/SystemPlugins/ComponentsCockpit/skin/images/icon_flac.png,icon_he-aac:/usr/lib/enigma2/python/Plugins/SystemPlugins/ComponentsCockpit/skin/images/icon_he-aac.png,icon_he-aac-v2:/usr/lib/enigma2/python/Plugins/SystemPlugins/ComponentsCockpit/skin/images/icon_he-aac-v2.png,icon_lpcm:/usr/lib/enigma2/python/Plugins/SystemPlugins/ComponentsCockpit/skin/images/icon_lpcm.png,icon_mlp:/usr/lib/enigma2/python/Plugins/SystemPlugins/ComponentsCockpit/skin/images/icon_mlp.png,icon_mp2:/usr/lib/enigma2/python/Plugins/SystemPlugins/ComponentsCockpit/skin/images/icon_mp2.png,icon_mp3:/usr/lib/enigma2/python/Plugins/SystemPlugins/ComponentsCockpit/skin/images/icon_mp3.png,icon_mpeg-layer-i:/usr/lib/enigma2/python/Plugins/SystemPlugins/ComponentsCockpit/skin/images/icon_mpeg-layer-i.png,icon_mpeg1-layer-ii:/usr/lib/enigma2/python/Plugins/SystemPlugins/ComponentsCockpit/skin/images/icon_mpeg1-layer-ii.png,icon_mu-law:/usr/lib/enigma2/python/Plugins/SystemPlugins/ComponentsCockpit/skin/images/icon_mu-law.png,icon_opus:/usr/lib/enigma2/python/Plugins/SystemPlugins/ComponentsCockpit/skin/images/icon_opus.png,icon_pcm:/usr/lib/enigma2/python/Plugins/SystemPlugins/ComponentsCockpit/skin/images/icon_pcm.png,icon_realaudio:/usr/lib/enigma2/python/Plugins/SystemPlugins/ComponentsCockpit/skin/images/icon_realaudio.png,icon_realaudio-14-4:/usr/lib/enigma2/python/Plugins/SystemPlugins/ComponentsCockpit/skin/images/icon_realaudio-14-4.png,icon_realaudio-28-8:/usr/lib/enigma2/python/Plugins/SystemPlugins/ComponentsCockpit/skin/images/icon_realaudio-28-8.png,icon_speex:/usr/lib/enigma2/python/Plugins/SystemPlugins/ComponentsCockpit/skin/images/icon_speex.png,icon_tta:/usr/lib/enigma2/python/Plugins/SystemPlugins/ComponentsCockpit/skin/images/icon_tta.png,icon_vorbis:/usr/lib/enigma2/python/Plugins/SystemPlugins/ComponentsCockpit/skin/images/icon_vorbis.png,icon_wavpack:/usr/lib/enigma2/python/Plugins/SystemPlugins/ComponentsCockpit/skin/images/icon_wavpack.png,icon_wma:/usr/lib/enigma2/python/Plugins/SystemPlugins/ComponentsCockpit/skin/images/icon_wma.png,icon_wma-lossless:/usr/lib/enigma2/python/Plugins/SystemPlugins/ComponentsCockpit/skin/images/icon_wma-lossless.png,icon_wma-pro:/usr/lib/enigma2/python/Plugins/SystemPlugins/ComponentsCockpit/skin/images/icon_wma-pro.png,icon_xhe-aac:/usr/lib/enigma2/python/Plugins/SystemPlugins/ComponentsCockpit/skin/images/icon_xhe-aac.png,icon_avc:/usr/lib/enigma2/python/Plugins/SystemPlugins/ComponentsCockpit/skin/images/icon_avc.png,icon_avs:/usr/lib/enigma2/python/Plugins/SystemPlugins/ComponentsCockpit/skin/images/icon_avs.png,icon_avs2:/usr/lib/enigma2/python/Plugins/SystemPlugins/ComponentsCockpit/skin/images/icon_avs2.png,icon_divx:/usr/lib/enigma2/python/Plugins/SystemPlugins/ComponentsCockpit/skin/images/icon_divx.png,icon_h263:/usr/lib/enigma2/python/Plugins/SystemPlugins/ComponentsCockpit/skin/images/icon_h263.png,icon_hevc:/usr/lib/enigma2/python/Plugins/SystemPlugins/ComponentsCockpit/skin/images/icon_hevc.png,icon_mpeg1:/usr/lib/enigma2/python/Plugins/SystemPlugins/ComponentsCockpit/skin/images/icon_mpeg1.png,icon_mpeg2:/usr/lib/enigma2/python/Plugins/SystemPlugins/ComponentsCockpit/skin/images/icon_mpeg2.png,icon_mpeg4:/usr/lib/enigma2/python/Plugins/SystemPlugins/ComponentsCockpit/skin/images/icon_mpeg4.png,icon_spark:/usr/lib/enigma2/python/Plugins/SystemPlugins/ComponentsCockpit/skin/images/icon_spark.png,icon_vc1:/usr/lib/enigma2/python/Plugins/SystemPlugins/ComponentsCockpit/skin/images/icon_vc1.png,icon_vc1-sm:/usr/lib/enigma2/python/Plugins/SystemPlugins/ComponentsCockpit/skin/images/icon_vc1-sm.png,icon_vp6:/usr/lib/enigma2/python/Plugins/SystemPlugins/ComponentsCockpit/skin/images/icon_vp6.png,icon_vp8:/usr/lib/enigma2/python/Plugins/SystemPlugins/ComponentsCockpit/skin/images/icon_vp8.png,icon_vp9:/usr/lib/enigma2/python/Plugins/SystemPlugins/ComponentsCockpit/skin/images/icon_vp9.png,icon_xvid:/usr/lib/enigma2/python/Plugins/SystemPlugins/ComponentsCockpit/skin/images/icon_xvid.png,icon_1-0:/usr/lib/enigma2/python/Plugins/SystemPlugins/ComponentsCockpit/skin/images/icon_1-0.png,icon_2-0:/usr/lib/enigma2/python/Plugins/SystemPlugins/ComponentsCockpit/skin/images/icon_2-0.png,icon_5-1:/usr/lib/enigma2/python/Plugins/SystemPlugins/ComponentsCockpit/skin/images/icon_5-1.png,icon_7-1:/usr/lib/enigma2/python/Plugins/SystemPlugins/ComponentsCockpit/skin/images/icon_7-1.png" position="1390,1010" size="500,45" spacing="7" transparent="1" videoCodecIconPath="/usr/lib/enigma2/python/Plugins/SystemPlugins/ComponentsCockpit/skin/images" zPosition="110"/>
+	</screen>
+	<screen name="CockpitPlayerSummary" position="fill" resolution="396,240">
+		<ePixmap alphatest="on" pixmap="~/../images/display_bg.png" position="0,0" size="396,240" zPosition="-10"/>
+		<widget font="FdLcD;55" halign="center" position="0,0" render="Label" size="392,130" source="parent.Service" transparent="1" valign="center">
+			<convert type="COCEventName">Name</convert>
+		</widget>
+		<widget alphatest="blend" borderColor="FdLcdAmber" borderWidth="2" foregroundColor="FdLcdAmber" position="0,140" render="Progress" size="392,20" source="parent.Service" transparent="1" zPosition="2">
+			<convert type="COCServicePosition">Position</convert>
+		</widget>
+		<widget alphatest="blend" borderColor="FdLcdAmber" borderWidth="2" foregroundColor="darkgrey" position="0,140" render="Progress" size="392,20" source="parent.Service" transparent="1" zPosition="3">
+			<convert type="COCBeforeTSPosition">Position</convert>
+		</widget>
+		<widget alphatest="blend" borderColor="FdLcdAmber" borderWidth="2" foregroundColor="FdLcdRed" position="0,140" render="Progress" size="392,20" source="parent.Service" transparent="1" zPosition="1">
+			<convert type="COCRecordPosition">Position</convert>
+		</widget>
+		<widget font="FdLcD;60" halign="left" position="0,170" render="Label" size="200,70" source="parent.Service" transparent="1" valign="center">
+			<convert type="COCServicePosition">EndTime,ShowNoSeconds</convert>
+		</widget>
+		<widget font="FdLcD;60" halign="right" position="200,170" render="Label" size="192,70" source="parent.Service" transparent="1" valign="center">
+			<convert type="COCServicePosition">Remaining,ShowNoSeconds</convert>
+		</widget>
+	</screen>
+	<screen backgroundColor="transparent" flags="wfNoBorder" name="ScreenPVRState" position="center,center" resolution="1920,1080" size="100,160" zPosition="1000">
+		<widget alphatest="blend" name="state_pic" position="0,0" size="100,100"/>
+		<widget font="Regular;38" halign="center" name="state" position="0,110" size="100,54" transparent="1" valign="center"/>
 	</screen>
 </skin>
