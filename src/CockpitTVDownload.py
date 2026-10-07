@@ -3,6 +3,7 @@
 import os
 import re
 import time
+from collections import deque
 from io import BytesIO
 
 from Screens.MessageBox import MessageBox
@@ -490,20 +491,7 @@ def importXMLTVGuide(epgcache, log_prefix, path, xmltv_bytes, channels_map):
         xmltv_parser = XMLTVConverter(channels_map, {})
         evt_cnt = 0
         fail_cnt = [0]
-
-        def _importOne(sref, event):
-            try:
-                epgcache.importEvents(sref, [event])
-            except Exception as e:
-                fail_cnt[0] += 1
-                logger.error("%s: importEvents failed for %s: %s", log_prefix, sref, e)
-
-        for item in xmltv_parser.enumFile(BytesIO(xmltv_bytes)):
-            if not item:
-                continue
-            sref, event = item
-            evt_cnt += 1
-            reactor.callFromThread(_importOne, sref, event)
+        pending = deque()
 
         def _logSummary():
             if fail_cnt[0]:
@@ -511,7 +499,27 @@ def importXMLTVGuide(epgcache, log_prefix, path, xmltv_bytes, channels_map):
             else:
                 logger.debug("%s: %s EPG events imported", log_prefix, evt_cnt)
 
-        reactor.callFromThread(_logSummary)
+        def _drain():
+            deadline = time.monotonic() + 0.015
+            while pending:
+                sref, event = pending.popleft()
+                try:
+                    epgcache.importEvents(sref, [event])
+                except Exception as e:
+                    fail_cnt[0] += 1
+                    logger.error("%s: importEvents failed for %s: %s", log_prefix, sref, e)
+                if time.monotonic() >= deadline:
+                    reactor.callLater(0.01, _drain)
+                    return
+            _logSummary()
+
+        for item in xmltv_parser.enumFile(BytesIO(xmltv_bytes)):
+            if not item:
+                continue
+            pending.append(item)
+            evt_cnt += 1
+
+        reactor.callFromThread(_drain)
     except Exception as e:
         logger.error("%s: EPG import error: %s", log_prefix, e)
     return True
