@@ -1,0 +1,13 @@
+- widget:
+    backgroundColor: "backgroundMedium"
+    font: "$FR_medium"
+    options: "movetype=swimming, direction=top, startpoint=0, startdelay=4000, wrap=1, always=0, repeat=1, oneshot=1, steptime=100"
+    position: "1180,65"
+    render: "COCRunningText"
+    size: "615,675"
+    source: "info"
+    transparent: "0"
+    zPosition: "5"
+    children:
+      - convert:
+          type: "ConditionalShowHide"

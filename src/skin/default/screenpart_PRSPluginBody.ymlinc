@@ -70,11 +70,5 @@
     size: "468,675"
     transparent: "1"
     zPosition: "5"
-- widget:
-    backgroundColor: "backgroundMedium"
-    font: "$FR_medium"
-    name: "info"
-    position: "1180,65"
-    size: "615,675"
-    transparent: "0"
-    zPosition: "5"
+- xmlinc:
+    file: "screenpart_PRSPluginInfo.ymlinc"

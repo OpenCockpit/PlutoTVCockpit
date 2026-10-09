@@ -3,8 +3,10 @@
 
 import datetime
 import os
+import threading
 import time
 import zlib
+from collections import deque
 
 from Components.ActionMap import ActionMap
 from Components.config import config
@@ -125,9 +127,39 @@ class PlutoTVDownloadBase(TVDownloadBase):
         if len(chevents) > 0:
             iterator = iter(chevents)
             events_tuple = tuple(iterator)
-            reactor.callFromThread(self.epgcache.importEvents, f"{ref}:{stream_url}", events_tuple)
+            self._queueEpgImport(f"{ref}:{stream_url}", events_tuple)
 
         return ref, stream_url, ch_name, ch_logourl
+
+    _epgPending = deque()
+    _epgLock = threading.Lock()
+    _epgDrainScheduled = False
+
+    def _queueEpgImport(self, sref, events):
+        cls = PlutoTVDownloadBase
+        with cls._epgLock:
+            cls._epgPending.append((sref, events))
+            if cls._epgDrainScheduled:
+                return
+            cls._epgDrainScheduled = True
+        reactor.callFromThread(self._drainEpgImport)
+
+    def _drainEpgImport(self):
+        cls = PlutoTVDownloadBase
+        deadline = time.monotonic() + 0.015
+        while True:
+            with cls._epgLock:
+                if not cls._epgPending:
+                    cls._epgDrainScheduled = False
+                    return
+                sref, events = cls._epgPending.popleft()
+            try:
+                self.epgcache.importEvents(sref, events)
+            except Exception as e:
+                logger.error("importEvents failed for %s: %s", sref, e)
+            if time.monotonic() >= deadline:
+                reactor.callLater(0.01, self._drainEpgImport)
+                return
 
     def buildGuide(self, event):
         _id = event.get("_id", "")

@@ -11,7 +11,6 @@ from Components.ActionMap import HelpableActionMap
 from Components.config import config
 from Components.Button import Button
 from Components.Label import Label
-from Components.ScrollLabel import ScrollLabel
 from Components.Sources.StaticText import StaticText
 from Components.Pixmap import Pixmap
 from Screens.ChoiceBox import ChoiceBox
@@ -64,7 +63,7 @@ class PlutoTVCockpit(Screen, HelpableScreen):
         self["key_blue"] = Button(_("Change country"))
         self["poster"] = Pixmap()
         self["posterBG"] = Label()
-        self["info"] = ScrollLabel()
+        self["info"] = StaticText()
 
         self["feedlist"].onSelectionChanged.append(self.update_data)
 
@@ -98,14 +97,6 @@ class PlutoTVCockpit(Screen, HelpableScreen):
             -1
         )
 
-        self["InfoNavigationActions"] = HelpableActionMap(
-            self, ["NavigationActions"],
-            {
-                "pageUp": (self["info"].pageUp, _("Scroll the information field")),
-                "pageDown": (self["info"].pageDown, _("Scroll the information field")),
-            }, -1
-        )
-
         self.updatebutton()
 
         if self.updatebutton not in Silent.afterUpdate:
@@ -115,7 +106,6 @@ class PlutoTVCockpit(Screen, HelpableScreen):
         self.updateDataTimer.callback.append(self.update_data_delayed)
         self.country = config.plugins.plutotv.country.value
         self.initialise()
-        self.onLayoutFinish.append(self["info"].hide)
         self.onLayoutFinish.append(self.getCategories)
 
     def initialise(self):
@@ -196,11 +186,7 @@ class PlutoTVCockpit(Screen, HelpableScreen):
         vinfo = self.vinfo + "\n" if self.vinfo and self.description else self.vinfo
         spacer = "\n" if (self.vinfo or self.description) and (self.eptitle or self.epinfo) else ""
         text = "\n".join([x for x in (vinfo, self.description, spacer, self.eptitle, self.epinfo) if x])
-        self["info"].setText(text)
-        if text:
-            self["info"].show()
-        else:
-            self["info"].hide()
+        self["info"].setText(text.replace("|", "/"))
 
     def downloadPosterCallback(self, filename, name):
         if name == self.picname:
