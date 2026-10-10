@@ -134,7 +134,6 @@ screen:
         position: "30,1010"
         size: "300,45"
         zPosition: "2"
-        foregroundColor: "foreground"
         font: "$FR_medium"
         transparent: "1"
         valign: "center"
