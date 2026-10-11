@@ -44,6 +44,8 @@ _HANDLE_SEGMENT_DEADLINE_FACTOR = 1.0
 _COLD_START_FIRST_SEGMENT_WAIT = 5.0
 _VOD_COLD_START_MIN_SEGMENTS = 5
 _VOD_COLD_START_WAIT = 10.0
+_TS_MASK = (1 << 33) - 1
+_LIVE_GAP_TICKS = 3000
 _FFMPEG_TIMEOUT = 30
 _SESSION = requests.Session()
 
@@ -515,7 +517,9 @@ class _ChannelState:
                  '_audio_prefetch_thread', '_audio_prefetch_stop',
                  '_video_prefetch_thread', '_video_prefetch_stop', '_lock', '_cc_state',
                  '_cc_resync_pending', '_last_playlist_out', '_last_segment_out',
-                 '_pending_audio_floors', '_vod_complete')
+                 '_pending_audio_floors', '_vod_complete',
+                 '_live_delta', '_live_expected', '_live_prev_end', '_live_gap',
+                 '_window_delta', '_shift_cache')
 
     def __init__(self, master_url: str):
         self.master_url = master_url
@@ -547,6 +551,12 @@ class _ChannelState:
         self._cc_resync_pending = False
         self._last_playlist_out: 'dict[int, tuple[bytes, float]]' = {}
         self._last_segment_out: 'tuple[int, bytes] | None' = None
+        self._live_delta = 0
+        self._live_expected = None
+        self._live_prev_end = None
+        self._live_gap = _LIVE_GAP_TICKS
+        self._window_delta: dict = {}
+        self._shift_cache: dict = {}
         self._vod_complete = False
         self._pending_audio_floors: 'list[tuple[int, int]]' = []
 
@@ -640,6 +650,62 @@ class _ChannelState:
         """
         with self._lock:
             return len(self._ready_segs)
+
+    def assign_live_delta(self, seq: int, start_pts: int, end_pts: int, is_disc: bool,
+                          approximate: bool = False):
+        """Decide how far window *seq* is shifted on its way to Enigma2 so the timeline never jumps.
+
+        At a genuine content transition (is_disc: an ad starts or ends) the CDN timeline jumps, e.g. from the
+        movie's PTS around 8.4 billion (the 33-bit counter wraps at 8.59 billion) to an ad starting at 90000,
+        which a 33-bit decoder sees as a jump of 30 minutes. The decoder of the dm9xx shows distorted video
+        for a few seconds after such a jump while audio plays on. Every window published from the transition on
+        therefore carries a shift that makes it start where the previous one ended; timeline_adjusted() applies
+        it when the window is served. state._ready_segs keeps the real timestamps: RecordingProxy does the same
+        for recordings from them (its shift finds nothing left to do for the live part).
+
+        Must be called with self._lock held, once per published window, in publishing order.
+        *approximate* is for a window whose PTS range is only guessed (see the standalone fallback of
+        _video_prefetch_loop): it gets the shift in effect and doesn't move the expectation.
+        """
+        if not approximate:
+            if is_disc and self._live_expected is not None:
+                delta = (self._live_expected - start_pts) & _TS_MASK
+                self._live_delta = delta - (1 << 33) if delta >= 1 << 32 else delta
+            elif self._live_prev_end is not None:
+                gap = (start_pts - self._live_prev_end) & _TS_MASK
+                if 0 < gap < 90000:
+                    self._live_gap = gap
+            self._live_prev_end = end_pts
+            self._live_expected = (end_pts + self._live_delta + self._live_gap) & _TS_MASK
+        self._window_delta[seq] = self._live_delta
+        while len(self._window_delta) > _MAX_SEG_CACHE:
+            self._window_delta.pop(next(iter(self._window_delta)))
+
+    def reset_live_delta(self):
+        """Forget the timeline (the cached windows are dropped, see register_channel). Lock held by the caller."""
+        self._live_delta = 0
+        self._live_expected = None
+        self._live_prev_end = None
+        self._live_gap = _LIVE_GAP_TICKS
+        self._window_delta.clear()
+        self._shift_cache.clear()
+
+    def timeline_adjusted(self, seq: int, data: bytes) -> bytes:
+        """*data* (window *seq* as muxed) with its timestamps shifted as assign_live_delta decided."""
+        with self._lock:
+            delta = self._window_delta.get(seq, 0)
+            cached = self._shift_cache.get(seq)
+        if not delta:
+            return data
+        if cached is not None and cached[0] is data:
+            return cached[1]
+        from .RecordingProxy import _rewrite_timeline
+        out = _rewrite_timeline(data, delta)
+        with self._lock:
+            self._shift_cache[seq] = (data, out)
+            while len(self._shift_cache) > 6:
+                self._shift_cache.pop(next(iter(self._shift_cache)))
+        return out
 
     def mark_provisional(self, seq: int):
         """Record that _ready_segs[seq] is a silence-muxed placeholder with a
@@ -1147,6 +1213,7 @@ def _cut_and_mux_next_window(channel_id: str, state: '_ChannelState') -> bool:
         state._next_chunk_seq += 1
         state._ready_segs[chunk_seq] = muxed
         state._window_meta[chunk_seq] = _WindowMeta(vbuf.epoch, actual_start, actual_end, is_disc)
+        state.assign_live_delta(chunk_seq, actual_start, actual_end, is_disc)
         while len(state._ready_segs) > _MAX_SEG_CACHE:
             k, _ = state._ready_segs.popitem(last=False)
             state._window_meta.pop(k, None)
@@ -1301,6 +1368,7 @@ def _mux_whole_video_segment(channel_id: str, state: '_ChannelState', epoch: int
         state._next_chunk_seq += 1
         state._ready_segs[chunk_seq] = muxed
         state._window_meta[chunk_seq] = _WindowMeta(epoch, v_pts, v_end_pts, is_disc)
+        state.assign_live_delta(chunk_seq, v_pts, v_end_pts, is_disc)
         while len(state._ready_segs) > _MAX_SEG_CACHE:
             k, _ = state._ready_segs.popitem(last=False)
             state._window_meta.pop(k, None)
@@ -1662,6 +1730,7 @@ def _video_prefetch_loop(channel_id: str, state: '_ChannelState',
                     state._ready_segs[chunk_seq] = muxed
                     state._window_meta[chunk_seq] = _WindowMeta(
                         video_epoch, approx_start, approx_end, False)
+                    state.assign_live_delta(chunk_seq, approx_start, approx_end, False, approximate=True)
                     while len(state._ready_segs) > _MAX_SEG_CACHE:
                         k, _ = state._ready_segs.popitem(last=False)
                         state._window_meta.pop(k, None)
@@ -1833,6 +1902,7 @@ def register_channel(channel_id: str, real_master_url: str, url_refresher=None) 
                     existing._ready_segs.clear()
                     existing._window_meta.clear()
                     existing._provisional_segs.clear()
+                    existing.reset_live_delta()
                     existing._audio_bufs.clear()
                     existing._audio_appended_seqs.clear()
                     existing._audio_disc_seqs_seen.clear()
@@ -1858,10 +1928,12 @@ def close_channel(channel_id: str) -> bool:
     _channels so an in-flight request still finds cached state instead of a
     404 while it winds down.
     """
+    from . import LiveProxyMuxed
+    muxed_closed = LiveProxyMuxed.close_channel(channel_id)
     with _state_lock:
         state = _channels.get(channel_id)
     if state is None:
-        return False
+        return muxed_closed
     threading.Thread(target=state.close, daemon=True).start()
     return True
 
@@ -1965,6 +2037,11 @@ class HLSProxyHandler(BaseHTTPRequestHandler):
             elif kind == 'rec' and len(parts) >= 2:
                 ch = parts[1].removesuffix('.ts')
                 self._handle_recording(ch)
+            elif kind == 'mpl' and len(parts) >= 2:
+                ch = parts[1].removesuffix('.m3u8')
+                self._handle_muxed(ch, None)
+            elif kind == 'mseg' and len(parts) >= 3:
+                self._handle_muxed(parts[1], int(parts[2].removesuffix('.ts')))
             else:
                 self._send(404, b'Not found', 'text/plain')
         except BrokenPipeError:
@@ -2003,11 +2080,8 @@ class HLSProxyHandler(BaseHTTPRequestHandler):
             for line in text.splitlines()
         )
         if not needs_mux:
-            logger.debug('%s: no demuxed audio – redirecting to CDN', channel_id)
-            self.send_response(302)
-            self.send_header('Location', state.master_url)
-            self.send_header('Content-Length', '0')
-            self.end_headers()
+            from . import LiveProxyMuxed
+            LiveProxyMuxed.handle_auto(self, channel_id, state)
             return
         self._handle_master(channel_id, text)
 
@@ -2230,8 +2304,9 @@ class HLSProxyHandler(BaseHTTPRequestHandler):
                 provisional = seq in state._provisional_segs
             if muxed is not None and not provisional:
                 logger.debug('%s/%s: cache hit %s bytes', channel_id, seq, len(muxed))
-                state._last_segment_out = (seq, muxed)
-                self._send(200, muxed, 'video/MP2T')
+                out = state.timeline_adjusted(seq, muxed)
+                state._last_segment_out = (seq, out)
+                self._send(200, out, 'video/MP2T')
                 return
             if muxed is not None:
                 provisional_fallback = muxed
@@ -2242,8 +2317,9 @@ class HLSProxyHandler(BaseHTTPRequestHandler):
         if provisional_fallback is not None:
             logger.debug('%s/%s: cache hit %s bytes (provisional, upgrade never landed)',
                          channel_id, seq, len(provisional_fallback))
-            state._last_segment_out = (seq, provisional_fallback)
-            self._send(200, provisional_fallback, 'video/MP2T')
+            out = state.timeline_adjusted(seq, provisional_fallback)
+            state._last_segment_out = (seq, out)
+            self._send(200, out, 'video/MP2T')
             return
 
         logger.debug('%s/%s: Event: chunk never produced by prefetch loop'
@@ -2256,8 +2332,9 @@ class HLSProxyHandler(BaseHTTPRequestHandler):
             if muxed is not None and not provisional:
                 logger.debug('%s/%s: cache hit %s bytes (after extended wait)',
                              channel_id, seq, len(muxed))
-                state._last_segment_out = (seq, muxed)
-                self._send(200, muxed, 'video/MP2T')
+                out = state.timeline_adjusted(seq, muxed)
+                state._last_segment_out = (seq, out)
+                self._send(200, out, 'video/MP2T')
                 return
             time.sleep(0.05)
 
@@ -2290,6 +2367,7 @@ class HLSProxyHandler(BaseHTTPRequestHandler):
                 last = next(reversed(state._ready_segs.items()), None)
             if last is None:
                 return False
+            last = (last[0], state.timeline_adjusted(last[0], last[1]))
         last_seq, last_bytes = last
         logger.debug('%s/%s: Event: %s | Action: re-serving last segment (%s) instead of erroring',
                      channel_id, seq, reason, last_seq)
@@ -2299,6 +2377,15 @@ class HLSProxyHandler(BaseHTTPRequestHandler):
     def _handle_recording(self, channel_id: str):
         from . import RecordingProxy
         RecordingProxy.handle_recording(self, channel_id)
+
+    def _handle_muxed(self, channel_id: str, seq: 'int | None'):
+        """Playlist (seq None) or segment of a muxed channel, see LiveProxyMuxed."""
+        from . import LiveProxyMuxed
+        _get_state(channel_id)
+        if seq is None:
+            LiveProxyMuxed.handle_playlist(self, channel_id)
+        else:
+            LiveProxyMuxed.handle_segment(self, channel_id, seq)
 
     def _send(self, code: int, body: bytes, content_type: str):
         self.send_response(code)

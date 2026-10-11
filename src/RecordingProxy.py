@@ -137,6 +137,8 @@ def _rewrite_timeline(data: bytes, delta: int) -> bytes:
         afc = (buf[off + 3] >> 4) & 0x03
         has_adaptation = afc in {0x02, 0x03}
         has_payload = afc in {0x01, 0x03}
+        if not has_adaptation and not buf[off + 1] & 0x40:
+            continue
         pos = off + 4
         if has_adaptation:
             af_len = buf[pos]
@@ -304,7 +306,10 @@ def handle_recording(handler, channel_id):
         handler.end_headers()
         return
 
-    _ensure_pipeline(channel_id, state)
+    if not _ensure_pipeline(channel_id, state):
+        from . import RecordingProxyMuxed
+        RecordingProxyMuxed.handle_recording(handler, channel_id, state)
+        return
 
     session = RecordingSession(channel_id, state)
     try:

@@ -84,10 +84,10 @@
 			<convert type="COCServicePosition">Remaining</convert>
 		</widget>
 		<widget alphatest="blend" name="player_icon" position="30,900" size="60,60" zPosition="2"/>
-		<widget font="Regular;44" noWrap="1" position="105,900" render="Label" size="1650,60" source="Service" transparent="1" valign="center">
+		<widget font="Regular;44" noWrap="1" position="105,900" render="Label" size="1600,60" source="Service" transparent="1" valign="center">
 			<convert type="COCEventName">Name</convert>
 		</widget>
-		<widget font="Bold;38" halign="center" position="1770,900" render="Label" size="120,60" source="Service" transparent="1" valign="center">
+		<widget font="Bold;44" halign="center" position="1730,900" render="Label" size="160,60" source="Service" transparent="1" valign="center">
 			<convert type="COCServicePosition">EndTime,ShowNoSeconds</convert>
 		</widget>
 		<eLabel backgroundColor="backgroundLight" position="30,980" size="1860,10" zPosition="0"/>
