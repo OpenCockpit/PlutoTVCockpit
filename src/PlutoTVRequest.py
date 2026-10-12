@@ -610,11 +610,15 @@ _live_channel_id = None
 
 
 def _is_recording(nav, channel_id):
-    """True if a currently-running, non-justplay record timer targets *channel_id*.
+    """True if a currently-running, non-justplay record timer targets *channel_id*,
+    or any recorder (e.g. a TimeshiftCockpit timeshift, which is not a timer) is
+    connected to its /rec/ endpoint.
 
     Used to veto closing a channel that the live slot is leaving but that a
     background recording still depends on - see playServiceExtension.
     """
+    if LiveProxy.is_recording_active(channel_id):
+        return True
     for timer in nav.RecordTimer.timer_list:
         if timer.isRunning() and not timer.justplay:
             if _pluto_channel_id(timer.service_ref.ref) == channel_id:

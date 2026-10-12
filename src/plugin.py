@@ -3,6 +3,7 @@
 # License: GNU General Public License v3.0
 
 from Components.config import config
+from Navigation import Navigation
 from Plugins.Plugin import PluginDescriptor
 
 from .PluginUpgrade import checkPluginUpdateAndOpen
@@ -19,12 +20,19 @@ from .Debug import logger
 loadPluginSkin(PLUGIN)
 
 
+def installServiceExtensions(nav):
+    if hasattr(nav, "playServiceExtensions") and playServiceExtension not in nav.playServiceExtensions:
+        nav.playServiceExtensions.append(playServiceExtension)
+    if hasattr(nav, "recordServiceExtensions") and recordServiceExtension not in nav.recordServiceExtensions:
+        nav.recordServiceExtensions.append(recordServiceExtension)
+
+
+installServiceExtensions(Navigation)
+
+
 def sessionstart(reason, session, **kwargs):  # pylint: disable=unused-argument
     logger.info("+++ Version: %s starts...", VERSION)
-    if hasattr(session.nav, "playServiceExtensions") and playServiceExtension not in session.nav.playServiceExtensions:
-        session.nav.playServiceExtensions.append(playServiceExtension)
-    if hasattr(session.nav, "recordServiceExtensions") and recordServiceExtension not in session.nav.recordServiceExtensions:
-        session.nav.recordServiceExtensions.append(recordServiceExtension)
+    installServiceExtensions(session.nav)
     Silent.init(session)
     from twisted.internet import reactor
     reactor.callLater(30, startProactiveRefresh)

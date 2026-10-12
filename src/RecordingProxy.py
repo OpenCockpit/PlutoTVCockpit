@@ -54,7 +54,7 @@ import time
 from queue import Queue, Full, Empty
 
 from .Debug import logger
-from .LiveProxy import _ensure_pipeline, _get_state, _first_pts
+from .LiveProxy import _ensure_pipeline, _get_state, _first_pts, recording_client
 
 _POLL_INTERVAL = 0.1
 _QUEUE_MAXSIZE = 64
@@ -306,17 +306,18 @@ def handle_recording(handler, channel_id):
         handler.end_headers()
         return
 
-    if not _ensure_pipeline(channel_id, state):
-        from . import RecordingProxyMuxed
-        RecordingProxyMuxed.handle_recording(handler, channel_id, state)
-        return
+    with recording_client(channel_id):
+        if not _ensure_pipeline(channel_id, state):
+            from . import RecordingProxyMuxed
+            RecordingProxyMuxed.handle_recording(handler, channel_id, state)
+            return
 
-    session = RecordingSession(channel_id, state)
-    try:
-        handler.send_response(200)
-        handler.send_header('Content-Type', 'video/MP2T')
-        handler.end_headers()
-        for chunk in session.read_output():
-            handler.wfile.write(chunk)
-    finally:
-        session.stop()
+        session = RecordingSession(channel_id, state)
+        try:
+            handler.send_response(200)
+            handler.send_header('Content-Type', 'video/MP2T')
+            handler.end_headers()
+            for chunk in session.read_output():
+                handler.wfile.write(chunk)
+        finally:
+            session.stop()

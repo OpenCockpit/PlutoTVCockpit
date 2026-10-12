@@ -27,9 +27,8 @@ movie_resume_at_last_pos and movie_start_position (read by CockpitPlayer).
 """
 from Components.config import config
 from Screens.MessageBox import MessageBox
-from Tools import Notifications
-
 from Screens.Screen import ScreenSummary
+from Tools import Notifications
 
 from . import _
 from .Debug import logger

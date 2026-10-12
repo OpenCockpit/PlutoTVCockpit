@@ -34,6 +34,7 @@ import subprocess
 import threading
 import time
 from collections import OrderedDict, namedtuple
+from typing import Optional
 from urllib.parse import urljoin
 
 from .AES128 import AES128
@@ -48,6 +49,9 @@ _PLAYLIST_SEGMENTS = 6
 _MAX_READY = 40
 _IDLE_TIMEOUT = 60.0
 _STALL_LIMIT = 90.0
+_RESYNC_AFTER = 15.0
+_STALL_LOG_AFTER = 20.0
+_STALL_LOG_EVERY = 15.0
 _SEGMENT_TRIES = 3
 _SEGMENT_TIMEOUT = 15
 _PLAYLIST_TIMEOUT = 8
@@ -151,7 +155,7 @@ def _find_slice_type(buf: bytearray, start: int) -> int:
         if pos < 0 or pos + 3 >= len(buf):
             return 0
         nal_type = buf[pos + 3] & 0x1F
-        if nal_type in (1, 5):
+        if nal_type in {1, 5}:
             return nal_type
         pos += 3
 
@@ -170,7 +174,8 @@ def _mark_idr_delimiters(ts: bytes) -> bytes:
     """
     buf = bytearray(ts)
     vpid = None
-    cur = None
+    aud_pos = None
+    au_data = bytearray()
     for off in range(0, len(buf) - 187, 188):
         if buf[off] != 0x47:
             continue
@@ -188,7 +193,7 @@ def _mark_idr_delimiters(ts: bytes) -> bytes:
                 vpid = pid
             if pid != vpid:
                 continue
-            cur = None
+            aud_pos = None
             es = pl + 9 + buf[pl + 8]
             if buf[es:es + 4] == b'\x00\x00\x00\x01':
                 nal = es + 4
@@ -198,25 +203,26 @@ def _mark_idr_delimiters(ts: bytes) -> bytes:
                 continue
             if nal + 2 > off + 188 or buf[nal] & 0x1F != 9 or buf[nal + 1] != _AUD_ALL_TYPES:
                 continue
-            cur = [nal + 1, bytearray(buf[nal + 2:off + 188])]
-        elif pid == vpid and cur is not None:
-            cur[1] += buf[pl:off + 188]
+            aud_pos = nal + 1
+            au_data = bytearray(buf[nal + 2:off + 188])
+        elif pid == vpid and aud_pos is not None:
+            au_data += buf[pl:off + 188]
         else:
             continue
-        if cur is not None:
-            nal_type = _find_slice_type(cur[1], 0)
+        if aud_pos is not None:
+            nal_type = _find_slice_type(au_data, 0)
             if nal_type == 5:
-                buf[cur[0]] = _AUD_I_ONLY
-                cur = None
-            elif nal_type == 1 or len(cur[1]) > _AUD_SCAN_LIMIT:
-                cur = None
+                buf[aud_pos] = _AUD_I_ONLY
+                aud_pos = None
+            elif nal_type == 1 or len(au_data) > _AUD_SCAN_LIMIT:
+                aud_pos = None
     return bytes(buf)
 
 
 class _MuxedChannel:
     """Follows one muxed channel and keeps a ring of container-continuous segments."""
 
-    def __init__(self, channel_id: str, master_url_getter):
+    def __init__(self, channel_id: str, master_url_getter, inherit: 'Optional[_MuxedChannel]' = None):
         self.channel_id = channel_id
         self._master_url_getter = master_url_getter
         self.cond = threading.Condition()
@@ -234,6 +240,11 @@ class _MuxedChannel:
         self._expected = None
         self._lost = False
         self._warned_ffmpeg = False
+        if inherit is not None:
+            self._cc = dict(inherit._cc)
+            self._delta = inherit._delta
+            self._expected = inherit._expected
+            self._lost = True
 
     def start(self):
         self._thread.start()
@@ -263,8 +274,7 @@ class _MuxedChannel:
             while True:
                 if self.ready:
                     first = next(iter(self.ready))
-                    if seq < first:
-                        seq = first
+                    seq = max(seq, first)
                     if seq in self.ready:
                         data, duration = self.ready[seq]
                         return seq, data, duration
@@ -336,6 +346,7 @@ class _MuxedChannel:
             return
         next_seq = None
         last_progress = time.monotonic()
+        last_stall_log = 0.0
         failures = 0
         while not self._stop.is_set():
             if time.monotonic() - self.last_access > _IDLE_TIMEOUT:
@@ -379,7 +390,19 @@ class _MuxedChannel:
                 logger.debug('%s: end of muxed playlist', self.channel_id)
                 return
             if not fresh:
-                if time.monotonic() - last_progress > _STALL_LIMIT:
+                now = time.monotonic()
+                if segments and now - last_progress > _STALL_LOG_AFTER and now - last_stall_log > _STALL_LOG_EVERY:
+                    last_stall_log = now
+                    logger.debug('%s: nothing new in the playlist for %ss: seq %s..%s, waiting for %s',
+                                 self.channel_id, int(now - last_progress), segments[0].seq, segments[-1].seq, next_seq)
+                if segments and segments[-1].seq < next_seq and now - last_progress > _RESYNC_AFTER:
+                    next_seq = segments[max(0, len(segments) - _START_BACK_SEGMENTS)].seq
+                    self._lost = True
+                    last_progress = now
+                    logger.debug('%s: media sequence went back to %s..%s, following it from %s',
+                                 self.channel_id, segments[0].seq, segments[-1].seq, next_seq)
+                    continue
+                if now - last_progress > _STALL_LIMIT:
                     logger.debug('%s: no new muxed segment for %ss, giving up', self.channel_id, int(_STALL_LIMIT))
                     return
                 self._stop.wait(max(0.5, min((media.target or _DEFAULT_SEG_DURATION) / 2.0, 3.0)))
@@ -468,12 +491,14 @@ def get_channel(channel_id: str) -> '_MuxedChannel | None':
     return channel
 
 
-def ensure_channel(channel_id: str, master_url_getter) -> _MuxedChannel:
-    """The running pipeline of *channel_id*, started if there is none (idempotent, like register_channel)."""
+def ensure_channel(channel_id: str, master_url_getter, inherit: 'Optional[_MuxedChannel]' = None) -> _MuxedChannel:
+    """The running pipeline of *channel_id*, started if there is none (idempotent, like register_channel).
+
+    *inherit*: the pipeline this one replaces; a new one continues its timeline (see _MuxedChannel)."""
     with _lock:
         channel = _channels.get(channel_id)
         if channel is None or channel.closed:
-            channel = _MuxedChannel(channel_id, master_url_getter)
+            channel = _MuxedChannel(channel_id, master_url_getter, inherit)
             _channels[channel_id] = channel
             channel.start()
     channel.touch()

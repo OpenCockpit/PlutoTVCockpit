@@ -13,6 +13,7 @@ import tempfile
 import threading
 import time
 from collections import OrderedDict, namedtuple
+from contextlib import contextmanager
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from socketserver import ThreadingMixIn
 from urllib.parse import urljoin, urlparse, parse_qs
@@ -778,6 +779,36 @@ class _ChannelState:
         pending = [p for e, p in self._pending_audio_floors if e == epoch]
         return min([requested_pts] + pending) if pending else requested_pts
 
+    def discard_stale_stream(self):
+        """Drop everything served/buffered from before the pre-fetch threads stopped (or from a
+        previous stitcher session), so a restarted pipeline does not glue fresh data onto stale
+        data. Shared by register_channel and reopen()."""
+        with self._lock:
+            self._vod_complete = False
+            self._ready_segs.clear()
+            self._window_meta.clear()
+            self._provisional_segs.clear()
+            self.reset_live_delta()
+            self._audio_bufs.clear()
+            self._audio_appended_seqs.clear()
+            self._audio_disc_seqs_seen.clear()
+
+    def reopen(self) -> bool:
+        """Undo close() so the pre-fetch threads can run again. Returns True if the channel had been closed.
+
+        The stop Events are one-shot: left set, every thread started for this state exits at once. A
+        recording that reconnects to /rec/ after the live slot closed the channel (register_channel is
+        never called on that path) must revive the pipeline itself, see _ensure_pipeline.
+        """
+        was_closed = self._audio_prefetch_stop.is_set()
+        if was_closed:
+            self.discard_stale_stream()
+        self._audio_prefetch_stop.clear()
+        self._video_prefetch_stop.clear()
+        if was_closed:
+            self._audio_prepopulated = False
+        return was_closed
+
     def close(self):
         """Signal all pre-fetch threads to stop and wait for them to exit.
 
@@ -845,6 +876,36 @@ class _ChannelState:
 _state_lock = threading.Lock()
 _channels: dict = {}
 
+_rec_clients_lock = threading.Lock()
+_rec_clients: 'dict[str, int]' = {}
+
+
+@contextmanager
+def recording_client(channel_id: str):
+    """Count one open /rec/ connection on *channel_id* for the duration of the with block.
+
+    Enigma2 starts recordings through nav.recordService() - record timers and TimeshiftCockpit
+    alike - and only a record timer is visible in RecordTimer.timer_list, so the open connection
+    is the one signal that covers every kind of recorder (see PlutoTVRequest._is_recording).
+    """
+    with _rec_clients_lock:
+        _rec_clients[channel_id] = _rec_clients.get(channel_id, 0) + 1
+    try:
+        yield
+    finally:
+        with _rec_clients_lock:
+            left = _rec_clients.get(channel_id, 1) - 1
+            if left > 0:
+                _rec_clients[channel_id] = left
+            else:
+                _rec_clients.pop(channel_id, None)
+
+
+def is_recording_active(channel_id: str) -> bool:
+    """True while at least one recorder (timer, timeshift, ...) is connected to /rec/ for *channel_id*."""
+    with _rec_clients_lock:
+        return channel_id in _rec_clients
+
 
 def _get_state(channel_id: str) -> '_ChannelState | None':
     with _state_lock:
@@ -892,6 +953,8 @@ def _ensure_pipeline(channel_id: str, state: '_ChannelState') -> bool:
     again here with the existing values is exactly what a dead-thread
     restart needs, without touching URLs a live viewer might depend on.
     """
+    if state.reopen():
+        logger.debug('%s: pipeline was closed, reopened for recording', channel_id)
     if state.variant_urls:
         if state.audio_url:
             state.start_audio_prefetch_if_needed(channel_id)
@@ -1897,15 +1960,7 @@ def register_channel(channel_id: str, real_master_url: str, url_refresher=None) 
                 existing.url_refresher = url_refresher
             was_closed = existing._audio_prefetch_stop.is_set()
             if was_closed or (new_sid is not None and new_sid != old_sid):
-                with existing._lock:
-                    existing._vod_complete = False
-                    existing._ready_segs.clear()
-                    existing._window_meta.clear()
-                    existing._provisional_segs.clear()
-                    existing.reset_live_delta()
-                    existing._audio_bufs.clear()
-                    existing._audio_appended_seqs.clear()
-                    existing._audio_disc_seqs_seen.clear()
+                existing.discard_stale_stream()
             existing._audio_prefetch_stop.clear()
             existing._video_prefetch_stop.clear()
             if was_closed:

@@ -25,28 +25,51 @@ from .Debug import logger
 from . import LiveProxyMuxed
 
 _READ_WAIT = 1.0
+_REOPEN_PAUSE = 2.0
+_REOPEN_PAUSE_MAX = 10.0
+
+
+def _reopen(channel, state, failures):
+    """A new pipeline for the channel whose poller stopped, continuing the old one's timeline.
+
+    The response of a recording never ends because the poller gave up (a stalled playlist, a lost session,
+    ...): the recorder (eServiceMP3Record) takes the end of the response for an EOS and starts a new file
+    for it, <name>_001.ts. Like a DVB recording without signal, the recording stays open and the file
+    simply doesn't grow until segments are back; the timer (the client disconnecting) ends it.
+    """
+    time.sleep(min(_REOPEN_PAUSE * (1 + failures), _REOPEN_PAUSE_MAX))
+    state.last_access = time.monotonic()
+    new = LiveProxyMuxed.ensure_channel(channel.channel_id, lambda: state.master_url, channel)
+    new.wait_ready(LiveProxyMuxed.START_TIMEOUT)
+    logger.debug('%s: muxed poller stopped under a recording (%s), restarted', channel.channel_id, channel.reason or 'ended')
+    return new
 
 
 def _segments(channel, state):
     """Yield the channel's segments in order, starting with the newest one (the live edge)."""
     seq = None
+    failures = 0
     while True:
         state.last_access = time.monotonic()
         channel.touch()
+        item = None
         if seq is None:
             newest = channel.newest_seq()
-            if newest is None:
-                if channel.closed:
-                    return
+            if newest is not None:
+                seq = newest
+            elif not channel.closed:
                 time.sleep(0.1)
                 continue
-            seq = newest
-        item = channel.wait_for(seq, _READ_WAIT)
+        if seq is not None:
+            item = channel.wait_for(seq, _READ_WAIT)
         if item is None:
             if channel.closed:
-                return
+                channel = _reopen(channel, state, failures)
+                failures += 1
+                seq = None
             continue
         seq, data, _duration = item
+        failures = 0
         yield data
         seq += 1
 
