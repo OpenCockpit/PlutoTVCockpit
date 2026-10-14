@@ -36,7 +36,7 @@ from .CockpitPlayer import CockpitPlayer
 from .CutListUtils import secondsToPts, ptsToSeconds
 
 
-RESUME_MIN_PTS = 900000
+RESUME_MIN_PTS = 900000  # 10 s; don't offer to resume right at the start or the end
 
 
 class CockpitLivePlayerSummary(ScreenSummary):

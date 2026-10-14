@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-08-19 13:51+0200\n"
-"PO-Revision-Date: 2026-08-19 13:52+0200\n"
+"POT-Creation-Date: 2026-10-14 16:48+0200\n"
+"PO-Revision-Date: 2026-10-14 16:48+0200\n"
 "Last-Translator: xcentaurix\n"
 "Language-Team: xcentaurix\n"
 "Language: de\n"
@@ -36,7 +36,7 @@ msgstr ""
 msgid "Stitcher"
 msgstr ""
 
-msgid "JMP2 proxy"
+msgid "JMP2"
 msgstr ""
 
 msgid "i.mjh.nz"
@@ -46,6 +46,9 @@ msgid "Yes"
 msgstr ""
 
 msgid "No"
+msgstr ""
+
+msgid "beginning"
 msgstr ""
 
 msgid "Remove picons"
@@ -72,13 +75,26 @@ msgstr ""
 msgid "Country for which Live-TV bouquet %s will be created."
 msgstr ""
 
-msgid "Live TV mode"
+msgid "Stream proxy"
 msgstr ""
 
 msgid ""
-"Select the stream provider. Stitcher uses the native Pluto server with JWT "
-"auth (resolved at playback). JMP2 uses the jmp2.uk proxy. i.mjh.nz uses Matt "
-"Huisman's community playlist. Requires bouquet update to take effect."
+"Play and record through StreamProxyCockpit, which resolves the native Pluto "
+"stream (JWT auth) when a channel is played and keeps the ad breaks of the "
+"streams from disturbing playback and recordings. Off: the bouquet holds the "
+"addresses of the source below. The bouquet of each setting is kept, so "
+"changing it switches between them; one that doesn't exist yet, or is older "
+"than 5 hours, is generated."
+msgstr ""
+
+msgid "Source without stream proxy"
+msgstr ""
+
+msgid ""
+"Select the stream provider used when the stream proxy is off (ignored with "
+"the proxy on). Stitcher uses the native Pluto server with a token of its "
+"own, JMP2 the jmp2.uk redirect, i.mjh.nz the community playlist of Matt "
+"Huisman. The bouquet is generated again when this is changed."
 msgstr ""
 
 msgid "Picon type"
@@ -121,9 +137,6 @@ msgstr ""
 msgid "IMDb Search"
 msgstr ""
 
-msgid "MENU"
-msgstr ""
-
 msgid "Change country"
 msgstr ""
 
@@ -154,13 +167,13 @@ msgstr ""
 msgid "Load the VoD list of another country"
 msgstr ""
 
-msgid "Scroll the information field"
-msgstr ""
-
 msgid "VOD Menu"
 msgstr ""
 
 msgid "PlutoTV"
+msgstr ""
+
+msgid "min"
 msgstr ""
 
 msgid ""
@@ -222,6 +235,9 @@ msgstr ""
 msgid "Waiting for Channel: "
 msgstr ""
 
+msgid "Other"
+msgstr ""
+
 msgid "The download is in progress. Exit now?"
 msgstr ""
 
@@ -234,6 +250,21 @@ msgstr ""
 msgid "Updating: Pluto TV %s"
 msgstr ""
 
+msgid "Pluto TV refused the request for %s (HTTP %s). It may be geo-blocked."
+msgstr ""
+
+msgid "Pluto TV could not be reached for %s%s. Try again later."
+msgstr ""
+
+msgid ""
+"Pluto TV lists channels for %s, but the selected source has no stream "
+"address for them. Try another source or the stream proxy."
+msgstr ""
+
+msgid ""
+"Pluto TV has no channels for %s. It may not be available in your country."
+msgstr ""
+
 msgid "PlutoTVCockpit"
 msgstr ""
 
@@ -244,9 +275,6 @@ msgid "Download PlutoTV bouquets, picons and EPG"
 msgstr ""
 
 msgid "Silently download PlutoTV"
-msgstr ""
-
-msgid "Other"
 msgstr ""
 
 msgid "End"

@@ -7,6 +7,21 @@ from Screens.Screen import Screen
 from skin import applyAllAttributes
 
 
+# Screen.applySkin() always derives its scale/resolution reference from
+# getDesktop(GUI_SKIN_ID) (the 1920x1080 GUI desktop), even for a screen
+# bound to a different desktop (e.g. the LCD summary desktop) via
+# setDesktop(). Since self.desktop is already the correct desktop by the
+# time applySkin() runs (Session.doInstantiateDialog() calls setDesktop()
+# right before applySkin()), using it here instead of the hardcoded GUI
+# desktop fixes both widget position/size AND font-size scaling for LCD
+# Summary screens - without it, a resolution= override in skin.xml can only
+# ever fix one of the two at the expense of the other, since the (wrong)
+# GUI-based bounds still feeds the font-size scale factor.
+#
+# This is a drop-in replacement for the original method: for a normal GUI
+# screen self.desktop.size() equals getDesktop(GUI_SKIN_ID).size() anyway
+# (they're opened against the GUI desktop), so patching it is a no-op there
+# and only changes behaviour for screens bound to a different desktop.
 def _applySkin(self):
     bounds = (self.desktop.size().width(), self.desktop.size().height())
     resolution = bounds

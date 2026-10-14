@@ -63,7 +63,7 @@ class PlutoTVCockpit(Screen, HelpableScreen):
         self["key_blue"] = Button(_("Change country"))
         self["poster"] = Pixmap()
         self["posterBG"] = Label()
-        self["info"] = StaticText()
+        self["info"] = StaticText()  # combined info for fluid layout, scrolled vertically by COCRunningText
 
         self["feedlist"].onSelectionChanged.append(self.update_data)
 
@@ -171,7 +171,8 @@ class PlutoTVCockpit(Screen, HelpableScreen):
         elif __type == "seasons":
             self.eptitle = ""
             self.epinfo = ""
-            if self.numSeasons == 1:
+            if self.numSeasons == 1:  # if numSeasons == 1 skip displaying the seasons level and go directly to the next level.
+                # Fix a timing issue. Calling self.lastAction directly results in the title for the previous level being displayed.
                 self.lastActionTimer = eTimer()
                 self.lastActionTimer.callback.append(self.lastAction)
                 self.lastActionTimer.start(10, 1)
@@ -183,13 +184,15 @@ class PlutoTVCockpit(Screen, HelpableScreen):
             self.updateInfo()
 
     def updateInfo(self):
+        # combine info for fluid layout
         vinfo = self.vinfo + "\n" if self.vinfo and self.description else self.vinfo
         spacer = "\n" if (self.vinfo or self.description) and (self.eptitle or self.epinfo) else ""
         text = "\n".join([x for x in (vinfo, self.description, spacer, self.eptitle, self.epinfo) if x])
+        # COCRunningText splits its text on "|" (two texts, small area), so keep it out of the content
         self["info"].setText(text.replace("|", "/"))
 
     def downloadPosterCallback(self, filename, name):
-        if name == self.picname:
+        if name == self.picname:  # check if this is the current image we are waiting for
             self.updateInfo()
             self.showPoster(filename, name)
 
@@ -212,6 +215,7 @@ class PlutoTVCockpit(Screen, HelpableScreen):
         else:
             for category in categories:
                 self.buildlist(category)
+            # Sort categories and items within each category alphabetically
             self.menu.sort(key=lambda x: re.sub(r"^[\W_]+", "", x.decode("utf-8").casefold()))
             for _key, items in self.lvod.items():
                 items.sort(key=lambda x: re.sub(r"^[\W_]+", "", x[1].decode("utf-8")).casefold())
@@ -223,12 +227,13 @@ class PlutoTVCockpit(Screen, HelpableScreen):
 
     def buildlist(self, category):
         name = category["name"].encode("utf-8")
-        if name not in self.lvod:
+        if name not in self.lvod:  # categories can repeat; list each name (and its movies) only once
             self.lvod[name] = []
             self.menu.append(name)
         known_ids = {film[0] for film in self.lvod[name]}
         items = category.get("items", [])
         for item in items:
+            # film = (_id, name, summary, genre, rating, duration, poster, image, type)
             itemid = item.get("_id", "")
             if not itemid or itemid in known_ids:
                 continue
@@ -237,7 +242,7 @@ class PlutoTVCockpit(Screen, HelpableScreen):
             itemsummary = item.get("summary", "").encode("utf-8")
             itemgenre = item.get("genre", "").encode("utf-8")
             itemrating = item.get("rating", "").encode("utf-8")
-            itemduration = int(item.get("duration", "0") or "0") // 1000
+            itemduration = int(item.get("duration", "0") or "0") // 1000  # in seconds
             itemtype = item.get("type", "")
             seasons = len(item.get("seasonsNumbers", []))
             urls = item.get("stitched", {}).get("urls", [])
@@ -377,7 +382,7 @@ class PlutoTVCockpit(Screen, HelpableScreen):
             self._play_name = name
             self._play_sid = sid
             self._play_description = description
-            self._play_duration = duration
+            self._play_duration = duration  # seconds, from PlutoTV's movie info
             threads.deferToThread(plutoRequest.buildVodStreamURL, url, self.country).addCallback(self._playVODCallback)
 
     def _playVODCallback(self, url):
@@ -391,7 +396,7 @@ class PlutoTVCockpit(Screen, HelpableScreen):
 
     def _playerClosed(self, *_args):
         self.session.nav.playService(self.last_service)
-        self["feedlist"].refresh()
+        self["feedlist"].refresh()  # pick up the resume point saved on leaving the player
 
     def green(self):
         locations = [x for x in getselectedcountries() if x] or [config.plugins.plutotv.country.value]
@@ -423,6 +428,9 @@ class PlutoTVCockpit(Screen, HelpableScreen):
         with open("/etc/enigma2/bouquets.tv", "r", encoding="utf-8") as f:
             bouquets = f.read()
         nodata = loadNoDataLocations(NODATA_FILE)
+        # A selected country missing its bouquet is only "still needs updating" if
+        # we haven't actually tried it yet - one that came back empty last run (e.g.
+        # geo-blocked) is settled, since pressing GREEN again wouldn't change that.
         if fileExists(TIMER_FILE) and all(((BOUQUET_FILE % cc) in bouquets or cc in nodata) for cc in [x for x in getselectedcountries() if x]):
             with open(TIMER_FILE, "r", encoding="utf-8") as f:
                 last = float(f.read().replace("\n", "").replace("\r", ""))

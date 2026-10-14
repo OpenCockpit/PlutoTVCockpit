@@ -12,6 +12,18 @@ from .Version import PLUGIN
 from .Variables import USER_AGENT
 
 
+# On this image, Python's certifi package ships a CA bundle frozen at build
+# time, which can fall behind the box's own system CA bundle - the latter
+# stays current via opkg's ca-certificates package, the former has no
+# update path on this box at all (no pip, not opkg-tracked). Observed as
+# requests.get() failing with SSLError "self-signed certificate in
+# certificate chain" against a CDN signed by a root certifi's snapshot
+# doesn't carry yet (e.g. Samsung TV Plus's Thawte-issued chain), even
+# though the system bundle validates the exact same chain fine. requests
+# reads REQUESTS_CA_BUNDLE from the environment dynamically on every
+# request (not just at import time - see Session.merge_environment_settings),
+# so setting it here once, at import, covers every requests.get() call in
+# this module regardless of import order relative to `requests` itself.
 _SYSTEM_CA_BUNDLE = "/etc/ssl/certs/ca-certificates.crt"
 if os.path.isfile(_SYSTEM_CA_BUNDLE) and not os.environ.get("REQUESTS_CA_BUNDLE"):
     os.environ["REQUESTS_CA_BUNDLE"] = _SYSTEM_CA_BUNDLE
@@ -34,6 +46,10 @@ class PiconFetcher:
         self.pluginPiconDir = os.path.join(self.piconDir, self.plugin_name)
         self.resolutionStr = f"?h={_PICON_HEIGHT}&w={_PICON_WIDTH}"
         self.piconList = []
+
+    # ------------------------------------------------------------------
+    # Public API
+    # ------------------------------------------------------------------
 
     def addPicon(self, ref, name, url, silent):
         """Queue a picon for download.  Call before fetchPicons()."""
@@ -69,15 +85,35 @@ class PiconFetcher:
         if os.path.exists(self.pluginPiconDir):
             shutil.rmtree(self.pluginPiconDir)
 
+    # ------------------------------------------------------------------
+    # Internal helpers
+    # ------------------------------------------------------------------
+
     def createFolders(self):
         os.makedirs(self.piconDir, exist_ok=True)
         os.makedirs(self.pluginPiconDir, exist_ok=True)
 
+    # Some source CDNs (e.g. Samsung TV Plus's tvpnlogopus.samsungcloud.tv)
+    # ignore the ?h=&w= downscale hint below entirely and always serve the
+    # full source image regardless of query string - verified by comparing
+    # byte-identical responses with and without it, and against every other
+    # resize convention (width=, size=, imwidth=, im=Resize,... etc: all
+    # identical). Those sources can run past 1000x1000px / several hundred
+    # KB per logo, so _DOWNLOAD_TIMEOUT has to budget for a full-size fetch,
+    # not just a thumbnail - too tight a timeout here silently drops most of
+    # a large channel list under _PICON_WORKERS-way concurrency (each
+    # failed fetch is swallowed with no log line), which is what "only a
+    # few picons downloaded" for Samsung TV Plus turned out to be.
     _DOWNLOAD_TIMEOUT = 8.0
 
     def downloadURL(self, url, piconname):
         filepath = os.path.join(self.pluginPiconDir, piconname.removeprefix(self.piconDir).removeprefix(os.sep))
         try:
+            # Best-effort CDN-side downscale hint only - harmless if skipped
+            # (source URL already carries a query string, e.g. a signed/
+            # versioned CDN URL) or ignored by the CDN. _convertToPng below
+            # always downscales locally regardless, so this is purely a
+            # bandwidth/latency optimization, never a correctness requirement.
             dl_url = url if "?" in url else f"{url}{self.resolutionStr}"
             response = requests.get(dl_url, timeout=self._DOWNLOAD_TIMEOUT, headers={"User-Agent": self._user_agent})
             response.raise_for_status()
@@ -91,7 +127,32 @@ class PiconFetcher:
             print(f"[{self.plugin_name} PiconFetcher] fetch failed {dl_url}: {e}")
         if fileExists(filepath):
             self.makesoftlink(filepath, piconname)
+        # else: leave the shared "snp" filename unclaimed on a failed fetch,
+        # rather than symlinking this plugin's generic default icon into it.
+        # A claim here - even a fallback one - is indistinguishable from a
+        # real picon to makesoftlink's cross-plugin ownership check and to
+        # addPicon's dedup check, so it permanently blocks any other plugin's
+        # (or this same plugin's later retry's) channel of the same
+        # sanitized name from ever claiming a real picon there - this is
+        # what was actually behind "PlutoTV channel X shows a default
+        # SamsungTV picon" recurring across different channels: Samsung's
+        # own fetch failed once, and its fallback icon then squatted on the
+        # shared name forever. The Picon renderer already falls back to its
+        # own default picture when no picon file is found
+        # (Components/Renderer/Picon.py), so nothing is lost by leaving this
+        # unclaimed - only the next fetch attempt gets a real chance to fill
+        # it in properly instead of being permanently blocked.
         if self.parent:
+            # Assigned here, at completion, not at task pickup: with
+            # _PICON_WORKERS concurrent downloads of varying latency (network
+            # fetch + decode/resize), a task picked up early can easily finish
+            # late. Counting at pickup time reports values in submission
+            # order while callbacks fire in completion order, so the two
+            # drift apart under concurrency - visible as the progress bar
+            # jumping backward whenever a slow early-picked task finally
+            # finishes after later, faster ones already reported higher
+            # counts. Counting here instead ties the value directly to
+            # completion order, which is what the progress bar should track.
             reactor.callFromThread(self.parent.updateProgressBar, next(self._counter))
 
     @staticmethod
@@ -112,6 +173,8 @@ class PiconFetcher:
         try:
             from PIL import Image
             import io
+            # Image.LANCZOS moved under Image.Resampling in newer Pillow and was
+            # dropped as a top-level alias in Pillow 10+; support either.
             resample = getattr(Image, "Resampling", Image).LANCZOS
             with Image.open(io.BytesIO(data)) as img:
                 img.thumbnail((_PICON_WIDTH, _PICON_HEIGHT), resample)
@@ -121,6 +184,8 @@ class PiconFetcher:
 
     def makesoftlink(self, filepath, softlinkpath):
         svgpath = softlinkpath.removesuffix(".png") + ".svg"
+        # An SVG picon already exists - leave it alone regardless of what
+        # softlinkpath itself is.
         if os.path.isfile(svgpath):
             return
         islink = os.path.islink(softlinkpath)
@@ -129,9 +194,27 @@ class PiconFetcher:
             if target == filepath:
                 return
             if self.pluginPiconDir not in target and os.path.exists(target):
+                # Another plugin's channel of the same sanitized name claimed
+                # this filename first - e.g. PlutoTV and SamsungTV both carry
+                # the real-world "CBS News 24/7" channel and both derive the
+                # same "snp" filename for it. Leave it alone rather than
+                # stealing it: unconditionally overwriting here previously
+                # let whichever plugin's fetch/refresh happened to run last
+                # silently take over the shared filename for every other
+                # plugin's same-named channel - including replacing it with
+                # this plugin's own *default* icon on a failed fetch.
+                #
+                # But only while that target still exists: a dangling symlink
+                # (its target file deleted directly, e.g. clearing another
+                # plugin's picon cache without removing the shared link)
+                # claims nothing anymore, so it's safe - and necessary - to
+                # reclaim regardless of which plugin originally created it.
+                # Otherwise it stays broken forever, since nothing else will
+                # ever clean up a dangling link that isn't this plugin's own.
                 return
             os.remove(softlinkpath)
         elif os.path.isfile(softlinkpath):
+            # Don't touch a real file that isn't ours.
             return
         os.symlink(filepath, softlinkpath)
 

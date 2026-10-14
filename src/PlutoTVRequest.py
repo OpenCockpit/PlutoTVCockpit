@@ -6,13 +6,13 @@ import time
 import uuid
 
 from Components.config import config
-from enigma import eServiceReference
+from Plugins.SystemPlugins.StreamProxyCockpit import LiveProxyUnmuxed, StreamProxy
 import requests
 
 from .Debug import logger
+from .CockpitTVDownload import FailureTracker
 from .ConfigInit import pickForwardIP, TSIDS
 from .Variables import STREAM_POOL_SIZE, USER_AGENT
-from . import LiveProxy
 
 
 class _PlutoSlot:
@@ -46,8 +46,14 @@ class _PlutoSlot:
             if now < self.bootCache[country]["exp"] - 60:
                 return self.bootCache[country]["response"]
             if allow_stale:
+                # Return stale cache immediately to avoid blocking the main thread.
+                # The caller should arrange a background refresh.
                 return self.bootCache[country]["response"]
         elif allow_stale:
+            # Cache is completely absent (cold slot or DNS/network outage during
+            # prewarm). Return empty immediately so buildStreamURL never blocks
+            # the reactor on a network call. The caller's _scheduleBackgroundRefresh
+            # will populate the cache asynchronously once connectivity recovers.
             return {}
 
         headers = {
@@ -98,12 +104,13 @@ class _PlutoSlot:
             return resp
         except Exception as e:
             logger.debug("Slot %s boot error: %s", self.index, e)
+            # If we have stale data, return it rather than nothing
             if country in self.bootCache:
                 return self.bootCache[country]["response"]
             return {}
 
 
-class PlutoTVRequest:
+class PlutoTVRequest(FailureTracker):
     BASE_API = "https://api.pluto.tv"
     BOOT_URL = "https://boot.pluto.tv/v4/start"
     CHANNELS_URL = "https://service-channels.clusters.pluto.tv/v2/guide/channels"
@@ -113,22 +120,29 @@ class PlutoTVRequest:
     BASE_VOD = BASE_API + "/v3/vod/categories?includeItems=true&deviceType=web"
     SEASON_VOD = BASE_API + "/v3/vod/series/%s/seasons?includeItems=true&deviceType=web"
 
+    # Legacy API endpoints (fallback for countries not on the new service-channels API)
     LEGACY_CHANNELS_URL = BASE_API + "/v2/channels.json"
     LEGACY_GUIDE_URL = BASE_API + "/v2/channels"
 
+    # for URL insertion at runtime
     PLUTO_SCHEMA = "pluto%3a//"
 
+    # JMP2 proxy URL template
     JMP2_URL_TEMPLATE = "https://jmp2.uk/plu-%s.m3u8"
 
+    # i.mjh.nz playlist URL template (per country code)
     MJH_PLAYLIST_URL = "https://i.mjh.nz/PlutoTV/%s.m3u8"
 
     def __init__(self):
+        # Slot 0 is the "primary" slot used for metadata / API calls.
         self._pool = [_PlutoSlot(i, self.STITCHER_FALLBACK) for i in range(STREAM_POOL_SIZE)]
         self._stream_index = 0
         self.requestCache = {}
+        self._bootFailedUntil = {}   # (slot index, country) -> time, see buildDirectStreamURL
         self._sid = str(uuid.uuid1().hex)
         self._deviceId = str(uuid.uuid4().hex)
 
+    # Legacy convenience properties so existing code keeps working.
     @property
     def session(self):
         return self._pool[0].session
@@ -194,7 +208,7 @@ class PlutoTVRequest:
         for an HTTP response.  A background refresh is scheduled if the
         cached token was stale.
 
-        If *channel_id* already has an active LiveProxy session (e.g. the
+        If *channel_id* already has an active LiveProxyUnmuxed session (e.g. the
         live view is already watching it when instant-record resolves its
         own sref for the same channel a few seconds later), reuse that
         session's proxy URL as-is instead of minting a new pool slot.
@@ -211,13 +225,17 @@ class PlutoTVRequest:
         frame corruption right around the slot swap, with no genuine
         #EXT-X-DISCONTINUITY tag involved).
         """
-        existing_url = LiveProxy.active_channel_url(channel_id)
+        existing_url = LiveProxyUnmuxed.active_channel_url(channel_id)
         if existing_url is not None:
             return existing_url
         country = country or config.plugins.plutotv.country.value
         slot = self._nextStreamSlot()
         slot.boot(country, allow_stale=True)
         cache = slot.bootCache.get(country, {})
+        # If this slot's token is absent or stale, schedule a background
+        # refresh so the next zap has a fresh token.  The url_refresher
+        # passed to register_channel handles the cold-slot case synchronously
+        # from the proxy handler thread when jwt= ends up in master_url.
         now = time.time()
         if not cache or now >= cache.get("exp", 0) - 60:
             self._scheduleBackgroundRefresh(slot, country)
@@ -231,10 +249,22 @@ class PlutoTVRequest:
         if stitcherParams:
             url += f"&{stitcherParams}"
         logger.debug("buildStreamURL slot %s for %s", slot.index, channel_id)
-        LiveProxy.start()
+        # Route all live channels through the local HLS proxy so that demuxed
+        # streams (EXT-X-MEDIA:TYPE=AUDIO with a separate audio-only TS) are
+        # transparently merged into a single muxed TS.  The proxy is a no-op
+        # for channels that are already muxed.  register_channel() itself is
+        # idempotent for a channel_id that's already registered (see its
+        # docstring), so any caller - live playback, a recording of the
+        # channel currently being watched, or a recording timer re-resolving
+        # the same service - can call this freely without disrupting an
+        # already-running stream.
+        LiveProxyUnmuxed.start()
+        # Pass a refresher so the proxy handler thread (safe to block) can
+        # obtain a valid JWT on demand when the channel was registered with
+        # an empty token (cold-slot miss: cache absent at zap time).
 
         def _url_refresher(_slot=slot, _country=country, _ch=channel_id):
-            _slot.boot(_country)
+            _slot.boot(_country)  # blocks; safe – called from handler thread, not reactor
             _c = _slot.bootCache.get(_country, {})
             _token = _c.get('response', {}).get('sessionToken', '')
             _su = _c.get('stitcherUrl', self.STITCHER_FALLBACK)
@@ -243,7 +273,33 @@ class PlutoTVRequest:
             if _sp:
                 _u += f"&{_sp}"
             return _u
-        return LiveProxy.register_channel(channel_id, url, url_refresher=_url_refresher)
+        return LiveProxyUnmuxed.register_channel(channel_id, url, url_refresher=_url_refresher)
+
+    def buildDirectStreamURL(self, channel_id, country=None):
+        """The stitcher address of a channel with a token of its own, for a bouquet that doesn't go through the stream
+        proxy (the proxy otherwise looks it up when the channel is played). "" if there is no token.
+
+        Like buildStreamURL, a pool slot is used (never the metadata slot), round-robin: the channels of a bouquet
+        share a few device identities. Blocks on the network the first time per slot and country (the token is cached
+        for its life): for the download thread, not for the main thread."""
+        country = country or config.plugins.plutotv.country.value
+        slot = self._nextStreamSlot()
+        key = (slot.index, country)
+        if time.time() < self._bootFailedUntil.get(key, 0):
+            return ""   # it just failed: not once more for every channel of the bouquet (it takes the timeout each)
+        slot.boot(country)
+        cache = slot.bootCache.get(country, {})
+        token = cache.get('response', {}).get('sessionToken', '')
+        if not token:
+            self._bootFailedUntil[key] = time.time() + 120
+            return ""
+        url = (
+            f"{cache.get('stitcherUrl', self.STITCHER_FALLBACK)}/v2/stitch/hls/channel/{channel_id}/master.m3u8"
+            f"?jwt={token}&masterJWTPassthrough=true"
+        )
+        if params := cache.get('stitcherParams', ''):
+            url += f"&{params}"
+        return url
 
     @staticmethod
     def _scheduleBackgroundRefresh(slot, country):
@@ -307,6 +363,7 @@ class PlutoTVRequest:
                 line = line.strip()
                 if line.startswith("#EXTINF:"):
                     if not (match := re.search(r'channel-id="([^"]+)"', line)):
+                        # fallback: tvg-id format "id.cc.pluto.tv"
                         if (match := re.search(r'tvg-id="([^"]+)"', line)):
                             channel_id = match.group(1).split(".")[0]
                         else:
@@ -320,6 +377,9 @@ class PlutoTVRequest:
             logger.debug("getMjhStreams: %s channels for %s", len(streams), country)
         except Exception as e:
             logger.debug("getMjhStreams error for %s: %s", country, e)
+            # Remember the failure for 15 minutes: the playlist is looked up once per channel while a bouquet is
+            # built, which made a playlist that is gone (404) an extra request for every channel of the bouquet.
+            self.requestCache[country][cache_key] = (streams, now - 4 * 3600 + 15 * 60)
         return streams
 
     def getURL(self, url, param=None, header=None, life=60 * 15, country=None):
@@ -349,7 +409,7 @@ class PlutoTVRequest:
 
     def buildVodStreamURL(self, vod_url, country=None):
         """Rewrite a VOD stitched URL to use the correct stitcher host + JWT auth,
-        then register it with LiveProxy and return the local proxy URL.
+        then register it with LiveProxyUnmuxed and return the local proxy URL.
 
         Uses a pool slot so each concurrent stream gets its own clientID
         device identity, preventing Pluto from killing concurrent streams.
@@ -362,9 +422,12 @@ class PlutoTVRequest:
         stitcherUrl = cache.get('stitcherUrl', self.STITCHER_FALLBACK)
         stitcherParams = cache.get('stitcherParams', '')
 
-        path = vod_url.split('?')[0]
-        path = re.sub(r'^https?://[^/]+', '', path)
+        # Extract the path from the old URL (strip host and query string)
+        # e.g. https://service-stitcher-ipv4.clusters.pluto.tv/stitch/hls/episode/XXX/master.m3u8?...
+        path = vod_url.split('?')[0]  # remove query string
+        path = re.sub(r'^https?://[^/]+', '', path)  # remove scheme+host, keep /path
 
+        # Ensure /v2 prefix (old URLs use /stitch/..., new stitcher needs /v2/stitch/...)
         if path.startswith('/stitch/'):
             path = '/v2' + path
 
@@ -375,11 +438,27 @@ class PlutoTVRequest:
         if stitcherParams:
             url += f"&{stitcherParams}"
 
+        # Route through the local HLS proxy, same as buildStreamURL does for
+        # live channels: Pluto's VOD stitcher uses the same demuxed-audio
+        # delivery as live, and playing that raw stream directly hangs
+        # gstreamer solid at the first ad transition (confirmed in an
+        # Enigma2 debug log). LiveProxyUnmuxed's own /auto/ handler auto-detects
+        # and no-ops for content that turns out to already be muxed.
+        #
+        # Unique channel_id per call (not just per VOD asset): a live
+        # channel_id is meant to be reused (a recording and a live viewer
+        # share one ongoing feed), but nothing ever closes a VOD channel's
+        # state between separate playback attempts, and the idle reaper
+        # only fires after 60s - so a quick replay within that window would
+        # otherwise resume the previous attempt's state instead of starting
+        # clean. The episode id is kept as a log-readable prefix; the
+        # reaper cleans up each attempt's entry the same way it does for
+        # every other channel.
         match = re.search(r'/([^/]+)/master\.m3u8', path)
         prefix = f'vod_{match.group(1)}' if match else 'vod'
         channel_id = f'{prefix}_{uuid.uuid4().hex[:8]}'
-        LiveProxy.start()
-        return LiveProxy.register_channel(channel_id, url)
+        # registered through StreamProxy, so the live slot closes the channel again when it moves on
+        return StreamProxy.registerChannel("pluto", channel_id, url)
 
     def getVOD(self, epid, country=None):
         country = country or config.plugins.plutotv.country.value
@@ -390,6 +469,15 @@ class PlutoTVRequest:
         return self.getURL(self.BASE_VOD, header=self._apiHeaders(country), life=60 * 60, country=country)
 
     def getChannels(self, country=None):
+        """The channels of *country*; if there are none, failure(country) tells if a request failed."""
+        country = country or config.plugins.plutotv.country.value
+        self.clearFailure(country)
+        channels = self._getChannels(country)
+        if channels:
+            self.clearFailure(country)   # the legacy API did answer, whatever the new one did
+        return channels
+
+    def _getChannels(self, country):
         """Fetch channels via v2/guide/channels + categories, returned in legacy format.
 
         Falls back to the legacy api.pluto.tv endpoint if the new API returns
@@ -405,6 +493,7 @@ class PlutoTVRequest:
             channel_list = response.json().get("data", [])
         except Exception as e:
             logger.debug("getChannels new API error for %s: %s", country, e)
+            self.recordFailure(country, e)
             channel_list = []
 
         if not channel_list:
@@ -424,6 +513,10 @@ class PlutoTVRequest:
             for ch_id in elem.get('channelIDs', []):
                 categories[ch_id] = cat_name
 
+        # The new categories endpoint leaves out some categories (seasonal ones such
+        # as House of Horror, whose channels then belong to none). The legacy channel
+        # list still carries them, so take the category of every uncategorised channel
+        # from there.
         if any(ch.get('id') not in categories for ch in channel_list):
             legacy = self._getLegacyCategories(country)
             for ch in channel_list:
@@ -476,6 +569,7 @@ class PlutoTVRequest:
             return []
         except Exception as e:
             logger.debug("getChannels legacy API error for %s: %s", country, e)
+            self.recordFailure(country, e)
             return []
 
     def getBaseGuide(self, start, stop, country=None):
@@ -552,117 +646,16 @@ def startProactiveRefresh():
     now = time.time()
     for slot in plutoRequest._pool:
         for country, cache in list(slot.bootCache.items()):
-            if now >= cache.get("exp", 0) - 300:
+            if now >= cache.get("exp", 0) - 300:  # refresh 5 min before expiry
                 threads.deferToThread(slot.boot, country)
     reactor.callLater(120, startProactiveRefresh)
 
 
-_PROXY_STREAM_RE = re.compile(r'/(?:auto|rec)/([0-9a-f]+)\.(?:m3u8|ts)$', re.IGNORECASE)
+def resolveStream(channel_id, sref):
+    """StreamProxy provider: the address of the stream proxy for the Pluto channel *channel_id*.
 
-
-def _pluto_channel_id(sref):
-    """Return the Pluto channel_id encoded in *sref*, or None.
-
-    Recognizes both the original pluto://<id> scheme and a sref already
-    rewritten to this proxy's /auto/<id>.m3u8 or /rec/<id>.ts endpoint.
-    The latter matters for instant recording: unlike a timer, it hands
-    recordServiceExtension the currently-playing service reference, which
-    playServiceExtension has already rewritten to the local /auto/ URL by
-    the time it gets here - the pluto:// prefix is long gone, so without
-    this fallback recordServiceExtension can't tell it's a Pluto channel
-    and never rewrites it to the /rec/ endpoint recording needs (see
-    recordServiceExtension's docstring).
-
-    Pure parsing, no side effects - unlike _resolve_pluto_sref, which calls
-    buildStreamURL (a stitcher token fetch + LiveProxy registration) as
-    part of resolving a sref for playback. Callers that only need to compare
-    channel_ids (e.g. _is_recording) must not pay that cost just to answer
-    a read-only membership check.
-    """
-    parts = sref.toString().split(":")
-    if len(parts) <= 10:
-        return None
-    stream = parts[10]
-    if stream.lower().startswith(plutoRequest.PLUTO_SCHEMA):
-        return stream[len(plutoRequest.PLUTO_SCHEMA):]
-    m = _PROXY_STREAM_RE.search(stream)
-    return m.group(1) if m else None
-
-
-def _resolve_pluto_sref(sref):
-    """Rewrite *sref* to the local proxy URL if it encodes a Pluto channel.
-
-    Returns (sref, channel_id_or_None) so callers can tell whether anything
-    was resolved without re-parsing the reference themselves.
-    """
-    channel_id = _pluto_channel_id(sref)
-    if channel_id is None:
-        return sref, None
-    parts = sref.toString().split(":")
-    cc = {v: k for k, v in TSIDS.items()}.get(parts[4], None)
-    stream_url = plutoRequest.buildStreamURL(channel_id, cc)
-    parts[10] = stream_url.replace(":", "%3a")
-    sref = eServiceReference(":".join(parts))
-    return sref, channel_id
-
-
-_live_channel_id = None
-
-
-def _is_recording(nav, channel_id):
-    """True if a currently-running, non-justplay record timer targets *channel_id*,
-    or any recorder (e.g. a TimeshiftCockpit timeshift, which is not a timer) is
-    connected to its /rec/ endpoint.
-
-    Used to veto closing a channel that the live slot is leaving but that a
-    background recording still depends on - see playServiceExtension.
-    """
-    if LiveProxy.is_recording_active(channel_id):
-        return True
-    for timer in nav.RecordTimer.timer_list:
-        if timer.isRunning() and not timer.justplay:
-            if _pluto_channel_id(timer.service_ref.ref) == channel_id:
-                return True
-    return False
-
-
-def playServiceExtension(_nav, sref, *_args, **_kwargs):
-    """Called by Enigma2 for every playService() call, of any service type.
-
-    Besides resolving the stream URL, this is the only per-zap signal we get
-    that the live slot has moved on: zapping to a non-Pluto channel never
-    touches buildStreamURL at all, so without closing the previous channel
-    here, its pre-fetch threads would keep polling the CDN indefinitely.
-    Skipped when a record timer is still actively recording that channel
-    (see _is_recording): closing it then would kill its pre-fetch threads
-    mid-recording, degrading it to silent/high-latency segments exactly the
-    way register_channel's docstring describes a different code path having
-    once done to a recording in production.
-    """
-    global _live_channel_id
-    sref, channel_id = _resolve_pluto_sref(sref)
-    if (_live_channel_id and _live_channel_id != channel_id
-            and not _is_recording(_nav, _live_channel_id)):
-        LiveProxy.close_channel(_live_channel_id)
-    _live_channel_id = channel_id
-    return sref, False
-
-
-def recordServiceExtension(_nav, sref, *_args, **_kwargs):
-    """Rewrites a recording's sref to the RecordingProxy endpoint.
-
-    _resolve_pluto_sref() still runs first so the channel is registered and
-    its pre-fetch threads are running exactly as for live playback. The
-    result is then repointed from the segment-chunked HLS URL
-    (/auto/{channel_id}.m3u8) live playback uses to RecordingProxy's
-    continuous, container-harmonized re-mux endpoint
-    (/rec/{channel_id}.ts) - see RecordingProxy.py for why a recorded file
-    needs different framing than a live HLS pipeline.
-    """
-    sref, channel_id = _resolve_pluto_sref(sref)
-    if channel_id is not None:
-        rec_url = f'http://{LiveProxy.PROXY_HOST}:{LiveProxy.PROXY_PORT}/rec/{channel_id}.ts'
-        parts = sref.toString().split(":")
-        parts[10] = rec_url.replace(":", "%3a")
-        sref = eServiceReference(":".join(parts))
-    return sref
+    *sref* is the service reference of the bouquet entry (or of the instant recording of the playing service); its
+    TSID tells the country the channel was listed for. The service extensions that call this are in
+    StreamProxyCockpit (StreamProxy), registered in plugin.py."""
+    cc = {v: k for k, v in TSIDS.items()}.get(sref.toString().split(":")[4], None)
+    return plutoRequest.buildStreamURL(channel_id, cc)

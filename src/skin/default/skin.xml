@@ -15,6 +15,10 @@
 		<color name="cyan" value="#57ffff"/>
 		<color name="blue" value="#1e4ab5"/>
 	</colors>
+	<fonts>
+		<font filename="/usr/share/enigma2/FontCockpit/fonts/DejaVuSans.ttf" name="Regular" scale="89"/>
+		<font filename="Roboto-Bold.ttf" name="Bold" scale="71"/>
+	</fonts>
 	<colors>
 		<color name="FdLcdTitleForeground" value="#7fffff"/>
 		<color name="FdLcdRed" value="#00f50808"/>
@@ -58,12 +62,12 @@
 		</widget>
 		<eLabel backgroundColor="separator" position="0,1024" size="1920,2"/>
 		<eLabel backgroundColor="backgroundDark" position="0,1025" size="1920,55"/>
-		<widget conditional="key_red" font="Regular;32" foregroundColor="red" halign="center" name="key_red" position="0,1025" size="435,55" transparent="1" valign="center" zPosition="2"/>
-		<widget conditional="key_green" font="Regular;32" foregroundColor="green" halign="center" name="key_green" position="435,1025" size="435,55" transparent="1" valign="center" zPosition="2"/>
-		<widget conditional="key_yellow" font="Regular;32" foregroundColor="yellow" halign="center" name="key_yellow" position="870,1025" size="435,55" transparent="1" valign="center" zPosition="2"/>
-		<widget conditional="key_blue" font="Regular;32" foregroundColor="blue" halign="center" name="key_blue" position="1305,1025" size="435,55" transparent="1" valign="center" zPosition="2"/>
-		<widget conditional="key_menu" font="Regular;32" foregroundColor="white" halign="center" name="key_menu" position="1740,1025" size="90,55" transparent="1" valign="center" zPosition="2"/>
-		<widget conditional="key_info" font="Regular;32" foregroundColor="white" halign="center" name="key_info" position="1830,1025" size="90,55" transparent="1" valign="center" zPosition="2"/>
+		<widget conditional="key_red" font="Bold;38" foregroundColor="red" halign="center" name="key_red" noWrap="1" position="0,1025" size="435,55" transparent="1" valign="center" zPosition="2"/>
+		<widget conditional="key_green" font="Bold;38" foregroundColor="green" halign="center" name="key_green" noWrap="1" position="435,1025" size="435,55" transparent="1" valign="center" zPosition="2"/>
+		<widget conditional="key_yellow" font="Bold;38" foregroundColor="yellow" halign="center" name="key_yellow" noWrap="1" position="870,1025" size="435,55" transparent="1" valign="center" zPosition="2"/>
+		<widget conditional="key_blue" font="Bold;38" foregroundColor="blue" halign="center" name="key_blue" noWrap="1" position="1305,1025" size="435,55" transparent="1" valign="center" zPosition="2"/>
+		<widget conditional="key_menu" font="Bold;38" foregroundColor="white" halign="center" name="key_menu" noWrap="1" position="1740,1025" size="90,55" transparent="1" valign="center" zPosition="2"/>
+		<widget conditional="key_info" font="Bold;38" foregroundColor="white" halign="center" name="key_info" noWrap="1" position="1830,1025" size="90,55" transparent="1" valign="center" zPosition="2"/>
 	</screen>
 	<screen backgroundColor="transparent" flags="wfNoBorder" name="PRSDownloadProgress" position="60,60" resolution="1920,1080" size="620,200">
 		<eLabel alphatest="blend" backgroundColor="backgroundLight" cornerRadius="8" position="0,0" size="620,200" widgetBorderColor="gray" widgetBorderWidth="2" zPosition="-1"/>

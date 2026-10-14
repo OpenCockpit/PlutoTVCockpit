@@ -9,6 +9,7 @@ import subprocess
 from Components.Console import Console
 from Screens.MessageBox import MessageBox
 from Screens.Standby import TryQuitMainloop, QUIT_RESTART
+from Tools import Notifications
 from Tools.Directories import fileReadLines
 from twisted.internet import threads
 
@@ -116,6 +117,32 @@ def getAvailablePackageVersion(package_name):
     }
 
 
+def askForRestart(session, text, default=True, timeout=-1, notification=False):
+    """Ask whether to restart Enigma2 now, and restart it if the answer is yes.
+
+    Used after a plugin update (see checkPluginUpdateAndOpen) and by the TV plugins when the stream addresses of
+    their channels changed. *default* is the answer a *timeout* (seconds, -1 = none) gives.
+
+    *notification* is for a caller that is a background job and doesn't know what is on screen: the question is
+    opened on top of whatever screen is running (a plugin screen, the infobar), so it is seen at once. Enigma2
+    refuses to open a modal dialog while no screen is running (a RuntimeError, see Session.open), e.g. in the moment
+    a screen is closing; the question is queued as a notification then. Notifications are only shown by the
+    infobar, which is why they aren't used right away: with a plugin screen open the question would wait there
+    until that screen is left.
+
+    No second confirmation from TryQuitMainloop itself (see Screens.Standby.TryQuitMainloop - it only re-prompts
+    when there's an active recording/timeshift/background job to warn about) - same call pattern SkinSelector/
+    ClientMode/MultiBootSelector all use after their own restart-confirm prompt."""
+    def _restartConfirmed(answer):
+        if answer:
+            session.open(TryQuitMainloop, retvalue=QUIT_RESTART)
+
+    if notification and not session.in_exec:
+        Notifications.AddNotificationWithCallback(_restartConfirmed, MessageBox, text, type=MessageBox.TYPE_YESNO, default=default, timeout=timeout)
+    else:
+        session.openWithCallback(_restartConfirmed, MessageBox, text, type=MessageBox.TYPE_YESNO, default=default, timeout=timeout)
+
+
 def checkPluginUpdate(package_name):
     installed_version = getInstalledPackageVersion(package_name)
     available_info = getAvailablePackageVersion(package_name)
@@ -187,17 +214,7 @@ def checkPluginUpdateAndOpen(session, package_name, plugin_name, main_screen, au
                 return
 
             def _installFinished(_data, _retval, _extra_args):
-                def _restartConfirmed(restart_answer):
-                    if restart_answer:
-                        session.open(TryQuitMainloop, retvalue=QUIT_RESTART)
-
-                session.openWithCallback(
-                    _restartConfirmed,
-                    MessageBox,
-                    _("%s has been updated. Restart Enigma2 now to use the new version?") % plugin_name,
-                    type=MessageBox.TYPE_YESNO,
-                    default=True
-                )
+                askForRestart(session, _("%s has been updated. Restart Enigma2 now to use the new version?") % plugin_name)
 
             install_cmd = f"opkg install {update['path'] or update['package']}"
             Console().ePopen(install_cmd, _installFinished)

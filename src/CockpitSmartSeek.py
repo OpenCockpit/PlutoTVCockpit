@@ -10,8 +10,8 @@ from .Debug import logger
 from .CutListUtils import secondsToPts, ptsToSeconds
 
 
-SKIP_TIMEOUT = 5000
-STOP_BEFORE_EOF = 5
+SKIP_TIMEOUT = 5000  # milliseconds
+STOP_BEFORE_EOF = 5  # seconds
 
 
 class CockpitSmartSeek(InfoBarSeek):

@@ -25,6 +25,10 @@ class CockpitSeek(CockpitSmartSeek, CockpitEvent):
         return is_recording
 
     def getSeek(self):
+        # CockpitPlayer doesn't inherit InfoBarSeek (it has its own action map
+        # and event tracking via CockpitPVRState/CockpitCueSheet), so getSeek()/
+        # doSeek() are reimplemented here rather than pulling in the whole
+        # InfoBarSeek mixin just for these two stateless helpers.
         service = self.session.nav.getCurrentService()
         if service is None:
             return None

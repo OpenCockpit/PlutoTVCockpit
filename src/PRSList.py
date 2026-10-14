@@ -44,12 +44,23 @@ class PRSList(List):
         for icon_file in icons:
             icon_name = os.path.splitext(icon_file)[0]
             fallback = os.path.join(icon_dir, icon_file)
+            # Namespaced under PLUGIN, not bare "icons/<file>" - the generic
+            # path collides with some images' own system icons of the same name
+            # (e.g. OpenATV ships its own icons/menu.png at the shared skin root,
+            # a legacy top-level SCOPE_GUISKIN fallback it still resolves through -
+            # silently replacing this plugin's 120x120 icon with OpenATV's 438x320
+            # main-menu graphic, which then renders as a tiny sliver once fit into
+            # this list's small icon box).
             resolved = x if fileExists(x := resolveFilename(SCOPE_CURRENT_SKIN, f"icons/{PLUGIN}/{icon_file}")) else fallback
             self._pixmaps[icon_name] = LoadPixmap(resolved) if fileExists(resolved) else None
 
         List.__init__(self)
         self.setList(entries)
 
+    # Components.Sources.List has no MenuList-style getSelectionIndex()/
+    # moveToIndex() of its own (it exposes an "index" property instead) -
+    # these keep PlutoTVCockpit.py/RakutenTVCockpit.py/SamsungTVCockpit.py's
+    # existing calls working unchanged.
     def getSelectionIndex(self):
         return self.index
 

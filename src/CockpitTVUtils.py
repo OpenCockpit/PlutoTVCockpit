@@ -64,11 +64,13 @@ class MountedDataFolder:
 
 
 class ResumePoints:
+    # We can't use the ResumePoints class built in to enigma because
+    # the id's are hashes, not srefs, so would be deleted on reboot.
     def __init__(self, resume_point_file):
         self.resumePointFile = resume_point_file
         self.resumePointCache = {}
         self.loadResumePoints()
-        self.cleanCache()
+        self.cleanCache()  # get rid of stale entries on reboot
 
     def loadResumePoints(self):
         self.resumePointCache.clear()
@@ -97,7 +99,7 @@ class ResumePoints:
         last = None
         length = 0
         if sid and (entry := self.resumePointCache.get(sid)):
-            entry[0] = int(time())
+            entry[0] = int(time())  # update LRU timestamp
             last = entry[1]
             length = entry[2]
         return last, length
@@ -106,7 +108,7 @@ class ResumePoints:
         changed = False
         now = int(time())
         for sid, v in list(self.resumePointCache.items()):
-            if now > v[0] + 30 * 24 * 60 * 60:
+            if now > v[0] + 30 * 24 * 60 * 60:  # keep resume points a maximum of 30 days
                 del self.resumePointCache[sid]
                 changed = True
         if changed:
@@ -133,7 +135,7 @@ def downloadPoster(poster_session, data_folder, url, name, callback):
                     logger.debug("downloadPoster: using cached %s", filename)
                     callFromThread(callback, filename, name)
                     return
-                os.remove(filename)
+                os.remove(filename)  # stale: wrong format for extension
             except OSError as exc:
                 logger.debug("downloadPoster: cache check failed for %s: %r", filename, exc)
     try:

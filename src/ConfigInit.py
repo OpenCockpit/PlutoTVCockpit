@@ -13,6 +13,11 @@ from .Variables import NUMBER_OF_LIVETV_BOUQUETS
 from .CockpitTVConfig import setupLocationSlots
 
 
+# Geo-spoofing IP ranges per country code, used for X-Forwarded-For headers.
+# Each value is the /24 containing a previously-verified anchor address for
+# that country. pickForwardIP() draws a random host from the range instead
+# of always sending the one exact address, so the header value isn't pinned
+# to a single IP that could get deallocated or rate-limited over time.
 X_FORWARD_NETS = {
     "us": "185.236.200.0/24",
     "gb": "185.199.220.0/24",
@@ -67,19 +72,32 @@ def pickForwardIP(country):
     return _forwardIPCache[country]
 
 
+# ISO3166 is sorted in English, sorted will sort by locale.
 COUNTRY_NAMES = {cc: country[0].split("(")[0].strip() for country in sorted(ISO3166) if (cc := country[1].lower()) in X_FORWARD_NETS}
 
 TSIDS = {cc: f"{i:X}" for i, cc in enumerate(COUNTRY_NAMES, 1)}
 
 
+# --- Config subsection ---------------------------------------------------
+
 config.plugins.plutotv = ConfigSubsection()
 config.plugins.plutotv.country = ConfigSelection(default="local", choices=[("local", _("Local"))] + list(COUNTRY_NAMES.items()))
 config.plugins.plutotv.picons = ConfigSelection(default="snp", choices=[("snp", _("service name")), ("srp", _("service reference")), ("", _("None"))])
-config.plugins.plutotv.live_tv_mode = ConfigSelection(default="jmp2", choices=[("stitcher", _("Stitcher")), ("jmp2", _("JMP2 proxy")), ("mjh", _("i.mjh.nz"))])
+# On: the bouquet holds lazy pluto:// addresses, resolved by StreamProxyCockpit when a channel is played or recorded.
+# Off: the bouquet holds the addresses of the source of live_tv_mode.
+config.plugins.plutotv.stream_proxy = ConfigYesNo(default=True)
+# The source of the addresses in the bouquet, only used with the stream proxy off: the stitcher of Pluto itself (with
+# a token of its own), the jmp2.uk redirect or the playlist of i.mjh.nz.
+config.plugins.plutotv.live_tv_mode = ConfigSelection(default="stitcher", choices=[("stitcher", _("Stitcher")), ("jmp2", _("JMP2")), ("mjh", _("i.mjh.nz"))])
 config.plugins.plutotv.auto_update_check = ConfigSelection(default="yes", choices=[("yes", _("Yes")), ("no", _("No"))])
 config.plugins.plutotv.config_folder = ConfigDirectory(default="/etc/enigma2")
+# Read by CockpitPlayer; not offered in the setup screen. PRSCockpitPlayer implements the resume prompt itself.
+# Off: LiveProxyUnmuxed serves VOD as a sliding live-style window that always starts at the first segment,
+# so seeking to a saved position can't be honoured. Saving the position (list progress) is unaffected.
 config.plugins.plutotv.movie_resume_at_last_pos = ConfigYesNo(default=False)
 config.plugins.plutotv.movie_start_position = ConfigSelection(default="beginning", choices=[("beginning", _("beginning"))])
 
+
+# --- Live-TV country config items -----------------------------------------
 
 getselectedcountries = setupLocationSlots(config.plugins.plutotv, "live_tv_country", COUNTRY_NAMES, NUMBER_OF_LIVETV_BOUQUETS, _("None"))

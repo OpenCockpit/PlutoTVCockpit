@@ -22,7 +22,7 @@ def setupLocationSlots(config_subsection, field_prefix, names, count, none_label
 
     def _autoSlot(_configElement):
         for idx in range(1, count + 1):
-            selected = getSelected(idx)
+            selected = getSelected(idx)  # run only once, not per list-comprehension iteration
             getattr(config_subsection, field_prefix + str(idx)).setChoices(
                 [x for x in choices_list if x[0] and x[0] not in selected or not x[0] and (idx == count or not getattr(config_subsection, field_prefix + str(idx + 1)).value)]
             )

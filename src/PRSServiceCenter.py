@@ -94,6 +94,7 @@ class Info():
         logger.debug("path: %s, length: %s", self.path, self.length)
 
     def getName(self):
+        # EventName NAME
         logger.debug("name: %s", self.name)
         return self.name
 
@@ -115,10 +116,12 @@ class Info():
 
     def getShortDescription(self):
         logger.debug("...")
+        # EventName SHORT_DESCRIPTION
         return self.description
 
     def getExtendedDescription(self):
         logger.debug("...")
+        # EventName EXTENDED_DESCRIPTION
         return ""
 
     def getBeginTimeString(self):
@@ -126,6 +129,8 @@ class Info():
         return ""
 
     def getEventStartTime(self):
+        # A stream has no broadcast time; 0 keeps CockpitEvent.getEventInfo()
+        # from adding any before/offset correction to the length.
         logger.debug("...")
         return 0
 

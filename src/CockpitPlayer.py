@@ -104,6 +104,12 @@ class CockpitPlayer(
         logger.info("...")
         if self["player_icon"].instance:
             player_icon = "streamer.svg" if self.stream else "player.svg"
+            # Explicit width/height/scaletoFit are required to rasterize an
+            # SVG to a usable size - see CockpitPVRState.py's identical
+            # pattern for its own state icons ("Load SVG with proper scaling
+            # to fit the widget"). Without them LoadPixmap() has no target
+            # size for a vector image, and setPixmap() ends up with nothing
+            # visible (same bug fixed in TimeshiftCockpit's CockpitPlayer.py).
             self["player_icon"].instance.setPixmap(LoadPixmap(getSkinPath(
                 "images/" + player_icon), cached=True, width=60, height=60, scaletoFit=1))
         if not self.service_started:
@@ -113,6 +119,7 @@ class CockpitPlayer(
         logger.info("self.is_closing: %s", self.is_closing)
         if not self.service_started and not self.is_closing:
             self.service_started = True
+            # Wait 10 ms second for service to fully initialize before checking resume
             DelayTimer(10, self.delayedServiceStarted)
 
     def delayedServiceStarted(self):
@@ -150,6 +157,7 @@ class CockpitPlayer(
                 self.doSeek(int(first_mark))
         elif self.config_plugins_plugin.movie_start_position.value == "event_start":
             self.skipToEventStart()
+        # "beginning" needs no seek - playback already starts at the beginning
 
     def ok(self):
         if self.seekstate == self.SEEK_STATE_PLAY:
@@ -163,9 +171,6 @@ class CockpitPlayer(
     def showMovieInfoEPG(self):
         if self.showMovieInfoEPGPtr:
             self.showMovieInfoEPGPtr()
-
-    def showPVRStatePic(self, show):
-        self.show_state_pic = show
 
     def leavePlayer(self):
         logger.info("last: %s", self.getPosition())

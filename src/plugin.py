@@ -3,13 +3,13 @@
 # License: GNU General Public License v3.0
 
 from Components.config import config
-from Navigation import Navigation
 from Plugins.Plugin import PluginDescriptor
+from Plugins.SystemPlugins.StreamProxyCockpit import StreamProxy
 
 from .PluginUpgrade import checkPluginUpdateAndOpen
 from . import ConfigInit  # noqa: F401, pylint: disable=unused-import
 from . import _
-from .PlutoTVRequest import playServiceExtension, recordServiceExtension, startProactiveRefresh
+from .PlutoTVRequest import resolveStream, startProactiveRefresh
 from .PlutoTVDownload import PlutoTVDownload, Silent
 from .PlutoTVCockpit import PlutoTVCockpit
 from .SkinUtils import loadPluginSkin
@@ -20,19 +20,14 @@ from .Debug import logger
 loadPluginSkin(PLUGIN)
 
 
-def installServiceExtensions(nav):
-    if hasattr(nav, "playServiceExtensions") and playServiceExtension not in nav.playServiceExtensions:
-        nav.playServiceExtensions.append(playServiceExtension)
-    if hasattr(nav, "recordServiceExtensions") and recordServiceExtension not in nav.recordServiceExtensions:
-        nav.recordServiceExtensions.append(recordServiceExtension)
-
-
-installServiceExtensions(Navigation)
+# The bouquets address a channel as pluto://<id>. StreamProxyCockpit resolves such a service when it is played or
+# recorded, and installs its service extensions while the plugin is loaded (a record timer resumed at startup
+# prepares its recording before any sessionstart runs, see StreamProxy.registerProvider).
+StreamProxy.registerProvider("pluto", resolveStream)
 
 
 def sessionstart(reason, session, **kwargs):  # pylint: disable=unused-argument
     logger.info("+++ Version: %s starts...", VERSION)
-    installServiceExtensions(session.nav)
     Silent.init(session)
     from twisted.internet import reactor
     reactor.callLater(30, startProactiveRefresh)

@@ -10,6 +10,7 @@ from Components.Sources.StaticText import StaticText
 from Screens.Setup import Setup
 
 from . import _
+from .CockpitTVDownload import NOPROXY_SUFFIX, removeBouquetVariants
 from .PlutoTVDownload import PlutoTVDownload, Silent
 from .PiconFetcher import PiconFetcher
 from .Variables import BOUQUET_FILE, NUMBER_OF_LIVETV_BOUQUETS
@@ -41,7 +42,8 @@ class PlutoSetup(Setup):
             if n == 1 or getattr(config.plugins.plutotv, "live_tv_country" + str(n - 1)).value:
                 configList.append((_("Live-TV bouquet %s") % n, getattr(config.plugins.plutotv, "live_tv_country" + str(n)), _("Country for which Live-TV bouquet %s will be created.") % n))
         configList.append(("---",))
-        configList.append((_('Live TV mode'), config.plugins.plutotv.live_tv_mode, _('Select the stream provider. Stitcher uses the native Pluto server with JWT auth (resolved at playback). JMP2 uses the jmp2.uk proxy. i.mjh.nz uses Matt Huisman\'s community playlist. Requires bouquet update to take effect.')))
+        configList.append((_("Stream proxy"), config.plugins.plutotv.stream_proxy, _("Play and record through StreamProxyCockpit, which resolves the native Pluto stream (JWT auth) when a channel is played and keeps the ad breaks of the streams from disturbing playback and recordings. Off: the bouquet holds the addresses of the source below. The bouquet of each setting is kept, so changing it switches between them; one that doesn't exist yet, or is older than 5 hours, is generated.")))
+        configList.append((_("Source without stream proxy"), config.plugins.plutotv.live_tv_mode, _("Select the stream provider used when the stream proxy is off (ignored with the proxy on). Stitcher uses the native Pluto server with a token of its own, JMP2 the jmp2.uk redirect, i.mjh.nz the community playlist of Matt Huisman. The bouquet is generated again when this is changed.")))
         configList.append((_("Picon type"), config.plugins.plutotv.picons, _("Using service name picons means they will continue to work even if the service reference changes. Also, they can be shared between channels of the same name that don't have the same service references.")))
         configList.append((_("Automatic update check"), config.plugins.plutotv.auto_update_check, _("Automatically check for a newer package update when the plugin GUI is opened.")))
         configList.append((_("Data location"), config.plugins.plutotv.config_folder, _("Location the config data are stored in.")))
@@ -51,13 +53,23 @@ class PlutoSetup(Setup):
     def _locationConfigChanged(self):
         if config.plugins.plutotv.country.isChanged():
             return True
-        if config.plugins.plutotv.live_tv_mode.isChanged():
-            return True
+        if config.plugins.plutotv.live_tv_mode.isChanged() and not config.plugins.plutotv.stream_proxy.value:
+            return True   # the bouquet in use holds addresses of the source
         return any(getattr(config.plugins.plutotv, "live_tv_country" + str(n)).isChanged() for n in range(1, NUMBER_OF_LIVETV_BOUQUETS + 1))
 
     def keySave(self):
+        if config.plugins.plutotv.live_tv_mode.isChanged():
+            removeBouquetVariants(BOUQUET_FILE, (NOPROXY_SUFFIX,))   # the stored ones hold addresses of the old source
         if self._locationConfigChanged():
+            # generates the bouquets for the current "Stream proxy" setting as well
             self.session.openWithCallback(lambda *_: Setup.keySave(self), PlutoTVDownload)
+        elif config.plugins.plutotv.stream_proxy.isChanged():
+            # the locations without a stored bouquet are generated on top of the setup, like above
+            missing = Silent.switchBouquetVariants()
+            if missing:
+                self.session.openWithCallback(lambda *_: Setup.keySave(self), PlutoTVDownload, missing)
+            else:
+                Setup.keySave(self)
         else:
             Setup.keySave(self)
 
@@ -85,4 +97,5 @@ class PlutoSetup(Setup):
             Silent.stop()
             from enigma import eDVBDB
             eDVBDB.getInstance().removeBouquet(re.escape(BOUQUET_FILE) % ".*")
+            removeBouquetVariants(BOUQUET_FILE)
             self.updateBlueButton()

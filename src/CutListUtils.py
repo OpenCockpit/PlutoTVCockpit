@@ -7,8 +7,12 @@ import struct
 from bisect import insort
 
 
-cutsParser = struct.Struct('>QI')
+cutsParser = struct.Struct('>QI')  # big-endian, 64-bit PTS and 32-bit type
 
+
+# cut_list data structure
+# cut_list[x][0] = pts  = long long
+# cut_list[x][1] = what = long
 
 
 CUT_TYPE_IN = 0
@@ -18,6 +22,7 @@ CUT_TYPE_LAST = 3
 
 
 def removeFirstMarks(cut_list):
+    # ignore first 10 seconds
     for pts, what in cut_list:
         if pts < secondsToPts(10):
             cut_list.remove((pts, what))
@@ -41,10 +46,11 @@ def packCutList(cut_list):
 
 
 def insortCutList(cut_list, in_pts, in_what):
-    INSORT_SCOPE = 45000
+    INSORT_SCOPE = 45000  # 0.5 seconds * 90 * 1000
     for pts, what in cut_list:
         if what == in_what:
             if pts - INSORT_SCOPE < in_pts < pts + INSORT_SCOPE:
+                # found a conflicting entry, remove it to avoid doubles and short jumps
                 cut_list.remove((pts, what))
     insort(cut_list, (in_pts, in_what))
     return cut_list

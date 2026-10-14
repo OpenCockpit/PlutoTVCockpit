@@ -37,5 +37,5 @@ class DelayTimer():
 
     @staticmethod
     def stopAll():
-        for timer_instance in timer_instances[:]:
+        for timer_instance in timer_instances[:]:  # Create a copy to avoid modification during iteration
             timer_instance.stop()

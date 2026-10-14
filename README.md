@@ -16,6 +16,7 @@ Open-Enigma2 plugin for Live-TV and VoD streams
 ## Features
 - Playback of Pluto TV live channels and VoD content by country
 - Generation of E2 bouquets including EPG
+- Optional stream proxy (setting *Stream proxy*, on by default): the channels are played and recorded through StreamProxyCockpit (the bouquet holds a lazy `pluto://<channel id>` address per channel). Off, the bouquet holds the addresses of the selected source (setting *Live TV mode*, only used then: Stitcher, JMP2 or i.mjh.nz; Stitcher by default). The bouquet of each setting is kept (`.tv.proxy`, `.tv.noproxy`) and `.tv` always holds the one of the current setting: changing it switches between them, a bouquet that does not exist yet or is older than the update interval (5 hours) is generated
 - Download of channel picons
 - Record channels - instant and timer recording
 
