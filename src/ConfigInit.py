@@ -84,11 +84,15 @@ config.plugins.plutotv = ConfigSubsection()
 config.plugins.plutotv.country = ConfigSelection(default="local", choices=[("local", _("Local"))] + list(COUNTRY_NAMES.items()))
 config.plugins.plutotv.picons = ConfigSelection(default="snp", choices=[("snp", _("service name")), ("srp", _("service reference")), ("", _("None"))])
 # On: the bouquet holds lazy pluto:// addresses, resolved by StreamProxyCockpit when a channel is played or recorded.
-# Off: the bouquet holds the addresses of the source of live_tv_mode.
+# Off: the bouquet holds the addresses of the stream source (live_tv_mode).
 config.plugins.plutotv.stream_proxy = ConfigYesNo(default=True)
-# The source of the addresses in the bouquet, only used with the stream proxy off: the stitcher of Pluto itself (with
-# a token of its own), the jmp2.uk redirect or the playlist of i.mjh.nz.
-config.plugins.plutotv.live_tv_mode = ConfigSelection(default="stitcher", choices=[("stitcher", _("Stitcher")), ("jmp2", _("JMP2")), ("mjh", _("i.mjh.nz"))])
+# The stream source, with and without the stream proxy: the stitcher of Pluto itself (with a token of its own) or the
+# jmp2.uk redirect.
+if config.plugins.plutotv.content.stored_values.get("live_tv_mode") == "mjh":
+    # i.mjh.nz was a third source: its playlist is gone, and it listed the same channels with the same JMP2 addresses.
+    # Changed before the setting is created: a stored value that is not one of its choices makes it raise.
+    config.plugins.plutotv.content.stored_values["live_tv_mode"] = "jmp2"
+config.plugins.plutotv.live_tv_mode = ConfigSelection(default="stitcher", choices=[("stitcher", _("Stitcher")), ("jmp2", _("JMP2"))])
 config.plugins.plutotv.auto_update_check = ConfigSelection(default="yes", choices=[("yes", _("Yes")), ("no", _("No"))])
 config.plugins.plutotv.config_folder = ConfigDirectory(default="/etc/enigma2")
 # Read by CockpitPlayer; not offered in the setup screen. PRSCockpitPlayer implements the resume prompt itself.

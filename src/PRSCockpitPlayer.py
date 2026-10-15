@@ -91,12 +91,14 @@ class PRSCockpitPlayer(CockpitPlayer):
     def leavePlayer(self):
         logger.info("...")
         self.is_closing = True
-        self.prs_resume_points.setResumePoint(self.session, self.prs_sid)
+        self.prs_resume_points.setResumePoint(self.session, self.prs_sid, duration=self.getLength() or None)
         self.session.nav.stopService()
         self.close()
 
     def doEofInternal(self, playing):
         logger.info("playing: %s, self.execing: %s", playing, self.execing)
+        if length := self.getLength():  # played to the end: mark it seen
+            self.prs_resume_points.setResumePoint(self.session, self.prs_sid, duration=length, position=length)
         if self.execing:
             self.is_closing = True
             self.close()

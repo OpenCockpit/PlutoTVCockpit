@@ -14,7 +14,8 @@ Instantiate directly - no per-plugin subclass needed:
 
 *resume_points* (a ResumePoints instance, see PlutoUtils/RakutenTVUtils/
 SamsungTVUtils), if given, enables picking between "cine"/"cine_half"/
-"cine_end" for movie/episode entries based on playback progress.
+"cine_end" (unseen / seeing / seen, see watchStatus()) for movie/episode
+entries based on playback progress.
 
 The actual per-row layout (icon + text position/size) is skin-defined, in
 Common/src/skin/screenpart_PRSList.ymlinc - included as the "feedlist"
@@ -32,13 +33,33 @@ import os
 from Components.Sources.List import List
 from Tools.Directories import fileExists, resolveFilename, SCOPE_CURRENT_SKIN
 from Tools.LoadPixmap import LoadPixmap
+from .CutListUtils import secondsToPts
 from .Version import PLUGIN
+
+SEEN_MARGIN_PTS = secondsToPts(5 * 60)
+STATUS_ICONS = {"unseen": "cine", "seeing": "cine_half", "seen": "cine_end"}
+
+
+def watchStatus(last, length):
+    """Watch state: unseen below 5 min watched, seen within 5 min of the end
+    (or past it), seeing in between. *last* and *length* are 90 kHz pts;
+    length 0 = unknown, which can never be seen. The margin shrinks to a
+    third of the length for clips under 15 min so the states never overlap."""
+    if not last:
+        return "unseen"
+    margin = min(SEEN_MARGIN_PTS, length // 3) if length else SEEN_MARGIN_PTS
+    if last < margin:
+        return "unseen"
+    if length and last > length - margin:
+        return "seen"
+    return "seeing"
 
 
 class PRSList(List):
     def __init__(self, entries, icons=("menu.png",), resume_points=None):
         icon_dir = f"/usr/lib/enigma2/python/Plugins/Extensions/{PLUGIN}/skin/images"
         self._resume_points = resume_points
+        self._durations = {}  # sid -> length in pts, from the listing
         self._pixmaps = {}
 
         for icon_file in icons:
@@ -74,7 +95,9 @@ class PRSList(List):
         if self.list:
             self.updateList([self.listentry(*entry[0]) for entry in self.list])
 
-    def listentry(self, name, data, _id, epid=0):
+    def listentry(self, name, data, _id, epid=0, duration=0):
+        """*duration* (seconds, from the listing) is remembered per item, so
+        refresh() - which only has the identity tuple - still knows it."""
         png = None
         if data == "menu":
             png = self._pixmaps.get("menu")
@@ -84,14 +107,12 @@ class PRSList(List):
             png = self._pixmaps.get("cine")
             if self._resume_points is not None:
                 sid = epid if data == "episode" else _id
-                last, length = self._resume_points.getResumePoint(sid)
-                if last:
-                    cine_half_png = self._pixmaps.get("cine_half")
-                    cine_end_png = self._pixmaps.get("cine_end")
-                    if cine_half_png and (last > 900000) and (not length or (last < length - 900000)):
-                        png = cine_half_png
-                    elif cine_end_png and length and last >= length - 900000:
-                        png = cine_end_png
+                if duration:
+                    self._durations[sid] = secondsToPts(duration)
+                last, stored_length = self._resume_points.getResumePoint(sid)
+                # the listing's duration is reliable; the length stored with the resume point is often 0
+                status = watchStatus(last, self._durations.get(sid) or stored_length)
+                png = self._pixmaps.get(STATUS_ICONS[status]) or png
         else:
             png = self._pixmaps.get("menu")
 

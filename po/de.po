@@ -39,9 +39,6 @@ msgstr "Orginal PlutoTV"
 msgid "JMP2"
 msgstr "JMP2"
 
-msgid "i.mjh.nz"
-msgstr "i.mjh.nz-Proxy"
-
 msgid "Yes"
 msgstr "Ja"
 
@@ -78,14 +75,14 @@ msgstr "Für welches Land soll das Live-TV-Bouquet '%s' erstellt werden?"
 msgid "Stream proxy"
 msgstr "Stream Proxy"
 
-msgid "Play and record through StreamProxyCockpit, which resolves the native Pluto stream (JWT auth) when a channel is played and keeps the ad breaks of the streams from disturbing playback and recordings. Off: the bouquet holds the addresses of the source below. The bouquet of each setting is kept, so changing it switches between them; one that doesn't exist yet, or is older than 5 hours, is generated."
+msgid "Play and record through StreamProxyCockpit, which looks the stream address up when a channel is played and keeps the ad breaks of the streams from disturbing playback and recordings. Off: the bouquet holds the addresses of the stream source below. The bouquet of each setting is kept, so changing it switches between them; one that doesn't exist yet, or is older than 5 hours, is generated."
 msgstr "Abspielen und Aufnehmen über StreamProxyCockpit. Ein: Es verhindert, dass die Werbeunterbrechungen der Streams Wiedergabe und Aufnahmen stören. Aus: Das Bouquet enthält die Adressen der unten gewählten Quelle."
 
-msgid "Source without stream proxy"
-msgstr "Quelle für deaktiviertes Stream Proxy (falls die entsprechenden Server online sind)"
+msgid "Stream source"
+msgstr "Stream-Quelle"
 
-msgid "Select the stream provider used when the stream proxy is off (ignored with the proxy on). Stitcher uses the native Pluto server with a token of its own, JMP2 the jmp2.uk redirect, i.mjh.nz the community playlist of Matt Huisman. The bouquet is generated again when this is changed."
-msgstr "Wähle Stream-Provider aus, wenn Stream Proxy deaktiviert ist. (Die Quellen können offline sein.)"
+msgid "Where the streams come from, with and without the stream proxy. Stitcher is the native Pluto server with a token of its own, JMP2 the jmp2.uk redirect. The bouquet is generated again when this is changed."
+msgstr "Woher die Streams kommen, mit und ohne Stream Proxy. Stitcher ist der Pluto-Server selbst mit eigenem Token, JMP2 die Weiterleitung von jmp2.uk. Das Bouquet wird bei einer Änderung neu erstellt. (Die Quellen können offline sein.)"
 
 msgid "Picon type"
 msgstr "Picon-Typ"
@@ -243,7 +240,7 @@ msgstr "Pluto TV verweigerte den Request für %s (HTTP %s). Möglicherweise aufg
 msgid "Pluto TV could not be reached for %s%s. Try again later."
 msgstr "Pluto TV konnte nicht erreicht werden für %s%s. Später nochmal probieren."
 
-msgid "Pluto TV lists channels for %s, but the selected source has no stream address for them. Try another source or the stream proxy."
+msgid "Pluto TV lists channels for %s, but the selected source has no stream address for them. Try another source."
 msgstr "Pluto TV listet Kanäle für %s, aber die ausgewählte Quelle hat keine Stream-Adresse(n). Andere Quelle probieren."
 
 msgid "Pluto TV has no channels for %s. It may not be available in your country."

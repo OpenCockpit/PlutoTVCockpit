@@ -130,9 +130,6 @@ class PlutoTVRequest(FailureTracker):
     # JMP2 proxy URL template
     JMP2_URL_TEMPLATE = "https://jmp2.uk/plu-%s.m3u8"
 
-    # i.mjh.nz playlist URL template (per country code)
-    MJH_PLAYLIST_URL = "https://i.mjh.nz/PlutoTV/%s.m3u8"
-
     def __init__(self):
         # Slot 0 is the "primary" slot used for metadata / API calls.
         self._pool = [_PlutoSlot(i, self.STITCHER_FALLBACK) for i in range(STREAM_POOL_SIZE)]
@@ -229,6 +226,8 @@ class PlutoTVRequest(FailureTracker):
         if existing_url is not None:
             return existing_url
         country = country or config.plugins.plutotv.country.value
+        if config.plugins.plutotv.live_tv_mode.value != "stitcher":
+            return self._registerSourceChannel(channel_id)
         slot = self._nextStreamSlot()
         slot.boot(country, allow_stale=True)
         cache = slot.bootCache.get(country, {})
@@ -274,6 +273,13 @@ class PlutoTVRequest(FailureTracker):
                 _u += f"&{_sp}"
             return _u
         return LiveProxyUnmuxed.register_channel(channel_id, url, url_refresher=_url_refresher)
+
+    def _registerSourceChannel(self, channel_id):
+        """The address of the stream proxy for a channel of the source JMP2 (setting "Stream source"): the proxy
+        fetches the address of the redirect like it does the stitcher's. Nothing is fetched here, this runs on the main
+        thread."""
+        LiveProxyUnmuxed.start()
+        return LiveProxyUnmuxed.register_channel(channel_id, self.JMP2_URL_TEMPLATE % channel_id)
 
     def buildDirectStreamURL(self, channel_id, country=None):
         """The stitcher address of a channel with a token of its own, for a bouquet that doesn't go through the stream
@@ -338,49 +344,6 @@ class PlutoTVRequest(FailureTracker):
         if ip := pickForwardIP(country or config.plugins.plutotv.country.value):
             headers['X-Forwarded-For'] = ip
         return headers
-
-    def getMjhStreams(self, country=None):
-        """Fetch and parse the i.mjh.nz PlutoTV m3u8 playlist.
-
-        Returns a dict mapping channel_id -> stream_url.
-        Results are cached for 4 hours.
-        """
-        country = country or config.plugins.plutotv.country.value
-        now = time.time()
-        if country not in self.requestCache:
-            self.requestCache[country] = {}
-        cache_key = "_mjh_streams"
-        if cache_key in self.requestCache[country] and self.requestCache[country][cache_key][1] > (now - 4 * 3600):
-            return self.requestCache[country][cache_key][0]
-
-        url = self.MJH_PLAYLIST_URL % country
-        streams = {}
-        try:
-            response = requests.get(url, timeout=10)
-            response.raise_for_status()
-            channel_id = None
-            for line in response.text.splitlines():
-                line = line.strip()
-                if line.startswith("#EXTINF:"):
-                    if not (match := re.search(r'channel-id="([^"]+)"', line)):
-                        # fallback: tvg-id format "id.cc.pluto.tv"
-                        if (match := re.search(r'tvg-id="([^"]+)"', line)):
-                            channel_id = match.group(1).split(".")[0]
-                        else:
-                            channel_id = None
-                    else:
-                        channel_id = match.group(1)
-                elif line and not line.startswith("#") and channel_id:
-                    streams[channel_id] = line
-                    channel_id = None
-            self.requestCache[country][cache_key] = (streams, now)
-            logger.debug("getMjhStreams: %s channels for %s", len(streams), country)
-        except Exception as e:
-            logger.debug("getMjhStreams error for %s: %s", country, e)
-            # Remember the failure for 15 minutes: the playlist is looked up once per channel while a bouquet is
-            # built, which made a playlist that is gone (404) an extra request for every channel of the bouquet.
-            self.requestCache[country][cache_key] = (streams, now - 4 * 3600 + 15 * 60)
-        return streams
 
     def getURL(self, url, param=None, header=None, life=60 * 15, country=None):
         if header is None:

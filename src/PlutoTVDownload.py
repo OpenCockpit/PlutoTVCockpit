@@ -56,7 +56,7 @@ class PlutoTVDownloadBase(TVDownloadBase):
 
     def _proxyEnabled(self):
         """True if the bouquet gets the lazy addresses StreamProxyCockpit resolves (setting "Stream proxy"), False for
-        the addresses of the source of live_tv_mode."""
+        the addresses of the stream source (live_tv_mode). The source applies either way."""
         return config.plugins.plutotv.stream_proxy.value
 
     def _selectedLocations(self):
@@ -83,7 +83,7 @@ class PlutoTVDownloadBase(TVDownloadBase):
     def _afterBouquetWritten(self, cc, bouquet_name):
         # Overrides TVDownloadBase's shared default (which reuses each
         # channel's already-resolved bouquet stream_url) because Pluto's own
-        # bouquet ref uses a lazy "pluto://" (or JMP2/MJH, per
+        # bouquet ref uses a lazy "pluto://" (or the address of the stream source, per
         # config.plugins.plutotv.live_tv_mode with the stream proxy off) scheme resolved at play time
         # by StreamProxyCockpit (StreamProxy.playServiceExtension) - not portable to tools other
         # than Enigma2. The exported playlist instead points at this proxy's
@@ -166,14 +166,11 @@ class PlutoTVDownloadBase(TVDownloadBase):
         ch_sid, ch_hash, ch_name, ch_logourl, _id = self.channelsList[key][chitem]
 
         if self.bouquetProxy:
-            stream_url = plutoRequest.PLUTO_SCHEMA + _id
+            stream_url = plutoRequest.PLUTO_SCHEMA + _id   # resolved from the stream source when it is played
         else:
             # A channel the source can't give an address for is left out of the bouquet (the download skips an entry
             # without an address), not silently given a proxy address: the setting says no proxy.
-            mode = config.plugins.plutotv.live_tv_mode.value
-            if mode == "mjh":
-                stream_url = plutoRequest.getMjhStreams(self.bouquetCC).get(_id, "")
-            elif mode == "jmp2":
+            if config.plugins.plutotv.live_tv_mode.value == "jmp2":
                 stream_url = plutoRequest.JMP2_URL_TEMPLATE % _id
             else:   # stitcher
                 stream_url = plutoRequest.buildDirectStreamURL(_id, self.bouquetCC)
@@ -394,7 +391,7 @@ class PlutoTVDownload(TVDownloadScreenMixin, PlutoTVDownloadBase, Screen):
         elif reason == FAIL_NETWORK:
             text = _("Pluto TV could not be reached for %s%s. Try again later.") % (name, f" (HTTP {detail})" if detail else "")
         elif reason == FAIL_NOSTREAM:
-            text = _("Pluto TV lists channels for %s, but the selected source has no stream address for them. Try another source or the stream proxy.") % name
+            text = _("Pluto TV lists channels for %s, but the selected source has no stream address for them. Try another source.") % name
         else:
             text = _("Pluto TV has no channels for %s. It may not be available in your country.") % name
         self.session.open(MessageBox, text, type=MessageBox.TYPE_ERROR, timeout=10)

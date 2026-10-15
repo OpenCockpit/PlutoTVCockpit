@@ -83,17 +83,24 @@ class ResumePoints:
         with open(self.resumePointFile, "wb") as f:
             pickle_dump(self.resumePointCache, f, protocol=5)
 
-    def setResumePoint(self, session, sid):
-        service = session.nav.getCurrentService()
-        if service and session.nav.getCurrentlyPlayingServiceOrGroup():
-            if seek := service.seek():
-                pos = seek.getPlayPosition()
-                if not pos[0]:
-                    lru = int(time())
-                    duration = sl[1] if (sl := seek.getLength()) else None
-                    position = pos[1]
-                    self.resumePointCache[sid] = [lru, position, duration]
-                    self.saveResumePoints()
+    def setResumePoint(self, session, sid, duration=None, position=None):
+        # duration/position (90 kHz) override what the player reports: a
+        # stream's own length is unreliable (often 0), so callers that know the
+        # real length pass it, and the end of playback passes position=duration.
+        if position is None:
+            service = session.nav.getCurrentService()
+            if not (service and session.nav.getCurrentlyPlayingServiceOrGroup()):
+                return
+            if not (seek := service.seek()):
+                return
+            pos = seek.getPlayPosition()
+            if pos[0]:
+                return
+            position = pos[1]
+            if duration is None:
+                duration = sl[1] if (sl := seek.getLength()) else None
+        self.resumePointCache[sid] = [int(time()), position, duration]
+        self.saveResumePoints()
 
     def getResumePoint(self, sid):
         last = None

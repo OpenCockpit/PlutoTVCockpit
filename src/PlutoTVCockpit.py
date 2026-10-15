@@ -294,7 +294,7 @@ class PlutoTVCockpit(Screen, HelpableScreen):
                 sname = x[1].decode("utf-8")
                 stype = x[8]
                 sid = x[0]
-                menu.append(self["feedlist"].listentry(sname, stype, sid))
+                menu.append(self["feedlist"].listentry(sname, stype, sid, duration=x[5]))
             self["feedlist"].moveToIndex(0)
             self["feedlist"].setList(menu)
             self.titlemenu = name
@@ -311,7 +311,7 @@ class PlutoTVCockpit(Screen, HelpableScreen):
                 sname = key[1].decode("utf-8")
                 stype = "episode"
                 sid = key[0]
-                menu.append(self["feedlist"].listentry(_("Episode") + " " + key[2] + ". " + sname, stype, _id, key[0]))
+                menu.append(self["feedlist"].listentry(_("Episode") + " " + key[2] + ". " + sname, stype, _id, key[0], key[5]))
             self["feedlist"].setList(menu)
             self.titlemenu = menuact.split(" - ")[0] + " - " + name
             self.title = _("PlutoTV") + " - " + self.titlemenu
@@ -350,7 +350,7 @@ class PlutoTVCockpit(Screen, HelpableScreen):
                     sname = x[1].decode("utf-8")
                     stype = x[8]
                     sid = x[0]
-                    menu.append(self["feedlist"].listentry(sname, stype, sid))
+                    menu.append(self["feedlist"].listentry(sname, stype, sid, duration=x[5]))
             elif __type == "episode":
                 for key in list(self.chapters.keys()):
                     sname = str(key)
