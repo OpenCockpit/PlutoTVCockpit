@@ -941,8 +941,8 @@ msgstr "Zimbabue"
 msgid "%s has been updated. Restart Enigma2 now to use the new version?"
 msgstr "%s se ha actualizado. ¿Deseas reiniciar Enigma2 ahora para usar la nueva versión?"
 
-msgid "A newer %s package (%s) is available. Do you want to install it now?"
-msgstr "Hay una nueva versión del paquete %s (%s) disponible. ¿Deseas instalarla ahora?"
+msgid "A newer %s package is available. Do you want to install it now?"
+msgstr "Hay una nueva versión del paquete %s disponible. ¿Deseas instalarla ahora?"
 
 msgid "End"
 msgstr ""

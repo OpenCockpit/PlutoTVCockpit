@@ -86,18 +86,29 @@ def _seedCockpitFeedConf():
         logger.debug("failed to run %s to seed the %s opkg feed: %r", feed_install_sh, COCKPIT_FEED_NAME, exc)
 
 
-def getAvailablePackageVersion(package_name):
+def _refreshOpkgLists():
+    """Update the opkg package lists (seeding the cockpit feed if need be). False if that isn't possible."""
     opkg = "/usr/bin/opkg"
     if not os.path.exists(opkg):
-        return None
+        return False
 
     _seedCockpitFeedConf()
 
     try:
         subprocess.run([opkg, "update"], capture_output=True, text=True, check=False)
     except OSError:
-        return None
+        return False
+    return True
 
+
+def getAvailablePackageVersion(package_name):
+    if not _refreshOpkgLists():
+        return None
+    return _availablePackageVersionFromLists(package_name)
+
+
+def _availablePackageVersionFromLists(package_name):
+    """The version of *package_name* in the cockpit feed list as it is now (no "opkg update")."""
     latest_version = None
     in_package = False
 
@@ -143,30 +154,42 @@ def askForRestart(session, text, default=True, timeout=-1, notification=False):
         session.openWithCallback(_restartConfirmed, MessageBox, text, type=MessageBox.TYPE_YESNO, default=default, timeout=timeout)
 
 
+def checkPluginUpdates(package_names):
+    """The packages of *package_names* that have a newer version in the feed, with one "opkg update" for all of them.
+    A list of {"package", "installed", "version", "path"}, in the order of *package_names*; empty if none."""
+    if not _refreshOpkgLists():
+        return []
+
+    updates = []
+    for package_name in package_names:
+        installed_version = getInstalledPackageVersion(package_name)
+        available_info = _availablePackageVersionFromLists(package_name)
+        if available_info and _isVersionNewer(available_info["version"], installed_version):
+            updates.append({
+                "package": package_name,
+                "installed": installed_version,
+                "version": available_info["version"],
+                "path": available_info["path"],
+            })
+    return updates
+
+
 def checkPluginUpdate(package_name):
-    installed_version = getInstalledPackageVersion(package_name)
-    available_info = getAvailablePackageVersion(package_name)
-    if not available_info:
-        return None
-
-    if _isVersionNewer(available_info["version"], installed_version):
-        return {
-            "package": package_name,
-            "installed": installed_version,
-            "version": available_info["version"],
-            "path": available_info["path"],
-        }
-
-    return None
+    updates = checkPluginUpdates([package_name])
+    return updates[0] if updates else None
 
 
-def checkPluginUpdateAndOpen(session, package_name, plugin_name, main_screen, auto_update_config, **screen_kwargs):
+def checkPluginUpdateAndOpen(session, package_name, plugin_name, main_screen, auto_update_config, also_check=(), **screen_kwargs):
     """Open *main_screen* immediately, then separately check *package_name*
     for a newer opkg version and prompt to install it if one is found.
 
     *auto_update_config* is a ConfigYesNo-style value (e.g.
     config.plugins.plutotv.auto_update_check) - the check itself is skipped
     entirely unless its value is "yes"; main_screen still opens either way.
+    *also_check* is a sequence of (package name, display name) of further packages the plugin depends on (for
+    the TV plugins StreamProxyCockpit): they are checked in the same background job, with the same single
+    "opkg update", and installed together with the plugin if they have a newer version. They are not told apart:
+    the question and the restart question are the same, and name the plugin.
     **screen_kwargs are forwarded to the session.open(main_screen, ...)
     call, for a caller whose main screen needs constructor arguments.
 
@@ -176,7 +199,7 @@ def checkPluginUpdateAndOpen(session, package_name, plugin_name, main_screen, au
     prompt, and which Screen to open - see each plugin's own plugin.py
     for the call site.
 
-    checkPluginUpdate() runs in a background thread via
+    checkPluginUpdates() runs in a background thread via
     threads.deferToThread - it shells out to "opkg update" (refreshing
     every configured feed, not just this plugin's own) with no timeout,
     which can take a long time or hang outright on a slow/unreachable
@@ -205,8 +228,8 @@ def checkPluginUpdateAndOpen(session, package_name, plugin_name, main_screen, au
     if auto_update_config.value != "yes":
         return
 
-    def _updateChecked(update):
-        if not update:
+    def _updateChecked(updates):
+        if not updates:
             return
 
         def _installUpdate(answer):
@@ -216,13 +239,14 @@ def checkPluginUpdateAndOpen(session, package_name, plugin_name, main_screen, au
             def _installFinished(_data, _retval, _extra_args):
                 askForRestart(session, _("%s has been updated. Restart Enigma2 now to use the new version?") % plugin_name)
 
-            install_cmd = f"opkg install {update['path'] or update['package']}"
+            install_cmd = "opkg install " + " ".join(update["path"] or update["package"] for update in updates)
             Console().ePopen(install_cmd, _installFinished)
 
+        # the packages of also_check belong to the plugin: one question that names the plugin, no version
         session.openWithCallback(
             _installUpdate,
             MessageBox,
-            _("A newer %s package (%s) is available. Do you want to install it now?") % (plugin_name, update["version"]),
+            _("A newer %s package is available. Do you want to install it now?") % plugin_name,
             type=MessageBox.TYPE_YESNO,
             default=False
         )
@@ -230,4 +254,4 @@ def checkPluginUpdateAndOpen(session, package_name, plugin_name, main_screen, au
     def _updateCheckFailed(failure):
         logger.debug("checkPluginUpdate(%s) failed: %s", package_name, failure)
 
-    threads.deferToThread(checkPluginUpdate, package_name).addCallbacks(_updateChecked, _updateCheckFailed)
+    threads.deferToThread(checkPluginUpdates, [package_name] + [package for package, _name in also_check]).addCallbacks(_updateChecked, _updateCheckFailed)

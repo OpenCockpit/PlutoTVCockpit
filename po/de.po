@@ -1032,5 +1032,5 @@ msgstr "Simbabwe"
 msgid "%s has been updated. Restart Enigma2 now to use the new version?"
 msgstr "Für %s wurde eine neue Version installiert. Soll Enigma2 neu gestartet werden, um die neue Version zu laden?"
 
-msgid "A newer %s package (%s) is available. Do you want to install it now?"
-msgstr "Es ist ein neues %s Package (%s) verfügbar. Soll es jetzt installiert werden?"
+msgid "A newer %s package is available. Do you want to install it now?"
+msgstr "Es ist ein neues %s Package verfügbar. Soll es jetzt installiert werden?"

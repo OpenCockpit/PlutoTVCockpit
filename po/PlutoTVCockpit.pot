@@ -1047,5 +1047,5 @@ msgstr ""
 msgid "%s has been updated. Restart Enigma2 now to use the new version?"
 msgstr ""
 
-msgid "A newer %s package (%s) is available. Do you want to install it now?"
+msgid "A newer %s package is available. Do you want to install it now?"
 msgstr ""
