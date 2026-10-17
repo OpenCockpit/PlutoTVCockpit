@@ -54,6 +54,10 @@ class CockpitPlayer(
         self["Service"] = COCCurrentService(session.nav, self)
 
         InfoBarShowHide.__init__(self)
+        # openATV binds OK to the stock toggleShow on key *release* (keymap flags="b"), OpenViX on key press. This
+        # player toggles the infobar itself when OK is pressed, so on openATV the release would toggle it right back
+        # and the infobar would vanish at once. The stock toggleShow is not needed here: ok() does its job.
+        self["ShowHideActions"].actions["toggleShow"] = self.ignoreToggleShow
         InfoBarBase.__init__(self)
         InfoBarAudioSelection.__init__(self)
         InfoBarNotifications.__init__(self)
@@ -161,6 +165,9 @@ class CockpitPlayer(
         elif self.config_plugins_plugin.movie_start_position.value == "event_start":
             self.skipToEventStart()
         # "beginning" needs no seek - playback already starts at the beginning
+
+    def ignoreToggleShow(self):
+        pass
 
     def ok(self):
         if self.seekstate == self.SEEK_STATE_PLAY:
