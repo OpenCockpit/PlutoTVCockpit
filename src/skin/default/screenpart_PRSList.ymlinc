@@ -1,11 +1,11 @@
 convert:
-  type: "COCTemplatedMultiContentEx"
+  type: "TemplatedMultiContentEx"
   cell:
     vars:
       - "ih = 35"
     itemHeight: ih
     fonts:
-      - "Regular;25"
+      - "$md_label_large"
     fields:
       - icon:
           position: "5,0"

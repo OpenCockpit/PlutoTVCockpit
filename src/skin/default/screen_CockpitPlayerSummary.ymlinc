@@ -38,7 +38,7 @@ screen:
         alphatest: "blend"
         borderColor: "FdLcdAmber"
         borderWidth: "2"
-        foregroundColor: "darkgrey"
+        foregroundColor: "md_outline"
         position: "0,140"
         render: "Progress"
         size: "$screen_width-4,20"

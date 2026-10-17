@@ -1,0 +1,63 @@
+- fonts:
+    children:
+      - font:
+          filename: "OpenSans-Regular.ttf"
+          name: "Regular"
+          scale: "89"
+      - font:
+          filename: "Roboto-Bold.ttf"
+          name: "Bold"
+          scale: "71"
+
+# material style font definitions, used as $md_... in the skins
+- global:
+    name: "md_label_small"
+    value: "Regular;16"
+- global:
+    name: "md_label_medium"
+    value: "Regular;20"
+- global:
+    name: "md_label_large"
+    value: "Regular;24"
+- global:
+    name: "md_body_small"
+    value: "Regular;26"
+- global:
+    name: "md_body_medium"
+    value: "Regular;28"
+- global:
+    name: "md_body_large"
+    value: "Regular;30"
+- global:
+    name: "md_title_large"
+    value: "Regular;34"
+- global:
+    name: "md_headline_small"
+    value: "Regular;36"
+- global:
+    name: "md_headline_medium"
+    value: "Regular;40"
+- global:
+    name: "md_headline_large"
+    value: "Regular;44"
+- global:
+    name: "md_label_small_emphasized"
+    value: "Bold;18"
+- global:
+    name: "md_label_large_emphasized"
+    value: "Bold;26"
+- global:
+    name: "md_title_small_emphasized"
+    value: "Bold;28"
+- global:
+    name: "md_title_medium_emphasized"
+    value: "Bold;30"
+- global:
+    name: "md_headline_small_emphasized"
+    value: "Bold;36"
+- global:
+    name: "md_headline_medium_emphasized"
+    value: "Bold;40"
+- global:
+    name: "md_headline_large_emphasized"
+    value: "Bold;42"

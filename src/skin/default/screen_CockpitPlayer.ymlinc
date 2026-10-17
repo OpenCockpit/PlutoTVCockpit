@@ -1,5 +1,5 @@
 screen:
-  backgroundColor: "transparent"
+  backgroundColor: "md_transparent"
   name: "CockpitPlayer"
   position: "center,center"
   size: "1920,1080"
@@ -11,7 +11,7 @@ screen:
         size: "1920,220"
         zPosition: "-1"
     - widget:
-        font: "$FR_medium"
+        font: "$md_body_large"
         halign: "right"
         position: "$screen_width/2,1010"
         render: "Label"
@@ -24,7 +24,7 @@ screen:
               type: "COCServicePosition"
               text: "Position,Negate"
     - widget:
-        font: "$FR_big"
+        font: "$md_headline_small"
         halign: "center"
         position: "$screen_width/2-100,1010"
         render: "Label"
@@ -40,7 +40,7 @@ screen:
               type: "ClockToText"
               text: "InMinutes"
     - widget:
-        font: "$FR_medium"
+        font: "$md_body_large"
         halign: "left"
         position: "$screen_width/2-225,1010"
         render: "Label"
@@ -59,7 +59,7 @@ screen:
         size: "60,60"
         zPosition: "2"
     - widget:
-        font: "$FR_bigger"
+        font: "$md_headline_large"
         noWrap: "1"
         position: "105,900"
         render: "Label"
@@ -72,7 +72,7 @@ screen:
               type: "COCEventName"
               text: "Name"
     - widget:
-        font: "$FB_bigger"
+        font: "$md_headline_large_emphasized"
         halign: "center"
         position: "1730,900"
         render: "Label"
@@ -85,13 +85,13 @@ screen:
               type: "COCServicePosition"
               text: "EndTime,ShowNoSeconds"
     - eLabel:
-        backgroundColor: "backgroundLight"
+        backgroundColor: "md_surface_container_high"
         position: "30,980"
         size: "1860,10"
         zPosition: "0"
     - widget:
         alphatest: "blend"
-        foregroundColor: "yellow"
+        foregroundColor: "md_key_yellow"
         position: "30,980"
         render: "Progress"
         size: "1860,10"
@@ -104,7 +104,7 @@ screen:
               text: "Position"
     - widget:
         alphatest: "blend"
-        foregroundColor: "darkgrey"
+        foregroundColor: "md_outline"
         position: "30,980"
         render: "Progress"
         size: "1860,10"
@@ -117,7 +117,7 @@ screen:
               text: "Position"
     - widget:
         alphatest: "blend"
-        foregroundColor: "red"
+        foregroundColor: "md_error"
         position: "30,980"
         render: "Progress"
         size: "1860,10"
@@ -134,7 +134,7 @@ screen:
         position: "30,1010"
         size: "300,45"
         zPosition: "2"
-        font: "$FR_medium"
+        font: "$md_body_large"
         transparent: "1"
         valign: "center"
         halign: "left"
