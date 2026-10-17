@@ -19,7 +19,7 @@ entries based on playback progress.
 
 The actual per-row layout (icon + text position/size) is skin-defined, in
 Common/src/skin/screenpart_PRSList.ymlinc - included as the "feedlist"
-widget's own TemplatedMultiContentEx convert (see
+widget's own COCTemplatedMultiContentEx convert (see
 screenpart_PRSPluginBody.ymlinc). listentry() below only supplies the raw
 values that template's "value: N" field indices read: index 0 is the
 identity tuple (name, data, _id, epid) callers already read back via

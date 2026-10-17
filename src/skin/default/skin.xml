@@ -54,28 +54,28 @@
 	</fonts>
 	<screen backgroundColor="md_surface" flags="wfNoBorder" name="PlutoTVCockpit" position="fill" resolution="1920,1080" size="1920,1080">
 		<eLabel backgroundColor="md_surface_container_high" position="0,0" size="1920,55"/>
-		<widget font="Bold;36" foregroundColor="md_primary" position="10,0" render="Label" size="1900,55" source="Title" transparent="1" valign="center" zPosition="1"/>
+		<widget font="Bold;42" foregroundColor="md_primary" position="10,0" render="Label" size="1900,55" source="Title" transparent="1" valign="center" zPosition="1"/>
 		<eLabel backgroundColor="md_outline_variant" position="0,54" size="1920,2"/>
 		<ePixmap pixmap="~/../images/backdrop.jpg" position="0,0" scale="scale" size="1920,1020" zPosition="-1"/>
 		<eLabel backgroundColor="md_surface" position="61,150" size="615,740" zPosition="1"/>
-		<widget backgroundColorSelected="md_surface_container_high" enableWrapAround="1" foregroundColorSelected="md_primary" itemCornerRadiusSelected="8" position="61,150" render="Listbox" scrollbarMode="showOnDemand" size="615,740" source="feedlist" transparent="1" zPosition="5">
-			<convert type="TemplatedMultiContentEx">
+		<widget backgroundColorSelected="md_surface_container_high" enableWrapAround="1" foregroundColorSelected="md_primary" itemCornerRadiusSelected="8" position="61,150" render="Listbox" scrollbarMode="showOnDemand" size="615,720" source="feedlist" transparent="1" zPosition="5">
+			<convert type="COCTemplatedMultiContentEx">
 			{
 				"var": (
-					ih := 35,
+					ih := 45,
 				),
 				"template": [
 					MultiContentEntryPixmapAlphaBlend(pos=(5,0), size=(20,ih), png=1, flags=BT_SCALE|BT_KEEP_ASPECT_RATIO|BT_VALIGN_CENTER),
 					MultiContentEntryText(pos=(45,0), size=(533,ih), flags=RT_VALIGN_CENTER, text=2),
 				],
-				"fonts": [parseFont("Regular;24")],
+				"fonts": [parseFont("Regular;30")],
 				"itemHeight": ih
 			}
 			</convert>
 		</widget>
 		<widget alphatest="blend" font="Regular;30" position="61,930" render="Label" size="1000,50" source="updated" transparent="1" valign="center" zPosition="5"/>
 		<widget backgroundColor="md_surface_container_lowest" font="FdLcD;45" halign="center" name="loading" position="center,center" size="800,60" transparent="0" valign="center" zPosition="10"/>
-		<widget backgroundColor="md_surface_container_lowest" font="Regular;36" foregroundColor="md_warning" position="726,150" render="Label" size="1132,48" source="vtitle" valign="top" zPosition="5">
+		<widget backgroundColor="md_surface_container_lowest" font="Regular;34" foregroundColor="md_warning" position="726,150" render="Label" size="1132,48" source="vtitle" valign="top" zPosition="5">
 			<convert type="ConditionalShowHide"/>
 		</widget>
 		<widget alphatest="blend" backgroundColor="md_surface_container_lowest" cornerRadius="27" font="Regular;0" foregroundColor="md_surface" name="posterBG" position="724,213" size="472,679" widgetBorderColor="md_key_yellow" widgetBorderWidth="2" zPosition="3"/>
@@ -85,12 +85,12 @@
 		</widget>
 		<eLabel backgroundColor="md_outline_variant" position="0,1024" size="1920,2"/>
 		<eLabel backgroundColor="md_surface_container_high" position="0,1025" size="1920,55"/>
-		<widget conditional="key_red" font="Bold;36" foregroundColor="md_key_red" halign="center" name="key_red" noWrap="1" position="0,1025" size="435,55" transparent="1" valign="center" zPosition="2"/>
-		<widget conditional="key_green" font="Bold;36" foregroundColor="md_key_green" halign="center" name="key_green" noWrap="1" position="435,1025" size="435,55" transparent="1" valign="center" zPosition="2"/>
-		<widget conditional="key_yellow" font="Bold;36" foregroundColor="md_key_yellow" halign="center" name="key_yellow" noWrap="1" position="870,1025" size="435,55" transparent="1" valign="center" zPosition="2"/>
-		<widget conditional="key_blue" font="Bold;36" foregroundColor="md_key_blue" halign="center" name="key_blue" noWrap="1" position="1305,1025" size="435,55" transparent="1" valign="center" zPosition="2"/>
-		<widget conditional="key_menu" font="Bold;36" foregroundColor="md_on_surface" halign="center" name="key_menu" noWrap="1" position="1740,1025" size="90,55" transparent="1" valign="center" zPosition="2"/>
-		<widget conditional="key_info" font="Bold;36" foregroundColor="md_on_surface" halign="center" name="key_info" noWrap="1" position="1830,1025" size="90,55" transparent="1" valign="center" zPosition="2"/>
+		<widget conditional="key_red" font="Regular;26" foregroundColor="md_key_red" halign="center" name="key_red" noWrap="1" position="0,1025" size="435,55" transparent="1" valign="center" zPosition="2"/>
+		<widget conditional="key_green" font="Regular;26" foregroundColor="md_key_green" halign="center" name="key_green" noWrap="1" position="435,1025" size="435,55" transparent="1" valign="center" zPosition="2"/>
+		<widget conditional="key_yellow" font="Regular;26" foregroundColor="md_key_yellow" halign="center" name="key_yellow" noWrap="1" position="870,1025" size="435,55" transparent="1" valign="center" zPosition="2"/>
+		<widget conditional="key_blue" font="Regular;26" foregroundColor="md_key_blue" halign="center" name="key_blue" noWrap="1" position="1305,1025" size="435,55" transparent="1" valign="center" zPosition="2"/>
+		<widget conditional="key_menu" font="Regular;26" foregroundColor="md_on_surface" halign="center" name="key_menu" noWrap="1" position="1740,1025" size="90,55" transparent="1" valign="center" zPosition="2"/>
+		<widget conditional="key_info" font="Regular;26" foregroundColor="md_on_surface" halign="center" name="key_info" noWrap="1" position="1830,1025" size="90,55" transparent="1" valign="center" zPosition="2"/>
 	</screen>
 	<screen backgroundColor="md_transparent" flags="wfNoBorder" name="PRSDownloadProgress" position="60,60" resolution="1920,1080" size="620,200">
 		<eLabel alphatest="blend" backgroundColor="md_surface_container_high" cornerRadius="8" position="0,0" size="620,200" widgetBorderColor="md_on_surface_variant" widgetBorderWidth="2" zPosition="-1"/>
@@ -103,7 +103,7 @@
 		<widget font="Regular;30" halign="right" position="960,1010" render="Label" size="225,50" source="Service" transparent="1" valign="center">
 			<convert type="COCServicePosition">Position,Negate</convert>
 		</widget>
-		<widget font="Regular;36" halign="center" position="860,1010" render="Label" size="200,50" source="Service" transparent="1" valign="center">
+		<widget font="Regular;34" halign="center" position="860,1010" render="Label" size="200,50" source="Service" transparent="1" valign="center">
 			<convert type="COCMovieInfo">MovieDuration</convert>
 			<convert type="ClockToText">InMinutes</convert>
 		</widget>
@@ -111,7 +111,7 @@
 			<convert type="COCServicePosition">Remaining</convert>
 		</widget>
 		<widget alphatest="blend" name="player_icon" position="30,900" size="60,60" zPosition="2"/>
-		<widget font="Regular;44" noWrap="1" position="105,900" render="Label" size="1600,60" source="Service" transparent="1" valign="center">
+		<widget font="Regular;40" noWrap="1" position="105,900" render="Label" size="1600,60" source="Service" transparent="1" valign="center">
 			<convert type="COCEventName">Name</convert>
 		</widget>
 		<widget font="Bold;42" halign="center" position="1730,900" render="Label" size="160,60" source="Service" transparent="1" valign="center">
@@ -155,6 +155,6 @@
 	</screen>
 	<screen backgroundColor="md_transparent" flags="wfNoBorder" name="ScreenPVRState" position="center,center" resolution="1920,1080" size="100,160" zPosition="1000">
 		<widget alphatest="blend" name="state_pic" position="0,0" size="100,100"/>
-		<widget font="Regular;36" halign="center" name="state" position="0,110" size="100,54" transparent="1" valign="center"/>
+		<widget font="Regular;34" halign="center" name="state" position="0,110" size="100,54" transparent="1" valign="center"/>
 	</screen>
 </skin>

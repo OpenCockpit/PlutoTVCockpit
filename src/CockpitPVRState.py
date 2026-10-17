@@ -60,12 +60,14 @@ class CockpitPVRState():
             factor = "1" + play_state + "x"
 
         pic_path = getSkinPath("images/dvr_controls/" + state_pic)
-        # Load SVG with proper scaling to fit the 100x100 widget
-        ptr = LoadPixmap(pic_path, cached=False, width=100, height=100, scaletoFit=1)
-        if ptr and self.pvr_state_dialog["state_pic"].instance:
+        # Load SVG with proper scaling to fit the widget (100x100 in the skin, smaller where the skin is scaled down)
+        instance = self.pvr_state_dialog["state_pic"].instance
+        size = instance.size() if instance else None
+        ptr = LoadPixmap(pic_path, cached=False, width=size and size.width() or 100, height=size and size.height() or 100, scaletoFit=1)
+        if ptr and instance:
             self.pvr_state_dialog["state_pic"].instance.setPixmap(ptr)
             self.pvr_state_dialog["state_pic"].show()
-            logger.debug("Pixmap set and shown: %s (100x100, scaletoFit)", state_pic)
+            logger.debug("Pixmap set and shown: %s (scaletoFit)", state_pic)
         else:
             logger.warning("Failed to load pixmap: %s or instance not ready", pic_path)
         self.pvr_state_dialog["state"].setText(factor)

@@ -24,7 +24,7 @@ screen:
               type: "COCServicePosition"
               text: "Position,Negate"
     - widget:
-        font: "$md_headline_small"
+        font: "$md_title_large"
         halign: "center"
         position: "$screen_width/2-100,1010"
         render: "Label"
@@ -59,7 +59,7 @@ screen:
         size: "60,60"
         zPosition: "2"
     - widget:
-        font: "$md_headline_large"
+        font: "$md_headline_medium"
         noWrap: "1"
         position: "105,900"
         render: "Label"

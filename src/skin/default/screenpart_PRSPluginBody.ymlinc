@@ -11,7 +11,7 @@
     position: "0,0"
     render: "Listbox"
     scrollbarMode: "showOnDemand"
-    size: "615,740"
+    size: "615,720"
     source: "feedlist"
     transparent: "1"
     zPosition: "5"
@@ -39,7 +39,7 @@
     valign: "center"
     zPosition: "10"
 - widget:
-    font: "$md_headline_small"
+    font: "$md_title_large"
     foregroundColor: "md_warning"
     backgroundColor: "md_surface_container_lowest"
     position: "665,0"
