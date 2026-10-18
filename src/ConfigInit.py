@@ -82,6 +82,8 @@ TSIDS = {cc: f"{i:X}" for i, cc in enumerate(COUNTRY_NAMES, 1)}
 
 config.plugins.plutotv = ConfigSubsection()
 config.plugins.plutotv.country = ConfigSelection(default="local", choices=[("local", _("Local"))] + list(COUNTRY_NAMES.items()))
+# How far ahead the guide is fetched. Pluto has about 28 hours of it.
+config.plugins.plutotv.epg_hours = ConfigSelection(default="24", choices=[(str(hours), _("%d hours") % hours) for hours in range(4, 29, 4)])
 config.plugins.plutotv.picons = ConfigSelection(default="snp", choices=[("snp", _("service name")), ("srp", _("service reference")), ("", _("None"))])
 # On: the bouquet holds lazy pluto:// addresses, resolved by StreamProxyCockpit when a channel is played or recorded.
 # Off: the bouquet holds the addresses of the stream source (live_tv_mode).

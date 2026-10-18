@@ -1,6 +1,7 @@
 # Copyright (C) 2026 by xcentaurix
 # License: GNU General Public License v3.0
 
+import datetime
 import re
 import time
 import uuid
@@ -535,8 +536,14 @@ class PlutoTVRequest(FailureTracker):
             self.recordFailure(country, e)
             return []
 
+    GUIDE_TIME_FORMAT = "%Y-%m-%dT%H:%M:%SZ"
+    # The legacy guide stops about 15 hours after the start of a request, however late "stop" is: a longer guide is
+    # fetched as consecutive windows of this size.
+    LEGACY_WINDOW_HOURS = 12
+
     def getBaseGuide(self, start, stop, country=None):
-        """Fetch guide data via v2/guide/timelines, returned in legacy format.
+        """Fetch guide data via v2/guide/timelines, returned in legacy format, for the time from *start* to *stop*
+        (both "%Y-%m-%dT%H:%M:%SZ"; Pluto has about 28 hours of guide).
 
         Falls back to the legacy api.pluto.tv endpoint if the new API returns
         no data (some countries like Finland are not on the new API).
@@ -549,6 +556,7 @@ class PlutoTVRequest(FailureTracker):
 
         channel_ids = [ch['_id'] for ch in channels]
         channel_lookup = {ch['_id']: ch for ch in channels}
+        minutes = int((datetime.datetime.strptime(stop, self.GUIDE_TIME_FORMAT) - datetime.datetime.strptime(start, self.GUIDE_TIME_FORMAT)).total_seconds() // 60)
 
         all_entries = []
         group_size = 100
@@ -557,7 +565,7 @@ class PlutoTVRequest(FailureTracker):
             params = {
                 'start': start,
                 'channelIds': ','.join(group),
-                'duration': '1440',
+                'duration': str(minutes),
             }
             try:
                 response = self.session.get(self.TIMELINES_URL, params=params, headers=headers, timeout=10)
@@ -582,21 +590,48 @@ class PlutoTVRequest(FailureTracker):
         return all_entries
 
     def _getBaseGuideLegacy(self, start, stop, country):
-        """Fetch guide data via the legacy api.pluto.tv/v2/channels endpoint."""
-        params = {'start': start, 'stop': stop, 'sid': self._sid, 'deviceId': self._deviceId}
+        """Fetch guide data via the legacy api.pluto.tv/v2/channels endpoint, in windows of LEGACY_WINDOW_HOURS that
+        are merged per channel."""
         headers = self._legacyHeaders(country)
-        try:
-            response = requests.get(self.LEGACY_GUIDE_URL, params=params, headers=headers, timeout=10)
-            response.raise_for_status()
-            guide = response.json()
-            if isinstance(guide, list):
-                logger.debug("getBaseGuide legacy API returned %s entries for %s", len(guide), country)
-                return guide
-            logger.debug("getBaseGuide legacy API unexpected response for %s", country)
-            return []
-        except Exception as e:
-            logger.debug("getBaseGuide legacy API error for %s: %s", country, e)
-            return []
+        first = datetime.datetime.strptime(start, self.GUIDE_TIME_FORMAT)
+        last = datetime.datetime.strptime(stop, self.GUIDE_TIME_FORMAT)
+        window = datetime.timedelta(hours=self.LEGACY_WINDOW_HOURS)
+
+        merged = {}   # channel id -> channel entry, in the order the channels were first seen
+        seen = {}     # channel id -> (id, start) of its timeline items: a programme at the edge of two windows is in both
+        window_start = first
+        while window_start < last:
+            params = {
+                'start': window_start.strftime(self.GUIDE_TIME_FORMAT),
+                'stop': min(window_start + window, last).strftime(self.GUIDE_TIME_FORMAT),
+                'sid': self._sid,
+                'deviceId': self._deviceId,
+            }
+            window_start += window
+            try:
+                response = requests.get(self.LEGACY_GUIDE_URL, params=params, headers=headers, timeout=15)
+                response.raise_for_status()
+                guide = response.json()
+            except Exception as e:
+                logger.debug("getBaseGuide legacy API error for %s: %s", country, e)
+                continue
+            if not isinstance(guide, list):
+                logger.debug("getBaseGuide legacy API unexpected response for %s", country)
+                continue
+            logger.debug("getBaseGuide legacy API returned %s entries for %s from %s", len(guide), country, params['start'])
+            for entry in guide:
+                ch_id = entry.get('_id', '')
+                target = merged.setdefault(ch_id, dict(entry, timelines=[]))
+                keys = seen.setdefault(ch_id, set())
+                for item in entry.get('timelines', []):
+                    key = (item.get('_id'), item.get('start'))
+                    if key not in keys:
+                        keys.add(key)
+                        target['timelines'].append(item)
+
+        for entry in merged.values():
+            entry['timelines'].sort(key=lambda item: item.get('start') or "")
+        return list(merged.values())
 
 
 plutoRequest = PlutoTVRequest()

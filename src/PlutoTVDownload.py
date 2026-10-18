@@ -345,7 +345,7 @@ class PlutoTVDownloadBase(TVDownloadBase):
     @staticmethod
     def getGuidedata(cc):
         start = (datetime.datetime.fromtimestamp(PlutoTVDownloadBase.getLocalTime()).strftime("%Y-%m-%dT%H:00:00Z"))
-        stop = (datetime.datetime.fromtimestamp(PlutoTVDownloadBase.getLocalTime()) + datetime.timedelta(hours=24)).strftime("%Y-%m-%dT%H:00:00Z")
+        stop = (datetime.datetime.fromtimestamp(PlutoTVDownloadBase.getLocalTime()) + datetime.timedelta(hours=int(config.plugins.plutotv.epg_hours.value))).strftime("%Y-%m-%dT%H:00:00Z")
         return sorted(plutoRequest.getBaseGuide(start, stop, cc), key=lambda x: x["number"])
 
     @staticmethod

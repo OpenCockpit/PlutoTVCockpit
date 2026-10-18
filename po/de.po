@@ -258,6 +258,15 @@ msgstr "PlutoTV Bouquet, Picons und EPG Download"
 msgid "Silently download PlutoTV"
 msgstr "Download von PlutoTV im Hintergrund"
 
+msgid "Guide duration"
+msgstr "Dauer des Programmführers"
+
+msgid "%d hours"
+msgstr "%d Stunden"
+
+msgid "How many hours of programme guide are fetched. Pluto has about 28 hours of it; a longer guide is more data to download and import, so the update takes longer. It applies to the next update."
+msgstr "Wie viele Stunden Programmführer geladen werden. Pluto hat etwa 28 Stunden davon; ein längerer Programmführer bedeutet mehr Daten zum Laden und Importieren, das Update dauert also länger. Gilt ab dem nächsten Update."
+
 msgid "End"
 msgstr "Ende"
 

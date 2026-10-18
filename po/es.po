@@ -944,6 +944,15 @@ msgstr "%s se ha actualizado. ¿Deseas reiniciar Enigma2 ahora para usar la nuev
 msgid "A newer %s package is available. Do you want to install it now?"
 msgstr "Hay una nueva versión del paquete %s disponible. ¿Deseas instalarla ahora?"
 
+msgid "Guide duration"
+msgstr "Duración de la guía"
+
+msgid "%d hours"
+msgstr "%d horas"
+
+msgid "How many hours of programme guide are fetched. Pluto has about 28 hours of it; a longer guide is more data to download and import, so the update takes longer. It applies to the next update."
+msgstr "Cuántas horas de guía de programación se descargan. Pluto tiene unas 28 horas; una guía más larga son más datos que descargar e importar, por lo que la actualización tarda más. Se aplica a partir de la próxima actualización."
+
 msgid "End"
 msgstr ""
 

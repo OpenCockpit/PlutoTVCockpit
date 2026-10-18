@@ -15,6 +15,7 @@ from enigma import eDVBDB, eEPGCache, eTimer
 from twisted.internet import threads, reactor
 
 from .PiconFetcher import PiconFetcher
+from .PRSServiceRef import escapeServiceName
 from .M3UPlaylist import writeM3UPlaylist
 from .Debug import logger
 
@@ -597,13 +598,13 @@ class TVDownloadBase:
                     self.subtotal = len(self.channelsList[key])
 
                 if self.chitem == 0:
-                    self.bouquet.append(f"1:64:{self.key}:0:0:0:0:0:0:0::{self.categories[self.key]}")
+                    self.bouquet.append(f"1:64:{self.key}:0:0:0:0:0:0:0::{escapeServiceName(self.categories[self.key])}")
 
                 chid = self.channelsList[key][self.chitem][1]
                 ref, stream_url, ch_name, ch_logourl = self._buildBouquetEntry(key, self.chitem)
                 if stream_url:
                     self.resolved_count += 1
-                    self.bouquet.append(f"{ref}:{stream_url}:{ch_name}")
+                    self.bouquet.append(f"{ref}:{stream_url}:{escapeServiceName(ch_name)}")
                     # _buildBouquetEntry's stream_url has colons pre-escaped as %3a
                     # (required for embedding in the colon-joined bouquet string
                     # above) - the M3U export needs a real, plain URL instead, so
