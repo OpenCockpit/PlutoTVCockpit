@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-09-02 14:15+0300\n"
-"PO-Revision-Date: 2025-09-04 15:40+0300\n"
+"POT-Creation-Date: 2026-10-18 11:51+0300\n"
+"PO-Revision-Date: 2026-10-18 12:52+0300\n"
 "Last-Translator: Orlandox\n"
 "Language-Team: Orlandox\n"
 "Language: fi\n"
@@ -16,972 +16,1407 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 3.7\n"
+"X-Generator: Poedit 3.10\n"
 
-msgid "%s Season available"
-msgid_plural "%s Seasons available"
-msgstr[0] "%s Kausi saatavilla"
-msgstr[1] "%s Kautta saatavilla"
+#: src/CockpitPlayer.py:74
+msgid "Infobar/Play"
+msgstr "Tietopalkki/Toista"
 
-msgid "A silent download is in progress."
-msgstr "Hiljainen lataus käynnissä."
+#: src/CockpitPlayer.py:75
+msgid "Play/Pause"
+msgstr "Toista/Tauko"
 
-msgid "Country for which LiveTV bouquet %s will be created."
-msgstr "Maa, jolle LiveTV-suosikkilista %s luodaan."
+#: src/CockpitPlayer.py:76 src/CockpitPlayer.py:77 src/CockpitPlayer.py:78
+msgid "Stop playback"
+msgstr "Pysäytä toisto"
 
-msgid "Create LiveTV Bouquet"
-msgstr "Luo LiveTV-suosikkilista"
+#: src/CockpitPlayer.py:79 src/CockpitSmartSeek.py:27
+msgid "Skip forward"
+msgstr "Hyppää eteenpäin"
 
-msgid "Create or update PlutoTV live bouquets"
-msgstr "Luo tai päivitä PlutoTV Live-suosikkilistat"
+#: src/CockpitPlayer.py:80 src/CockpitSmartSeek.py:28
+msgid "Skip backward"
+msgstr "Hyppää taaksepäin"
 
-msgid "Data location"
-msgstr "Tietojen sijainti"
+#: src/CockpitPlayer.py:81
+msgid "EPG Info"
+msgstr "EPG:n tiedot"
 
-msgid "Do you want to resume this playback?"
-msgstr "Haluatko jatkaa tätä toistoa?"
+#: src/CockpitPlayer.py:144
+#, python-format
+msgid "Do you want to resume playback at position: %d:%02d:%02d?"
+msgstr "Haluatko jatkaa toistoa kohdasta: %d:%02d:%02d?"
 
-msgid "Download PlutoTV bouquets, picons and EPG"
-msgstr "Lataa PlutoTV-suosikkilista, piconit ja EPG"
+#: src/CockpitPVRState.py:51
+msgid "End"
+msgstr "Loppu"
 
-msgid "Episode"
-msgstr "Jakso"
-
-msgid "Exit"
-msgstr "Poistu"
-
-msgid "Fetching picons..."
-msgstr "Noudetaan piconeita..."
-
-msgid "Go back one level"
-msgstr "Siirry yksi taso taaksepäin"
-
-msgid "Go back one level including exiting"
-msgstr "Siirry yksi taso taaksepäin, mukaan lukien poistuminen"
-
-msgid "Go forward one level including starting playback"
-msgstr "Siirry yksi taso eteenpäin, mukaan lukien toiston aloittaminen"
-
-msgid "IMDb Search"
-msgstr "IMDb-haku"
-
-msgid "Live TV Mode"
-msgstr "Live TV-tila"
-
-msgid "LiveTV Bouquet last updated:"
-msgstr "LiveTV-suosikkilistan viimeisin päivitys:"
-
-msgid "LiveTV Bouquet needs updating. Press GREEN."
-msgstr "LiveTV-suosikkilista on päivitettävä. Paina VIHREÄ."
-
-msgid "LiveTV bouquet %s"
-msgstr "LiveTV-suosikkilista %s"
-
-msgid "LiveTV update completed"
-msgstr "LiveTV:n päivitys valmis"
-
-msgid "Loading data... Please wait"
-msgstr "Ladataan dataa... odota"
-
+#: src/ConfigInit.py:84
 msgid "Local"
 msgstr "Paikallinen"
 
-msgid "MENU"
-msgstr "MENU"
-
-msgid "None"
-msgstr "Ei mitään"
-
-msgid "Open the plugin configuration screen"
-msgstr "Avaa lisäosan asetukset"
-
-msgid "Original"
-msgstr "Alkuperäinen"
-
-msgid "Picon type"
-msgstr "Piconin tyyppi"
-
-msgid "Please wait..."
-msgstr "Odota..."
-
-msgid "PlutoTV"
-msgstr "PlutoTV"
-
-msgid "PlutoTV Setup"
-msgstr "PlutoTV:n asetukset"
-
-msgid "PlutoTV updating"
-msgstr "PlutoTV:n päivitys"
-
-msgid "Processing data..."
-msgstr "Käsitellään tietoja..."
-
-msgid "Remove LiveTV Bouquet"
-msgstr "Poista LiveTV-suosikkilista"
-
-msgid "Remove picons"
-msgstr "Poista piconit"
-
-msgid "Resume position at %s"
-msgstr "Jatka paikasta %s"
-
-msgid "Roku TV"
-msgstr "Roku TV"
-
-msgid "Samsung TV"
-msgstr "Samsung TV"
-
-msgid "Scroll the information field"
-msgstr "Vieritä tietokenttää"
-
-msgid "Search for information in %s"
-msgstr "Etsi tietoja %s:sta"
-
-msgid "Season"
-msgstr "Kausi"
-
-msgid "Seasons"
-msgstr "Kaudet"
-
-msgid "Select the country that the VoD list will be created for."
-msgstr "Valitse maa, jolle Tilaus-TV (VoD) -lista luodaan."
-
-msgid "Silently download PlutoTV"
-msgstr "Lataa PlutoTV hiljaisesti"
-
-msgid "TMDb Search"
-msgstr "TMDb-haku"
-
-msgid "The Movie Database"
-msgstr "The Movie Database"
-
-msgid ""
-"The Pluto TV bouquets in your channel list have been updated.\n"
-"\n"
-"They will now be rebuilt automatically every 5 hours."
-msgstr ""
-"Sinulla on nyt päivitetty suosikkilista PlutoTV-kanavilla kanavaluettelossasi.\n"
-"\n"
-"Kaikki päivitetään automaattisesti 5 tunnin välein."
-
-msgid "The download is in progress. Exit now?"
-msgstr "Lataus käynnissä. Poistutaanko nyt?"
-
-msgid "There is no data, it is possible that Pluto TV is not available in your country"
-msgstr "Dataa ei ole, joten PlutoTV ei ehkä ole saatavilla maassasi"
-
-msgid "This controls the URI format in the bouquet file."
-msgstr "Tämä hallitsee suosikkilistan URI-muotoa."
-
-msgid "Update LiveTV Bouquet"
-msgstr "Päivitä LiveTV-suosikkilista"
-
-msgid "Updating: Pluto TV %s"
-msgstr "Päivitetään: PlutoTV %s"
-
-msgid "Used for storing video cover graphics, etc. A hard drive that goes into standby mode or a slow network mount are not good choices."
-msgstr "Käytetään videoiden kansikuvien yms. tallentamiseen. Valmiustilaan siirtyvä kiintolevy tai hidas verkkoliitos eivät ole hyviä valintoja."
-
-msgid "Using service name picons means they will continue to work even if the service reference changes. Also, they can be shared between channels of the same name that don't have the same service references."
-msgstr "Kanavan nimisten (SNP) piconien käyttö tarkoittaa, että ne toimivat edelleen, vaikka kanavan referenssi muuttuisi. Niitä voidaan myös jakaa samannimisten kanavien kesken, joilla ei ole samoja kanavien referenssejä."
-
-msgid "VOD Menu"
-msgstr "VOD-Menu"
-
-msgid "View video on demand and download a bouquet of live tv channels"
-msgstr "Katso tilaus-TV:ta ja lataa LiveTV-kanavien suosikkilista"
-
-msgid "VoD country"
-msgstr "Tilaus-TV:n (VOD) maa"
-
-msgid "Waiting for Channel: "
-msgstr "Odotetaan kanavaa: "
-
-msgid "picons"
-msgstr "piconit"
-
+#: src/ConfigInit.py:85
 msgid "service name"
 msgstr "kanavan nimi"
 
+#: src/ConfigInit.py:85
 msgid "service reference"
 msgstr "kanavan referenssi"
 
-msgid "the Internet Movie Database"
-msgstr "the Internet Movie Database"
+#: src/ConfigInit.py:85 src/ConfigInit.py:107
+msgid "None"
+msgstr "Ei mitään"
 
+#: src/ConfigInit.py:95
+msgid "Stitcher"
+msgstr "Stitcher"
+
+#: src/ConfigInit.py:95
+msgid "JMP2"
+msgstr "JMP2"
+
+#: src/ConfigInit.py:96
+msgid "Yes"
+msgstr "Kyllä"
+
+#: src/ConfigInit.py:96
+msgid "No"
+msgstr "Ei"
+
+#: src/ConfigInit.py:102
+msgid "beginning"
+msgstr "alku"
+
+#: src/CountryCodes.py:11
 msgid "Afghanistan"
 msgstr "Afganistan"
 
+#: src/CountryCodes.py:12
 msgid "Aland Islands"
 msgstr "Ahvenanmaa"
 
+#: src/CountryCodes.py:13
 msgid "Albania"
 msgstr "Albania"
 
+#: src/CountryCodes.py:14
 msgid "Algeria"
 msgstr "Algeria"
 
+#: src/CountryCodes.py:15
 msgid "American Samoa"
 msgstr "Amerikan Samoa"
 
+#: src/CountryCodes.py:16
 msgid "Andorra"
 msgstr "Andorra"
 
+#: src/CountryCodes.py:17
 msgid "Angola"
 msgstr "Angola"
 
+#: src/CountryCodes.py:18
 msgid "Anguilla"
 msgstr "Anguilla"
 
+#: src/CountryCodes.py:19
 msgid "Antarctica"
 msgstr "Etelämanner"
 
+#: src/CountryCodes.py:20
 msgid "Antigua and Barbuda"
 msgstr "Antigua ja Barbuda"
 
+#: src/CountryCodes.py:21
 msgid "Argentina"
 msgstr "Argentiina"
 
+#: src/CountryCodes.py:22
 msgid "Armenia"
 msgstr "Armenia"
 
+#: src/CountryCodes.py:23
 msgid "Aruba"
 msgstr "Aruba"
 
+#: src/CountryCodes.py:24
 msgid "Australia"
 msgstr "Australia"
 
+#: src/CountryCodes.py:25
 msgid "Austria"
 msgstr "Itävalta"
 
+#: src/CountryCodes.py:26
 msgid "Azerbaijan"
 msgstr "Azerbaidžan"
 
+#: src/CountryCodes.py:27
 msgid "Bahamas"
 msgstr "Bahama"
 
+#: src/CountryCodes.py:28
 msgid "Bahrain"
 msgstr "Bahrain"
 
+#: src/CountryCodes.py:29
 msgid "Bangladesh"
 msgstr "Bangladesh"
 
+#: src/CountryCodes.py:30
 msgid "Barbados"
 msgstr "Barbados"
 
+#: src/CountryCodes.py:31
 msgid "Belarus"
 msgstr "Valko-Venäjä"
 
+#: src/CountryCodes.py:32
 msgid "Belgium"
 msgstr "Belgia"
 
+#: src/CountryCodes.py:33
 msgid "Belize"
 msgstr "Belize"
 
+#: src/CountryCodes.py:34
 msgid "Benin"
 msgstr "Benin"
 
+#: src/CountryCodes.py:35
 msgid "Bermuda"
 msgstr "Bermuda"
 
+#: src/CountryCodes.py:36
 msgid "Bhutan"
 msgstr "Bhutan"
 
+#: src/CountryCodes.py:37
 msgid "Bolivia (Plurinational State of)"
 msgstr "Bolivia"
 
+#: src/CountryCodes.py:38
 msgid "Bonaire, Sint Eustatius and Saba"
 msgstr "Bonaire, Sint Eustatius ja Saba"
 
+#: src/CountryCodes.py:39
 msgid "Bosnia and Herzegovina"
 msgstr "Bosnia ja Hertsegovina"
 
+#: src/CountryCodes.py:40
 msgid "Botswana"
 msgstr "Botswana"
 
+#: src/CountryCodes.py:41
 msgid "Bouvet Island"
-msgstr "Bouvet'nsaari"
+msgstr "Bouvetin saari"
 
+#: src/CountryCodes.py:42
 msgid "Brazil"
 msgstr "Brasilia"
 
+#: src/CountryCodes.py:43
 msgid "British Indian Ocean Territory"
 msgstr "Brittiläinen Intian valtameren alue"
 
+#: src/CountryCodes.py:44
 msgid "Brunei Darussalam"
 msgstr "Brunei"
 
+#: src/CountryCodes.py:45
 msgid "Bulgaria"
 msgstr "Bulgaria"
 
+#: src/CountryCodes.py:46
 msgid "Burkina Faso"
 msgstr "Burkina Faso"
 
+#: src/CountryCodes.py:47
 msgid "Burundi"
 msgstr "Burundi"
 
+#: src/CountryCodes.py:48
 msgid "Cabo Verde"
 msgstr "Kap Verde"
 
+#: src/CountryCodes.py:49
 msgid "Cambodia"
 msgstr "Kambodža"
 
+#: src/CountryCodes.py:50
 msgid "Cameroon"
 msgstr "Kamerun"
 
+#: src/CountryCodes.py:51
 msgid "Canada"
 msgstr "Kanada"
 
+#: src/CountryCodes.py:52
 msgid "Cayman Islands"
 msgstr "Caymansaaret"
 
+#: src/CountryCodes.py:53
 msgid "Central African Republic"
 msgstr "Keski-Afrikan tasavalta"
 
+#: src/CountryCodes.py:54
 msgid "Chad"
 msgstr "Tšad"
 
+#: src/CountryCodes.py:55
 msgid "Chile"
 msgstr "Chile"
 
+#: src/CountryCodes.py:56
 msgid "China"
 msgstr "Kiina"
 
+#: src/CountryCodes.py:57
 msgid "Christmas Island"
 msgstr "Joulusaari"
 
+#: src/CountryCodes.py:58
 msgid "Cocos (Keeling) Islands"
 msgstr "Kookossaaret"
 
+#: src/CountryCodes.py:59
 msgid "Colombia"
 msgstr "Kolumbia"
 
+#: src/CountryCodes.py:60
 msgid "Comoros"
 msgstr "Komorit"
 
+#: src/CountryCodes.py:61
 msgid "Congo"
 msgstr "Kongo"
 
+#: src/CountryCodes.py:62
 msgid "Congo (Democratic Republic of the)"
 msgstr "Kongon demokraattinen tasavalta"
 
+#: src/CountryCodes.py:63
 msgid "Cook Islands"
 msgstr "Cookinsaaret"
 
+#: src/CountryCodes.py:64
 msgid "Costa Rica"
 msgstr "Costa Rica"
 
+#: src/CountryCodes.py:65
 msgid "Cote d'Ivoire"
 msgstr "Norsunluurannikko"
 
+#: src/CountryCodes.py:66
 msgid "Croatia"
 msgstr "Kroatia"
 
+#: src/CountryCodes.py:67
 msgid "Cuba"
 msgstr "Kuuba"
 
+#: src/CountryCodes.py:68
 msgid "Curacao"
 msgstr "Curaçao"
 
+#: src/CountryCodes.py:69
 msgid "Cyprus"
 msgstr "Kypros"
 
+#: src/CountryCodes.py:70
 msgid "Czechia"
 msgstr "Tšekki"
 
+#: src/CountryCodes.py:71
 msgid "Denmark"
 msgstr "Tanska"
 
+#: src/CountryCodes.py:72
 msgid "Djibouti"
 msgstr "Djibouti"
 
+#: src/CountryCodes.py:73
 msgid "Dominica"
 msgstr "Dominica"
 
+#: src/CountryCodes.py:74
 msgid "Dominican Republic"
 msgstr "Dominikaaninen tasavalta"
 
+#: src/CountryCodes.py:75
 msgid "Ecuador"
 msgstr "Ecuador"
 
+#: src/CountryCodes.py:76
 msgid "Egypt"
 msgstr "Egypti"
 
+#: src/CountryCodes.py:77
 msgid "El Salvador"
 msgstr "El Salvador"
 
+#: src/CountryCodes.py:78
 msgid "Equatorial Guinea"
 msgstr "Päiväntasaajan Guinea"
 
+#: src/CountryCodes.py:79
 msgid "Eritrea"
 msgstr "Eritrea"
 
+#: src/CountryCodes.py:80
 msgid "Estonia"
 msgstr "Viro"
 
+#: src/CountryCodes.py:81
 msgid "Ethiopia"
 msgstr "Etiopia"
 
+#: src/CountryCodes.py:82
 msgid "Falkland Islands (Malvinas)"
 msgstr "Falklandinsaaret"
 
+#: src/CountryCodes.py:83
 msgid "Faroe Islands"
 msgstr "Färsaaret"
 
+#: src/CountryCodes.py:84
 msgid "Fiji"
 msgstr "Fidži"
 
+#: src/CountryCodes.py:85
 msgid "Finland"
 msgstr "Suomi"
 
+#: src/CountryCodes.py:86
 msgid "France"
 msgstr "Ranska"
 
+#: src/CountryCodes.py:87
 msgid "French Guiana"
 msgstr "Ranskan Guayana"
 
+#: src/CountryCodes.py:88
 msgid "French Polynesia"
 msgstr "Ranskan Polynesia"
 
+#: src/CountryCodes.py:89
 msgid "French Southern Territories"
 msgstr "Ranskan eteläiset ja antarktiset alueet"
 
+#: src/CountryCodes.py:90
 msgid "Gabon"
 msgstr "Gabon"
 
+#: src/CountryCodes.py:91
 msgid "Gambia"
 msgstr "Gambia"
 
+#: src/CountryCodes.py:92
 msgid "Georgia"
 msgstr "Georgia"
 
+#: src/CountryCodes.py:93
 msgid "Germany"
 msgstr "Saksa"
 
+#: src/CountryCodes.py:94
 msgid "Ghana"
 msgstr "Ghana"
 
+#: src/CountryCodes.py:95
 msgid "Gibraltar"
 msgstr "Gibraltar"
 
+#: src/CountryCodes.py:96
 msgid "Greece"
 msgstr "Kreikka"
 
+#: src/CountryCodes.py:97
 msgid "Greenland"
 msgstr "Grönlanti"
 
+#: src/CountryCodes.py:98
 msgid "Grenada"
 msgstr "Grenada"
 
+#: src/CountryCodes.py:99
 msgid "Guadeloupe"
 msgstr "Guadeloupe"
 
+#: src/CountryCodes.py:100
 msgid "Guam"
 msgstr "Guam"
 
+#: src/CountryCodes.py:101
 msgid "Guatemala"
 msgstr "Guatemala"
 
+#: src/CountryCodes.py:102
 msgid "Guernsey"
 msgstr "Guernsey"
 
+#: src/CountryCodes.py:103
 msgid "Guinea"
 msgstr "Guinea"
 
+#: src/CountryCodes.py:104
 msgid "Guinea-Bissau"
 msgstr "Guinea-Bissau"
 
+#: src/CountryCodes.py:105
 msgid "Guyana"
 msgstr "Guyana"
 
+#: src/CountryCodes.py:106
 msgid "Haiti"
 msgstr "Haiti"
 
+#: src/CountryCodes.py:107
 msgid "Heard Island and McDonald Islands"
 msgstr "Heard ja McDonaldinsaaret"
 
+#: src/CountryCodes.py:108
 msgid "Holy See"
 msgstr "Pyhä istuin"
 
+#: src/CountryCodes.py:109
 msgid "Honduras"
 msgstr "Honduras"
 
+#: src/CountryCodes.py:110
 msgid "Hong Kong"
 msgstr "Hongkong"
 
+#: src/CountryCodes.py:111
 msgid "Hungary"
 msgstr "Unkari"
 
+#: src/CountryCodes.py:112
 msgid "Iceland"
 msgstr "Islanti"
 
+#: src/CountryCodes.py:113
 msgid "India"
 msgstr "Intia"
 
+#: src/CountryCodes.py:114
 msgid "Indonesia"
 msgstr "Indonesia"
 
+#: src/CountryCodes.py:115
 msgid "Iran (Islamic Republic of)"
 msgstr "Iran"
 
+#: src/CountryCodes.py:116
 msgid "Iraq"
 msgstr "Irak"
 
+#: src/CountryCodes.py:117
 msgid "Ireland"
 msgstr "Irlanti"
 
+#: src/CountryCodes.py:118
 msgid "Isle of Man"
 msgstr "Mansaari"
 
+#: src/CountryCodes.py:119
 msgid "Israel"
 msgstr "Israel"
 
+#: src/CountryCodes.py:120
 msgid "Italy"
 msgstr "Italia"
 
+#: src/CountryCodes.py:121
 msgid "Jamaica"
 msgstr "Jamaika"
 
+#: src/CountryCodes.py:122
 msgid "Japan"
 msgstr "Japani"
 
+#: src/CountryCodes.py:123
 msgid "Jersey"
 msgstr "Jersey"
 
+#: src/CountryCodes.py:124
 msgid "Jordan"
 msgstr "Jordania"
 
+#: src/CountryCodes.py:125
 msgid "Kazakhstan"
 msgstr "Kazakstan"
 
+#: src/CountryCodes.py:126
 msgid "Kenya"
 msgstr "Kenia"
 
+#: src/CountryCodes.py:127
 msgid "Kiribati"
 msgstr "Kiribati"
 
+#: src/CountryCodes.py:128
 msgid "Korea (Democratic People's Republic of)"
 msgstr "Pohjois-Korea"
 
+#: src/CountryCodes.py:129
 msgid "Korea (Republic of)"
 msgstr "Etelä-Korea"
 
+#: src/CountryCodes.py:130
 msgid "Kuwait"
 msgstr "Kuwait"
 
+#: src/CountryCodes.py:131
 msgid "Kyrgyzstan"
 msgstr "Kirgisia"
 
+#: src/CountryCodes.py:132
 msgid "Lao People's Democratic Republic"
 msgstr "Laos"
 
+#: src/CountryCodes.py:133
 msgid "Latvia"
 msgstr "Latvia"
 
+#: src/CountryCodes.py:134
 msgid "Lebanon"
 msgstr "Libanon"
 
+#: src/CountryCodes.py:135
 msgid "Lesotho"
 msgstr "Lesotho"
 
+#: src/CountryCodes.py:136
 msgid "Liberia"
 msgstr "Liberia"
 
+#: src/CountryCodes.py:137
 msgid "Libya"
 msgstr "Libya"
 
+#: src/CountryCodes.py:138
 msgid "Liechtenstein"
 msgstr "Liechtenstein"
 
+#: src/CountryCodes.py:139
 msgid "Lithuania"
 msgstr "Liettua"
 
+#: src/CountryCodes.py:140
 msgid "Luxembourg"
 msgstr "Luxemburg"
 
+#: src/CountryCodes.py:141
 msgid "Macao"
 msgstr "Macao"
 
+#: src/CountryCodes.py:142
 msgid "Macedonia (the former Yugoslav Republic of)"
 msgstr "Pohjois-Makedonia"
 
+#: src/CountryCodes.py:143
 msgid "Madagascar"
 msgstr "Madagaskar"
 
+#: src/CountryCodes.py:144
 msgid "Malawi"
 msgstr "Malawi"
 
+#: src/CountryCodes.py:145
 msgid "Malaysia"
 msgstr "Malesia"
 
+#: src/CountryCodes.py:146
 msgid "Maldives"
 msgstr "Malediivit"
 
+#: src/CountryCodes.py:147
 msgid "Mali"
 msgstr "Mali"
 
+#: src/CountryCodes.py:148
 msgid "Malta"
 msgstr "Malta"
 
+#: src/CountryCodes.py:149
 msgid "Marshall Islands"
 msgstr "Marshallinsaaret"
 
+#: src/CountryCodes.py:150
 msgid "Martinique"
 msgstr "Martinique"
 
+#: src/CountryCodes.py:151
 msgid "Mauritania"
 msgstr "Mauritania"
 
+#: src/CountryCodes.py:152
 msgid "Mauritius"
 msgstr "Mauritius"
 
+#: src/CountryCodes.py:153
 msgid "Mayotte"
 msgstr "Mayotte"
 
+#: src/CountryCodes.py:154
 msgid "Mexico"
 msgstr "Meksiko"
 
+#: src/CountryCodes.py:155
 msgid "Micronesia (Federated States of)"
 msgstr "Mikronesia"
 
+#: src/CountryCodes.py:156
 msgid "Moldova (Republic of)"
 msgstr "Moldova"
 
+#: src/CountryCodes.py:157
 msgid "Monaco"
 msgstr "Monaco"
 
+#: src/CountryCodes.py:158
 msgid "Mongolia"
 msgstr "Mongolia"
 
+#: src/CountryCodes.py:159
 msgid "Montenegro"
 msgstr "Montenegro"
 
+#: src/CountryCodes.py:160
 msgid "Montserrat"
 msgstr "Montserrat"
 
+#: src/CountryCodes.py:161
 msgid "Morocco"
 msgstr "Marokko"
 
+#: src/CountryCodes.py:162
 msgid "Mozambique"
 msgstr "Mosambik"
 
+#: src/CountryCodes.py:163
 msgid "Myanmar"
 msgstr "Myanmar"
 
+#: src/CountryCodes.py:164
 msgid "Namibia"
 msgstr "Namibia"
 
+#: src/CountryCodes.py:165
 msgid "Nauru"
 msgstr "Nauru"
 
+#: src/CountryCodes.py:166
 msgid "Nepal"
 msgstr "Nepal"
 
+#: src/CountryCodes.py:167
 msgid "Netherlands"
 msgstr "Alankomaat"
 
+#: src/CountryCodes.py:168
 msgid "New Caledonia"
 msgstr "Uusi-Kaledonia"
 
+#: src/CountryCodes.py:169
 msgid "New Zealand"
 msgstr "Uusi-Seelanti"
 
+#: src/CountryCodes.py:170
 msgid "Nicaragua"
 msgstr "Nicaragua"
 
+#: src/CountryCodes.py:171
 msgid "Niger"
 msgstr "Niger"
 
+#: src/CountryCodes.py:172
 msgid "Nigeria"
 msgstr "Nigeria"
 
+#: src/CountryCodes.py:173
 msgid "Niue"
 msgstr "Niue"
 
+#: src/CountryCodes.py:174
 msgid "Norfolk Island"
 msgstr "Norfolkinsaari"
 
+#: src/CountryCodes.py:175
 msgid "Northern Mariana Islands"
 msgstr "Pohjois-Mariaanit"
 
+#: src/CountryCodes.py:176
 msgid "Norway"
 msgstr "Norja"
 
+#: src/CountryCodes.py:177
 msgid "Oman"
 msgstr "Oman"
 
+#: src/CountryCodes.py:178
 msgid "Pakistan"
 msgstr "Pakistan"
 
+#: src/CountryCodes.py:179
 msgid "Palau"
 msgstr "Palau"
 
+#: src/CountryCodes.py:180
 msgid "Palestine, State of"
 msgstr "Palestiina"
 
+#: src/CountryCodes.py:181
 msgid "Panama"
 msgstr "Panama"
 
+#: src/CountryCodes.py:182
 msgid "Papua New Guinea"
 msgstr "Papua-Uusi-Guinea"
 
+#: src/CountryCodes.py:183
 msgid "Paraguay"
 msgstr "Paraguay"
 
+#: src/CountryCodes.py:184
 msgid "Peru"
 msgstr "Peru"
 
+#: src/CountryCodes.py:185
 msgid "Philippines"
 msgstr "Filippiinit"
 
+#: src/CountryCodes.py:186
 msgid "Pitcairn"
 msgstr "Pitcairn"
 
+#: src/CountryCodes.py:187
 msgid "Poland"
 msgstr "Puola"
 
+#: src/CountryCodes.py:188
 msgid "Portugal"
 msgstr "Portugali"
 
+#: src/CountryCodes.py:189
 msgid "Puerto Rico"
 msgstr "Puerto Rico"
 
+#: src/CountryCodes.py:190
 msgid "Qatar"
 msgstr "Qatar"
 
+#: src/CountryCodes.py:191
 msgid "Reunion"
 msgstr "Réunion"
 
+#: src/CountryCodes.py:192
 msgid "Romania"
 msgstr "Romania"
 
+#: src/CountryCodes.py:193
 msgid "Russian Federation"
 msgstr "Venäjä"
 
+#: src/CountryCodes.py:194
 msgid "Rwanda"
 msgstr "Ruanda"
 
+#: src/CountryCodes.py:195
 msgid "Saint Barthelemy"
 msgstr "Saint-Barthélemy"
 
+#: src/CountryCodes.py:196
 msgid "Saint Helena, Ascension and Tristan da Cunha"
 msgstr "Saint Helena, Ascension ja Tristan da Cunha"
 
+#: src/CountryCodes.py:197
 msgid "Saint Kitts and Nevis"
 msgstr "Saint Kitts ja Nevis"
 
+#: src/CountryCodes.py:198
 msgid "Saint Lucia"
 msgstr "Saint Lucia"
 
+#: src/CountryCodes.py:199
 msgid "Saint Martin (French part)"
 msgstr "Saint-Martin"
 
+#: src/CountryCodes.py:200
 msgid "Saint Pierre and Miquelon"
 msgstr "Saint-Pierre ja Miquelon"
 
+#: src/CountryCodes.py:201
 msgid "Saint Vincent and the Grenadines"
 msgstr "Saint Vincent ja Grenadiinit"
 
+#: src/CountryCodes.py:202
 msgid "Samoa"
 msgstr "Samoa"
 
+#: src/CountryCodes.py:203
 msgid "San Marino"
 msgstr "San Marino"
 
+#: src/CountryCodes.py:204
 msgid "Sao Tome and Principe"
 msgstr "São Tomé ja Príncipe"
 
+#: src/CountryCodes.py:205
 msgid "Saudi Arabia"
 msgstr "Saudi-Arabia"
 
+#: src/CountryCodes.py:206
 msgid "Senegal"
 msgstr "Senegal"
 
+#: src/CountryCodes.py:207
 msgid "Serbia"
 msgstr "Serbia"
 
+#: src/CountryCodes.py:208
 msgid "Seychelles"
 msgstr "Seychellit"
 
+#: src/CountryCodes.py:209
 msgid "Sierra Leone"
 msgstr "Sierra Leone"
 
+#: src/CountryCodes.py:210
 msgid "Singapore"
 msgstr "Singapore"
 
+#: src/CountryCodes.py:211
 msgid "Sint Maarten (Dutch part)"
 msgstr "Sint Maarten"
 
+#: src/CountryCodes.py:212
 msgid "Slovakia"
 msgstr "Slovakia"
 
+#: src/CountryCodes.py:213
 msgid "Slovenia"
 msgstr "Slovenia"
 
+#: src/CountryCodes.py:214
 msgid "Solomon Islands"
 msgstr "Salomonsaaret"
 
+#: src/CountryCodes.py:215
 msgid "Somalia"
 msgstr "Somalia"
 
+#: src/CountryCodes.py:216
 msgid "South Africa"
 msgstr "Etelä-Afrikka"
 
+#: src/CountryCodes.py:217
 msgid "South Georgia and the South Sandwich Islands"
 msgstr "Etelä-Georgia ja Eteläiset Sandwichsaaret"
 
+#: src/CountryCodes.py:218
 msgid "South Sudan"
 msgstr "Etelä-Sudan"
 
+#: src/CountryCodes.py:219
 msgid "Spain"
 msgstr "Espanja"
 
+#: src/CountryCodes.py:220
 msgid "Sri Lanka"
 msgstr "Sri Lanka"
 
+#: src/CountryCodes.py:221
 msgid "Sudan"
 msgstr "Sudan"
 
+#: src/CountryCodes.py:222
 msgid "Suriname"
 msgstr "Suriname"
 
+#: src/CountryCodes.py:223
 msgid "Svalbard and Jan Mayen"
 msgstr "Huippuvuoret ja Jan Mayen"
 
+#: src/CountryCodes.py:224
 msgid "Swaziland"
 msgstr "Swazimaa"
 
+#: src/CountryCodes.py:225
 msgid "Sweden"
 msgstr "Ruotsi"
 
+#: src/CountryCodes.py:226
 msgid "Switzerland"
 msgstr "Sveitsi"
 
+#: src/CountryCodes.py:227
 msgid "Syrian Arab Republic"
 msgstr "Syyria"
 
+#: src/CountryCodes.py:228
 msgid "Taiwan"
 msgstr "Taiwan"
 
+#: src/CountryCodes.py:229
 msgid "Tajikistan"
 msgstr "Tadžikistan"
 
+#: src/CountryCodes.py:230
 msgid "Tanzania, United Republic of"
 msgstr "Tansania"
 
+#: src/CountryCodes.py:231
 msgid "Thailand"
 msgstr "Thaimaa"
 
+#: src/CountryCodes.py:232
 msgid "Timor-Leste"
 msgstr "Itä-Timor"
 
+#: src/CountryCodes.py:233
 msgid "Togo"
 msgstr "Togo"
 
+#: src/CountryCodes.py:234
 msgid "Tokelau"
 msgstr "Tokelau"
 
+#: src/CountryCodes.py:235
 msgid "Tonga"
 msgstr "Tonga"
 
+#: src/CountryCodes.py:236
 msgid "Trinidad and Tobago"
 msgstr "Trinidad ja Tobago"
 
+#: src/CountryCodes.py:237
 msgid "Tunisia"
 msgstr "Tunisia"
 
+#: src/CountryCodes.py:238
 msgid "Turkey"
 msgstr "Turkki"
 
+#: src/CountryCodes.py:239
 msgid "Turkmenistan"
 msgstr "Turkmenistan"
 
+#: src/CountryCodes.py:240
 msgid "Turks and Caicos Islands"
 msgstr "Turks- ja Caicossaaret"
 
+#: src/CountryCodes.py:241
 msgid "Tuvalu"
 msgstr "Tuvalu"
 
+#: src/CountryCodes.py:242
 msgid "Uganda"
 msgstr "Uganda"
 
+#: src/CountryCodes.py:243
 msgid "Ukraine"
 msgstr "Ukraina"
 
+#: src/CountryCodes.py:244
 msgid "United Arab Emirates"
 msgstr "Yhdistyneet arabiemiirikunnat"
 
+#: src/CountryCodes.py:245
 msgid "United Kingdom"
 msgstr "Yhdistynyt kuningaskunta"
 
+#: src/CountryCodes.py:246
 msgid "United States of America"
 msgstr "Yhdysvallat"
 
+#: src/CountryCodes.py:247
 msgid "United States Minor Outlying Islands"
 msgstr "Yhdysvaltain erillissaaret"
 
+#: src/CountryCodes.py:248
 msgid "Uruguay"
 msgstr "Uruguay"
 
+#: src/CountryCodes.py:249
 msgid "Uzbekistan"
 msgstr "Uzbekistan"
 
+#: src/CountryCodes.py:250
 msgid "Vanuatu"
 msgstr "Vanuatu"
 
+#: src/CountryCodes.py:251
 msgid "Venezuela (Bolivarian Republic of)"
 msgstr "Venezuela"
 
+#: src/CountryCodes.py:252
 msgid "Viet Nam"
 msgstr "Vietnam"
 
+#: src/CountryCodes.py:253
 msgid "Virgin Islands (British)"
 msgstr "Brittiläiset Neitsytsaaret"
 
+#: src/CountryCodes.py:254
 msgid "Virgin Islands (U.S.)"
 msgstr "Yhdysvaltain Neitsytsaaret"
 
+#: src/CountryCodes.py:255
 msgid "Wallis and Futuna"
 msgstr "Wallis ja Futuna"
 
+#: src/CountryCodes.py:256
 msgid "Western Sahara"
 msgstr "Länsi-Sahara"
 
+#: src/CountryCodes.py:257
 msgid "Yemen"
 msgstr "Jemen"
 
+#: src/CountryCodes.py:258
 msgid "Zambia"
 msgstr "Sambia"
 
+#: src/CountryCodes.py:259
 msgid "Zimbabwe"
 msgstr "Zimbabwe"
 
+#: src/plugin.py:50
+msgid "PlutoTVCockpit"
+msgstr "PlutoTVCockpit"
+
+#: src/plugin.py:53
+msgid "View video on demand and download a bouquet of live tv channels"
+msgstr "Katso tilaus-TV:ta ja lataa LiveTV-kanavien suosikkilista"
+
+#: src/plugin.py:58
+msgid "Download PlutoTV bouquets, picons and EPG"
+msgstr "Lataa PlutoTV-suosikkilistat, kanavalogot ja EPG"
+
+#: src/plugin.py:64
+msgid "Silently download PlutoTV"
+msgstr "Lataa PlutoTV hiljaisesti"
+
+#: src/PluginUpgrade.py:240
+#, python-format
 msgid "%s has been updated. Restart Enigma2 now to use the new version?"
 msgstr "%s on päivitetty. Käynnistetäänkö Enigma2 uudelleen nyt uuden version käyttöönottamiseksi?"
 
+#: src/PluginUpgrade.py:249
+#, python-format
 msgid "A newer %s package is available. Do you want to install it now?"
 msgstr "Uudempi %s-paketti on saatavilla. Haluatko asentaa sen nyt?"
 
-msgid "End"
-msgstr ""
+#: src/PlutoSetup.py:26 src/PlutoSetup.py:78
+msgid "Remove picons"
+msgstr "Poista kanavalogot"
 
-msgid "Infobar/Play"
-msgstr ""
+#: src/PlutoSetup.py:27 src/PlutoSetup.py:32
+msgid "PlutoTV Setup Actions"
+msgstr "PlutoTV:n asetukset"
 
-msgid "Play/Pause"
-msgstr ""
+#: src/PlutoSetup.py:31 src/PlutoSetup.py:86
+msgid "Remove Live-TV Bouquet"
+msgstr "Poista LiveTV-suosikkilista"
 
-msgid "Stop playback"
-msgstr ""
+#: src/PlutoSetup.py:35
+msgid "PlutoTV Setup"
+msgstr "PlutoTV:n asetukset"
 
-msgid "Skip forward"
-msgstr ""
+#: src/PlutoSetup.py:39
+msgid "VoD country"
+msgstr "Tilaus-TV:n (VOD) maa"
 
-msgid "Skip backward"
-msgstr ""
+#: src/PlutoSetup.py:39
+msgid "Select the country that the VoD list will be created for."
+msgstr "Valitse maa, jolle Tilaus-TV (VoD) -lista luodaan."
 
-msgid "EPG Info"
-msgstr ""
+#: src/PlutoSetup.py:43
+#, python-format
+msgid "Live-TV bouquet %s"
+msgstr "LiveTV-suosikkilista %s"
 
-msgid "Do you want to resume playback at position: %d:%02d:%02d?"
+#: src/PlutoSetup.py:43
+#, python-format
+msgid "Country for which Live-TV bouquet %s will be created."
+msgstr "Maa, jolle LiveTV-suosikkilista %s luodaan."
+
+#: src/PlutoSetup.py:45
+msgid "Stream proxy"
+msgstr "Striimipalvelin"
+
+#: src/PlutoSetup.py:45
+msgid ""
+"Play and record through StreamProxyCockpit, which looks the stream address up when a channel is "
+"played and keeps the ad breaks of the streams from disturbing playback and recordings. Off: the "
+"bouquet holds the addresses of the stream source below. The bouquet of each setting is kept, so "
+"changing it switches between them; one that doesn't exist yet, or is older than 5 hours, is "
+"generated."
 msgstr ""
+"Toista ja tallenna StreamProxyCockpitin kautta, joka etsii striimin osoitteen kanavaa toistettaessa "
+"ja estää striimien mainoskatkoja häiritsemästä toistoa ja tallennuksia. Pois päältä: suosikkilista "
+"sisältää alla olevan striimilähteen osoitteet. Kunkin asetuksen suosikkilista säilytetään, joten "
+"sen muuttaminen vaihtaa niiden välillä; sellainen, jota ei vielä ole olemassa tai joka on yli 5 "
+"tuntia vanha, luodaan."
+
+#: src/PlutoSetup.py:46
+msgid "Stream source"
+msgstr "Striimin lähde"
+
+#: src/PlutoSetup.py:46
+msgid ""
+"Where the streams come from, with and without the stream proxy. Stitcher is the native Pluto server "
+"with a token of its own, JMP2 the jmp2.uk redirect. The bouquet is generated again when this is "
+"changed."
+msgstr ""
+"Mistä striimit tulevat, striimiproxyn kanssa ja ilman. Stitcher on Pluton natiivipalvelin omalla "
+"tokenilla, JMP2 jmp2.uk-uudelleenohjaus. Suosikkilista luodaan uudelleen, kun tätä muutetaan."
+
+#: src/PlutoSetup.py:47
+msgid "Picon type"
+msgstr "Kanavalogojen tyyppi"
+
+#: src/PlutoSetup.py:47
+msgid ""
+"Using service name picons means they will continue to work even if the service reference changes. "
+"Also, they can be shared between channels of the same name that don't have the same service "
+"references."
+msgstr ""
+"Kanavan nimisten (SNP) kanavalogojen käyttö tarkoittaa, että ne toimivat edelleen, vaikka kanavan "
+"referenssi muuttuisi. Niitä voidaan myös jakaa samannimisten kanavien kesken, joilla ei ole samoja "
+"kanavien referenssejä."
+
+#: src/PlutoSetup.py:48
+msgid "Automatic update check"
+msgstr "Automaattinen päivitysten tarkistus"
+
+#: src/PlutoSetup.py:48
+msgid "Automatically check for a newer package update when the plugin GUI is opened."
+msgstr ""
+"Tarkista automaattisesti uudemmat pakettipäivitykset, kun lisäosan graafinen käyttöliittymä avataan."
+
+#: src/PlutoSetup.py:49
+msgid "Data location"
+msgstr "Tietojen sijainti"
+
+#: src/PlutoSetup.py:49
+msgid "Location the config data are stored in."
+msgstr "Sijainti, johon määritystiedot tallennetaan."
+
+#: src/PlutoSetup.py:50
+msgid "Log level"
+msgstr "Lokitaso"
+
+#: src/PlutoSetup.py:50
+msgid "Select the level for debug logging."
+msgstr "Valitse debug-lokituksen taso."
+
+#: src/PlutoTVCockpit.py:54
+msgid "Loading data... Please wait"
+msgstr "Ladataan dataa... odota"
+
+#: src/PlutoTVCockpit.py:56
+msgid "Exit"
+msgstr "Poistu"
+
+#: src/PlutoTVCockpit.py:59
+msgid "TMDb Search"
+msgstr "TMDb-haku"
+
+#: src/PlutoTVCockpit.py:59
+msgid "IMDb Search"
+msgstr "IMDB-haku"
+
+#: src/PlutoTVCockpit.py:63
+msgid "Change country"
+msgstr "Vaihda maa"
+
+#: src/PlutoTVCockpit.py:75
+msgid "Go forward one level including starting playback"
+msgstr "Siirry yksi taso eteenpäin, mukaan lukien toiston aloittaminen"
+
+#: src/PlutoTVCockpit.py:76
+msgid "Go back one level including exiting"
+msgstr "Siirry yksi taso taaksepäin, mukaan lukien poistuminen"
+
+#: src/PlutoTVCockpit.py:77
+msgid "Create or update PlutoTV live bouquets"
+msgstr "Luo tai päivitä PlutoTV Live -suosikkilistat"
+
+#: src/PlutoTVCockpit.py:78
+msgid "Go back one level"
+msgstr "Siirry yksi taso taaksepäin"
+
+#: src/PlutoTVCockpit.py:79
+msgid "Open the plugin configuration screen"
+msgstr "Avaa lisäosan asetukset"
+
+#: src/PlutoTVCockpit.py:86
+#, python-format
+msgid "Search for information in %s"
+msgstr "Hae tietoa kohteesta %s"
+
+#: src/PlutoTVCockpit.py:86
+msgid "The Movie Database"
+msgstr "The Movie Database"
+
+#: src/PlutoTVCockpit.py:86
+msgid "the Internet Movie Database"
+msgstr "the Internet Movie Database"
+
+#: src/PlutoTVCockpit.py:95
+msgid "Load the VoD list of another country"
+msgstr "Lataa toisen maan VoD-lista"
+
+#: src/PlutoTVCockpit.py:112
+msgid "VOD Menu"
+msgstr "VOD-Menu"
+
+#: src/PlutoTVCockpit.py:128 src/PlutoTVCockpit.py:301 src/PlutoTVCockpit.py:317
+#: src/PlutoTVCockpit.py:364 src/PlutoTVCockpit.py:375
+msgid "PlutoTV"
+msgstr "PlutoTV"
+
+#: src/PlutoTVCockpit.py:157 src/PlutoTVCockpit.py:182
+msgid "min"
+msgstr "min"
+
+#: src/PlutoTVCockpit.py:214
+#, python-format
+msgid ""
+"There is no data for %s. It may be caused by geo-blocking, or Pluto TV may not be available in your "
+"country."
+msgstr ""
+"Kohteesta %s ei ole tietoja. Tämä voi johtua geoblokkaauksesta, tai Pluto TV ei ehkä ole saatavilla "
+"maassasi."
+
+#: src/PlutoTVCockpit.py:314
+msgid "Episode"
+msgstr "Jakso"
+
+#: src/PlutoTVCockpit.py:359 src/PlutoTVCockpit.py:372
+msgid "Season"
+msgstr "Kausi"
+
+#: src/PlutoTVCockpit.py:374
+msgid "Seasons"
+msgstr "Kaudet"
+
+#: src/PlutoTVCockpit.py:406
+msgid "All"
+msgstr "Kaikki"
+
+#: src/PlutoTVCockpit.py:410
+msgid "Select a Live-TV bouquet to update"
+msgstr "Valitse päivitettävä live-TV- suosikkilista"
+
+#: src/PlutoTVCockpit.py:423
+#, python-format
+msgid ""
+"The Pluto TV bouquets for %s in your channel list have been updated.\n"
+"\n"
+"They will now be rebuilt automatically every 5 hours."
+msgstr ""
+"Kanavaluettelosi %s:n Pluto TV -suosikkilistat on päivitetty.\n"
+"\n"
+"Ne luodaan nyt uudelleen automaattisesti 5 tunnin välein."
+
+#: src/PlutoTVCockpit.py:438 src/PlutoTVCockpit.py:441
+msgid "Update Live-TV Bouquet"
+msgstr "Päivitä Live-TV -suosikkilista"
+
+#: src/PlutoTVCockpit.py:439
+msgid "Live-TV Bouquet last updated:"
+msgstr "Live-TV -suosikkilista päivitetty viimeksi:"
+
+#: src/PlutoTVCockpit.py:442
+msgid "Live-TV Bouquet needs updating. Press GREEN."
+msgstr "Live-TV -suosikkilista on päivitettävä. Paina VIHREÄÄ."
+
+#: src/PlutoTVCockpit.py:444
+msgid "Create Live-TV Bouquet"
+msgstr "Luo Live-TV -suosikkilista"
+
+#: src/PlutoTVCockpit.py:482
+msgid "Temporarily switch the VoD list to another country"
+msgstr "Vaihda VoD-lista väliaikaisesti toiseen maahan"
+
+#: src/PlutoTVDownload.py:43
+msgid "A silent download is in progress."
+msgstr "Hiljainen lataus käynnissä."
+
+#: src/PlutoTVDownload.py:44
+msgid "picons"
+msgstr "kanavalogot"
+
+#: src/PlutoTVDownload.py:45
+msgid "Fetching picons..."
+msgstr "Noudetaan kanavalogoja..."
+
+#: src/PlutoTVDownload.py:46
+msgid "Live-TV update completed"
+msgstr "Live-TV:n päivitys valmis"
+
+#: src/PlutoTVDownload.py:47
+msgid "Processing data..."
+msgstr "Käsitellään tietoja..."
+
+#: src/PlutoTVDownload.py:48
+msgid "Waiting for Channel: "
+msgstr "Odotetaan kanavaa: "
+
+#: src/PlutoTVDownload.py:300
+msgid "Other"
+msgstr "Muu"
+
+#: src/PlutoTVDownload.py:366
+msgid "The download is in progress. Exit now?"
+msgstr "Lataus käynnissä. Poistutaanko nyt?"
+
+#: src/PlutoTVDownload.py:372
+msgid "PlutoTV updating"
+msgstr "PlutoTV:n päivitys"
+
+#: src/PlutoTVDownload.py:378
+msgid "Please wait..."
+msgstr "Odota..."
+
+#: src/PlutoTVDownload.py:383
+#, python-format
+msgid "Updating: Pluto TV %s"
+msgstr "Päivitetään: PlutoTV %s"
+
+#: src/PlutoTVDownload.py:390
+#, python-format
+msgid "Pluto TV refused the request for %s (HTTP %s). It may be geo-blocked."
+msgstr "Pluto TV hylkäsi pyynnön kohteelle %s (HTTP %s). Se saattaa olla geoblokattu."
+
+#: src/PlutoTVDownload.py:392
+#, python-format
+msgid "Pluto TV could not be reached for %s%s. Try again later."
+msgstr "Pluto TV:hen ei saatu yhteyttä %s%s. Yritä myöhemmin uudelleen."
+
+#: src/PlutoTVDownload.py:394
+#, python-format
+msgid ""
+"Pluto TV lists channels for %s, but the selected source has no stream address for them. Try another "
+"source."
+msgstr ""
+"Pluto TV listaa kanavia kohteelle %s, mutta valitulla lähteellä ei ole niille striimi-osoitetta. "
+"Kokeile toista lähdettä."
+
+#: src/PlutoTVDownload.py:396
+#, python-format
+msgid "Pluto TV has no channels for %s. It may not be available in your country."
+msgstr "Pluto TV:llä ei ole kanavia kohteelle %s. Se ei välttämättä ole saatavilla maassasi."
+
+#: src/PRSCockpitPlayer.py:81
+msgid "Do you want to resume this playback?"
+msgstr "Haluatko jatkaa tätä toistoa?"
+
+#: src/PRSCockpitPlayer.py:81
+#, python-format
+msgid "Resume position at %s"
+msgstr "Jatka paikasta %s"
