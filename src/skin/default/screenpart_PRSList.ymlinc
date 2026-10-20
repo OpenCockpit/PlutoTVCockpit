@@ -14,6 +14,6 @@ convert:
           value: 1
       - text:
           position: "45,0"
-          size: "533,ih"
+          size: "478,ih"
           flags: RT_VALIGN_CENTER
           value: 2

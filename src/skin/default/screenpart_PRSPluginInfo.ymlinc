@@ -1,12 +1,26 @@
+# the canvas of the description (shown with the text, like the text itself), the text is inset by 16 px
 - widget:
     backgroundColor: "md_surface"
-    font: "$md_body_large"
-    options: "movetype=swimming, direction=top, startpoint=0, startdelay=4000, wrap=1, always=0, repeat=1, oneshot=1, steptime=100"
-    position: "1180,65"
-    render: "COCRunningText"
-    size: "615,675"
+    cornerRadius: "$radius_panel_large"
+    font: "Regular;0"
+    foregroundColor: "md_surface"
+    position: "1125,65"
+    render: "Label"
+    size: "560,675"
     source: "info"
     transparent: "0"
+    zPosition: "4"
+    children:
+      - convert:
+          type: "ConditionalShowHide"
+- widget:
+    font: "$md_body_large"
+    options: "movetype=swimming, direction=top, startpoint=0, startdelay=4000, wrap=1, always=0, repeat=1, oneshot=1, steptime=100"
+    position: "1141,81"
+    render: "COCRunningText"
+    size: "528,643"
+    source: "info"
+    transparent: "1"
     zPosition: "5"
     children:
       - convert:

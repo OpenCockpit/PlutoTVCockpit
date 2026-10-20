@@ -7,7 +7,7 @@ screen:
     - eLabel:
         alphatest: "blend"
         backgroundColor: "md_surface_container_high"
-        cornerRadius: "8"
+        cornerRadius: "$radius_dialog"
         position: "0,0"
         size: "620,200"
         widgetBorderColor: "md_on_surface_variant"

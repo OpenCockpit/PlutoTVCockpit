@@ -1,18 +1,19 @@
 screen:
+  backgroundColor: "md_transparent"
   name: "%PLUGIN%"
   position: "fill"
-  size: "1920,1080"
+  resolution: "1920,1080"
   children:
     - xmlinc:
-        file: "screenpart_TitleBar.ymlinc"
+        file: "screenpart_Window_Full.ymlinc"
+        position: "center"
     - ePixmap:
+        cornerRadius: "$radius_window_inner"
         pixmap: "~/../images/backdrop.jpg"
-        position: "0,0"
+        position: "2,72"
         scale: "scale"
-        size: "$screen_width,1020"
-        zPosition: "-1"
+        size: "1908,927"
+        zPosition: "-2"
     - xmlinc:
         file: "screenpart_PRSPluginBody.ymlinc"
-        position: "($screen_width-$child_width)/2,150"
-    - xmlinc:
-        file: "screenpart_Footer.ymlinc"
+        position: "($screen_width-$child_width)/2-4,146"
