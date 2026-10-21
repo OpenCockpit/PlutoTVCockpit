@@ -184,7 +184,7 @@ def checkPluginUpdateAndOpen(session, package_name, plugin_name, main_screen, au
     for a newer opkg version and prompt to install it if one is found.
 
     *auto_update_config* is a ConfigYesNo-style value (e.g.
-    config.plugins.plutotv.auto_update_check) - the check itself is skipped
+    config.plugins.plutotvcockpit.auto_update_check) - the check itself is skipped
     entirely unless its value is "yes"; main_screen still opens either way.
     *also_check* is a sequence of (package name, display name) of further packages the plugin depends on (for
     the TV plugins StreamProxyCockpit): they are checked in the same background job, with the same single

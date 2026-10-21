@@ -1046,3 +1046,15 @@ msgstr "Haluatko jatkaa tätä toistoa?"
 
 msgid "Resume position at %s"
 msgstr "Jatka paikasta %s"
+
+msgid "Category view"
+msgstr "Luokkanäkymä"
+
+msgid "Movie view"
+msgstr "Elokuvanäkymä"
+
+msgid "All movies"
+msgstr "Kaikki elokuvat"
+
+msgid "Switch between the category view and the list of all movies"
+msgstr "Vaihda luokkanäkymän ja kaikkien elokuvien luettelon välillä"

@@ -285,6 +285,18 @@ msgid ""
 "longer. It applies to the next update."
 msgstr ""
 
+msgid "Category view"
+msgstr ""
+
+msgid "Movie view"
+msgstr ""
+
+msgid "All movies"
+msgstr ""
+
+msgid "Switch between the category view and the list of all movies"
+msgstr ""
+
 msgid "End"
 msgstr ""
 

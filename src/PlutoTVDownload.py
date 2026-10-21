@@ -57,19 +57,19 @@ class PlutoTVDownloadBase(TVDownloadBase):
     def _proxyEnabled(self):
         """True if the bouquet gets the lazy addresses StreamProxyCockpit resolves (setting "Stream proxy"), False for
         the addresses of the stream source (live_tv_mode). The source applies either way."""
-        return config.plugins.plutotv.stream_proxy.value
+        return config.plugins.plutotvcockpit.stream_proxy.value
 
     def _selectedLocations(self):
         return getselectedcountries()
 
     def _defaultLocation(self):
-        return config.plugins.plutotv.country.value
+        return config.plugins.plutotvcockpit.country.value
 
     def _picons_config(self):
-        return config.plugins.plutotv.picons
+        return config.plugins.plutotvcockpit.picons
 
     def _configFolder(self):
-        return config.plugins.plutotv.config_folder.value
+        return config.plugins.plutotvcockpit.config_folder.value
 
     def _fetchChannels(self, cc):
         return plutoRequest.getChannels(cc)
@@ -84,7 +84,7 @@ class PlutoTVDownloadBase(TVDownloadBase):
         # Overrides TVDownloadBase's shared default (which reuses each
         # channel's already-resolved bouquet stream_url) because Pluto's own
         # bouquet ref uses a lazy "pluto://" (or the address of the stream source, per
-        # config.plugins.plutotv.live_tv_mode with the stream proxy off) scheme resolved at play time
+        # config.plugins.plutotvcockpit.live_tv_mode with the stream proxy off) scheme resolved at play time
         # by StreamProxyCockpit (StreamProxy.playServiceExtension) - not portable to tools other
         # than Enigma2. The exported playlist instead points at this proxy's
         # own /auto/ endpoint (only reachable from this box itself, since
@@ -170,7 +170,7 @@ class PlutoTVDownloadBase(TVDownloadBase):
         else:
             # A channel the source can't give an address for is left out of the bouquet (the download skips an entry
             # without an address), not silently given a proxy address: the setting says no proxy.
-            if config.plugins.plutotv.live_tv_mode.value == "jmp2":
+            if config.plugins.plutotvcockpit.live_tv_mode.value == "jmp2":
                 stream_url = plutoRequest.JMP2_URL_TEMPLATE % _id
             else:   # stitcher
                 stream_url = plutoRequest.buildDirectStreamURL(_id, self.bouquetCC)
@@ -345,7 +345,7 @@ class PlutoTVDownloadBase(TVDownloadBase):
     @staticmethod
     def getGuidedata(cc):
         start = (datetime.datetime.fromtimestamp(PlutoTVDownloadBase.getLocalTime()).strftime("%Y-%m-%dT%H:00:00Z"))
-        stop = (datetime.datetime.fromtimestamp(PlutoTVDownloadBase.getLocalTime()) + datetime.timedelta(hours=int(config.plugins.plutotv.epg_hours.value))).strftime("%Y-%m-%dT%H:00:00Z")
+        stop = (datetime.datetime.fromtimestamp(PlutoTVDownloadBase.getLocalTime()) + datetime.timedelta(hours=int(config.plugins.plutotvcockpit.epg_hours.value))).strftime("%Y-%m-%dT%H:00:00Z")
         return sorted(plutoRequest.getBaseGuide(start, stop, cc), key=lambda x: x["number"])
 
     @staticmethod

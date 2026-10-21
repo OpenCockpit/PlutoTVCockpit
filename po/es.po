@@ -953,6 +953,135 @@ msgstr "%d horas"
 msgid "How many hours of programme guide are fetched. Pluto has about 28 hours of it; a longer guide is more data to download and import, so the update takes longer. It applies to the next update."
 msgstr "Cuántas horas de guía de programación se descargan. Pluto tiene unas 28 horas; una guía más larga son más datos que descargar e importar, por lo que la actualización tarda más. Se aplica a partir de la próxima actualización."
 
+msgid "Stitcher"
+msgstr "Stitcher"
+
+msgid "JMP2"
+msgstr "JMP2"
+
+msgid "Yes"
+msgstr "Sí"
+
+msgid "No"
+msgstr "No"
+
+msgid "beginning"
+msgstr "principio"
+
+msgid "PlutoTVCockpit"
+msgstr "PlutoTVCockpit"
+
+msgid "Remove Live-TV Bouquet"
+msgstr "Eliminar la lista de canales"
+
+msgid "Stream proxy"
+msgstr "Proxy de stream"
+
+msgid "Play and record through StreamProxyCockpit, which looks the stream address up when a channel is played and keeps the ad breaks of the streams from disturbing playback and recordings. Off: the bouquet holds the addresses of the stream source below. The bouquet of each setting is kept, so changing it switches between them; one that doesn't exist yet, or is older than 5 hours, is generated."
+msgstr "Reproducir y grabar a través de StreamProxyCockpit, que busca la dirección del stream al reproducir un canal y evita que los cortes publicitarios de los streams molesten en la reproducción y en las grabaciones. Desactivado: la lista de canales contiene las direcciones de la fuente de stream indicada abajo. Se conserva la lista de canales de cada ajuste, así que al cambiarlo se alterna entre ellas; si todavía no existe o tiene más de 5 horas, se genera."
+
+msgid "Stream source"
+msgstr "Fuente de stream"
+
+msgid "Where the streams come from, with and without the stream proxy. Stitcher is the native Pluto server with a token of its own, JMP2 the jmp2.uk redirect. The bouquet is generated again when this is changed."
+msgstr "De dónde proceden los streams, con y sin el proxy de stream. Stitcher es el servidor nativo de Pluto con un token propio, JMP2 la redirección de jmp2.uk. La lista de canales se genera de nuevo al cambiar esta opción."
+
+msgid "Automatic update check"
+msgstr "Comprobación automática de actualizaciones"
+
+msgid "Automatically check for a newer package update when the plugin GUI is opened."
+msgstr "Comprobar automáticamente si hay una actualización más reciente del paquete al abrir la interfaz del plugin."
+
+msgid "Location the config data are stored in."
+msgstr "Ubicación donde se guardan los datos de configuración."
+
+msgid "Log level"
+msgstr "Nivel de registro"
+
+msgid "Select the level for debug logging."
+msgstr "Seleccione el nivel de depuración del registro."
+
+msgid "PlutoTV Setup Actions"
+msgstr "Acciones de configuración de PlutoTV"
+
+msgid "Live-TV bouquet %s"
+msgstr "Grupo de canales %s"
+
+msgid "Country for which Live-TV bouquet %s will be created."
+msgstr "País para el cual se creará la lista de canales %s."
+
+msgid "Change country"
+msgstr "Cambiar País"
+
+msgid "Update Live-TV Bouquet"
+msgstr "Actualizar Lista de canales"
+
+msgid "Select a Live-TV bouquet to update"
+msgstr "Selecciona la lista de canales que quieres actualizar"
+
+msgid "Live-TV Bouquet last updated:"
+msgstr "Última actualización:"
+
+msgid "Live-TV Bouquet needs updating. Press GREEN."
+msgstr "Se necesitan actualizar los canales. Pulsa VERDE."
+
+msgid "Create Live-TV Bouquet"
+msgstr "Crear lista de canales"
+
+msgid "Temporarily switch the VoD list to another country"
+msgstr "Cambiar temporalmente la lista de video a la demanda a otro país"
+
+msgid "Load the VoD list of another country"
+msgstr "Cargar la lista de video a la demanda de otro país"
+
+msgid "There is no data for %s. It may be caused by geo-blocking, or Pluto TV may not be available in your country."
+msgstr "No hay datos para %s. Puede deberse al bloqueo geográfico, o es posible que Pluto TV no esté disponible en tu país."
+
+msgid "All"
+msgstr "Todo"
+
+msgid ""
+"The Pluto TV bouquets for %s in your channel list have been updated.\n"
+"\n"
+"They will now be rebuilt automatically every 5 hours."
+msgstr ""
+"Las listas de canales de Pluto TV para %s en tu lista de canales se han actualizado.\n"
+"\n"
+"A partir de ahora se reconstruirán automáticamente cada 5 horas."
+
+msgid "min"
+msgstr "min"
+
+msgid "Live-TV update completed"
+msgstr "Grupo de canales actualizado"
+
+msgid "Other"
+msgstr "Otro"
+
+msgid "Pluto TV refused the request for %s (HTTP %s). It may be geo-blocked."
+msgstr "Pluto TV rechazó la solicitud para %s (HTTP %s). Puede que esté bloqueado geográficamente."
+
+msgid "Pluto TV could not be reached for %s%s. Try again later."
+msgstr "No se pudo conectar con Pluto TV para %s%s. Inténtalo de nuevo más tarde."
+
+msgid "Pluto TV lists channels for %s, but the selected source has no stream address for them. Try another source."
+msgstr "Pluto TV lista canales para %s, pero la fuente seleccionada no tiene dirección de stream para ellos. Prueba con otra fuente."
+
+msgid "Pluto TV has no channels for %s. It may not be available in your country."
+msgstr "Pluto TV no tiene canales para %s. Es posible que no esté disponible en tu país."
+
+msgid "Category view"
+msgstr "Vista por categorías"
+
+msgid "Movie view"
+msgstr "Vista de películas"
+
+msgid "All movies"
+msgstr "Todas las películas"
+
+msgid "Switch between the category view and the list of all movies"
+msgstr "Cambiar entre la vista por categorías y la lista de todas las películas"
+
 msgid "End"
 msgstr ""
 

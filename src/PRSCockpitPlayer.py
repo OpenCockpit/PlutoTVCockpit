@@ -11,7 +11,7 @@ than in a .cuts file next to the (non-existent) local file.
 VOD (PlutoTVCockpit) - the movie infobar, position/length of the stream:
 
     self.session.openWithCallback(self._playerClosed, PRSCockpitPlayer, reference, sid,
-                                  resumePointsInstance, self.service_center, config.plugins.plutotv)
+                                  resumePointsInstance, self.service_center, config.plugins.plutotvcockpit)
 
 Live channels (Rakuten TV, Samsung TV Plus), live=True - the infobar shows the
 current EPG event of the channel (name, progress, elapsed/remaining, end time)
@@ -20,7 +20,7 @@ and CockpitLivePlayerSummary skin screens), so the channel must be played with
 the service reference its bouquet/EPG import uses (see PRSServiceRef):
 
     self.session.openWithCallback(self._playerClosed, PRSCockpitPlayer, reference, sid,
-                                  resumePointsInstance, self.service_center, config.plugins.rakutentv, live=True)
+                                  resumePointsInstance, self.service_center, config.plugins.rakutentvcockpit, live=True)
 
 *config_plugins_plugin* is the plugin's own config subsection; it must define
 movie_resume_at_last_pos and movie_start_position (read by CockpitPlayer).

@@ -35,7 +35,7 @@ from .PlutoSetup import PlutoSetup
 from .PRSCockpitPlayer import PRSCockpitPlayer
 from .PRSServiceCenter import ServiceCenter
 
-_utils = PRSUtils(config.plugins.plutotv)
+_utils = PRSUtils(config.plugins.plutotvcockpit)
 downloadPoster = _utils.downloadPoster
 resumePointsInstance = _utils.resumePoints
 
@@ -61,6 +61,7 @@ class PlutoTVCockpit(Screen, HelpableScreen):
         self["updated"] = StaticText()
         self["key_menu"] = Button("Menu")
         self["key_blue"] = Button(_("Change country"))
+        self["key_text"] = Button()  # names the view the key switches to, see updateViewButton
         self["poster"] = Pixmap()
         self["posterBG"] = Label()
         self["info"] = StaticText()  # combined info for fluid layout, scrolled vertically by COCRunningText
@@ -97,6 +98,17 @@ class PlutoTVCockpit(Screen, HelpableScreen):
             -1
         )
 
+        self["ViewActions"] = HelpableActionMap(
+            self,
+            ["InfobarTeletextActions"],
+            {
+                "startTeletext": (self.toggleView, _("Switch between the category view and the list of all movies")),
+            },
+            -1
+        )
+
+        self.movieView = False  # False: categories, True: one list of all titles, sorted alphabetically
+        self.updateViewButton()
         self.updatebutton()
 
         if self.updatebutton not in Silent.afterUpdate:
@@ -104,13 +116,14 @@ class PlutoTVCockpit(Screen, HelpableScreen):
 
         self.updateDataTimer = eTimer()
         self.updateDataTimer.callback.append(self.update_data_delayed)
-        self.country = config.plugins.plutotv.country.value
+        self.country = config.plugins.plutotvcockpit.country.value
         self.initialise()
         self.onLayoutFinish.append(self.getCategories)
 
     def initialise(self):
         self.titlemenu = _("VOD Menu") + (" - " + COUNTRY_NAMES[self.country] if self.country in COUNTRY_NAMES else "")
         self.films = []
+        self.allfilms = []
         self.menu = []
         self.history = []
         self.chapters = {}
@@ -218,12 +231,55 @@ class PlutoTVCockpit(Screen, HelpableScreen):
             # Sort categories and items within each category alphabetically
             self.menu.sort(key=lambda x: re.sub(r"^[\W_]+", "", x.decode("utf-8").casefold()))
             for _key, items in self.lvod.items():
-                items.sort(key=lambda x: re.sub(r"^[\W_]+", "", x[1].decode("utf-8")).casefold())
-            entries = []
-            for key in self.menu:
-                entries.append(self["feedlist"].listentry(key.decode("utf-8"), "menu", ""))
-            self["feedlist"].setList(entries)
+                items.sort(key=self.filmSortKey)
+            # a title can be in several categories, the list of all titles has it once
+            films = {}
+            for items in self.lvod.values():
+                for film in items:
+                    films.setdefault(film[0], film)
+            self.allfilms = sorted(films.values(), key=self.filmSortKey)
+            self.showView()
         self["loading"].hide()
+
+    @staticmethod
+    def filmSortKey(film):
+        return re.sub(r"^[\W_]+", "", film[1].decode("utf-8")).casefold()
+
+    def filmEntries(self, films):
+        return [self["feedlist"].listentry(film[1].decode("utf-8"), film[8], film[0], duration=film[5]) for film in films]
+
+    def updateViewButton(self):
+        self["key_text"].text = _("Category view") if self.movieView else _("Movie view")
+
+    def toggleView(self):
+        if not self.menu or self["loading"].visible:  # nothing loaded yet, or a request is running
+            return
+        self.movieView = not self.movieView
+        self.updateViewButton()
+        self.history = []
+        self.vinfo = ""
+        self.description = ""
+        self.eptitle = ""
+        self.epinfo = ""
+        self["info"].setText("")
+        self["vtitle"].setText("")
+        self["poster"].hide()
+        self["posterBG"].hide()
+        self.showView()
+
+    def showView(self):
+        """Top level of the current view: the categories, or all titles in one list."""
+        country = " - " + COUNTRY_NAMES[self.country] if self.country in COUNTRY_NAMES else ""
+        if self.movieView:
+            self.films = self.allfilms
+            self.titlemenu = _("All movies") + country
+            entries = self.filmEntries(self.films)
+        else:
+            self.titlemenu = _("VOD Menu") + country
+            entries = [self["feedlist"].listentry(key.decode("utf-8"), "menu", "") for key in self.menu]
+        self["feedlist"].setList(entries)
+        self["feedlist"].moveToIndex(0)
+        self.title = _("PlutoTV") + " - " + self.titlemenu
 
     def buildlist(self, category):
         name = category["name"].encode("utf-8")
@@ -290,11 +346,7 @@ class PlutoTVCockpit(Screen, HelpableScreen):
         menuact = self.titlemenu
         if __type == "menu":
             self.films = self.lvod[self.menu[index]]
-            for x in self.films:
-                sname = x[1].decode("utf-8")
-                stype = x[8]
-                sid = x[0]
-                menu.append(self["feedlist"].listentry(sname, stype, sid, duration=x[5]))
+            menu = self.filmEntries(self.films)
             self["feedlist"].moveToIndex(0)
             self["feedlist"].setList(menu)
             self.titlemenu = name
@@ -346,11 +398,7 @@ class PlutoTVCockpit(Screen, HelpableScreen):
                 self.vinfo = ""
                 self.description = ""
             elif __type == "seasons":
-                for x in self.films:
-                    sname = x[1].decode("utf-8")
-                    stype = x[8]
-                    sid = x[0]
-                    menu.append(self["feedlist"].listentry(sname, stype, sid, duration=x[5]))
+                menu = self.filmEntries(self.films)
             elif __type == "episode":
                 for key in list(self.chapters.keys()):
                     sname = str(key)
@@ -392,14 +440,14 @@ class PlutoTVCockpit(Screen, HelpableScreen):
             if "m3u8" in url.lower() or "127.0.0.1" in url:
                 self.service_center.setMovie(self._play_name, self._play_description, self._play_duration)
                 self.last_service = self.session.nav.getCurrentlyPlayingServiceOrGroup()
-                self.session.openWithCallback(self._playerClosed, PRSCockpitPlayer, reference, self._play_sid, resumePointsInstance, self.service_center, config.plugins.plutotv)
+                self.session.openWithCallback(self._playerClosed, PRSCockpitPlayer, reference, self._play_sid, resumePointsInstance, self.service_center, config.plugins.plutotvcockpit)
 
     def _playerClosed(self, *_args):
         self.session.nav.playService(self.last_service)
         self["feedlist"].refresh()  # pick up the resume point saved on leaving the player
 
     def green(self):
-        locations = [x for x in getselectedcountries() if x] or [config.plugins.plutotv.country.value]
+        locations = [x for x in getselectedcountries() if x] or [config.plugins.plutotvcockpit.country.value]
         if len(locations) <= 1:
             self.session.openWithCallback(self.endupdateLive, PlutoTVDownload)
             return
@@ -464,8 +512,8 @@ class PlutoTVCockpit(Screen, HelpableScreen):
 
     def loadSetup(self):
         def loadSetupCallback(_result=None):
-            if config.plugins.plutotv.country.value != self.country:
-                self.country = config.plugins.plutotv.country.value
+            if config.plugins.plutotvcockpit.country.value != self.country:
+                self.country = config.plugins.plutotvcockpit.country.value
                 self.initialise()
                 self.getCategories()
         self.session.openWithCallback(loadSetupCallback, PlutoSetup)
@@ -480,8 +528,8 @@ class PlutoTVCockpit(Screen, HelpableScreen):
             switchCountryCallback,
             ChoiceBox,
             title=_("Temporarily switch the VoD list to another country"),
-            list=list(zip(config.plugins.plutotv.country.description, config.plugins.plutotv.country.choices)),
-            selection=config.plugins.plutotv.country.choices.index(self.country),
+            list=list(zip(config.plugins.plutotvcockpit.country.description, config.plugins.plutotvcockpit.country.choices)),
+            selection=config.plugins.plutotvcockpit.country.choices.index(self.country),
             keys=[]
         )
 

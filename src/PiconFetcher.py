@@ -35,7 +35,7 @@ _PICON_HEIGHT = 132
 class PiconFetcher:
     def __init__(self, picons_config, parent=None):
         """
-        picons_config  : config element for the picons setting, e.g. config.plugins.rakutentv.picons
+        picons_config  : config element for the picons setting, e.g. config.plugins.rakutentvcockpit.picons
         parent         : optional parent widget that receives updateProgressBar(counter) callbacks
         """
         self.plugin_name = PLUGIN

@@ -9,7 +9,7 @@ Instantiate once per plugin (module level):
     from Components.config import config
     from .PRSUtils import PRSUtils
 
-    _utils = PRSUtils(config.plugins.rakutentv)
+    _utils = PRSUtils(config.plugins.rakutentvcockpit)
     downloadPoster = _utils.downloadPoster
     resumePointsInstance = _utils.resumePoints
 

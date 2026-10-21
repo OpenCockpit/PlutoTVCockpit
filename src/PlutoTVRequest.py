@@ -12,8 +12,12 @@ import requests
 
 from .Debug import logger
 from .CockpitTVDownload import FailureTracker
-from .ConfigInit import pickForwardIP, TSIDS
+from .CockpitForwardIP import pickForwardIP, rerollForwardIP
+from .ConfigInit import TSIDS
 from .Variables import STREAM_POOL_SIZE, USER_AGENT
+
+
+_REROLL_WINDOW = 60   # seconds: a second request for the URL of the same channel within this time means the first one was refused
 
 
 class _PlutoSlot:
@@ -25,6 +29,8 @@ class _PlutoSlot:
         self.session = requests.Session()
         self.client_id = str(uuid.uuid4())
         self.bootCache = {}
+        self.refreshedAt = 0.0   # when the stream proxy last asked for a fresh stream URL with this slot
+        self.refreshedFor = None   # and for which channel
 
     @staticmethod
     def _tokenExpiry(token):
@@ -40,7 +46,7 @@ class _PlutoSlot:
             return 0
 
     def boot(self, country=None, allow_stale=False):
-        country = country or config.plugins.plutotv.country.value
+        country = country or config.plugins.plutotvcockpit.country.value
         now = time.time()
 
         if country in self.bootCache:
@@ -182,7 +188,7 @@ class PlutoTVRequest(FailureTracker):
 
     def _authHeaders(self, country=None):
         """Build authorization headers for service-channels API."""
-        country = country or config.plugins.plutotv.country.value
+        country = country or config.plugins.plutotvcockpit.country.value
         token = self.boot(country).get('sessionToken', '')
         headers = {
             'authority': 'service-channels.clusters.pluto.tv',
@@ -226,8 +232,8 @@ class PlutoTVRequest(FailureTracker):
         existing_url = LiveProxyUnmuxed.active_channel_url(channel_id)
         if existing_url is not None:
             return existing_url
-        country = country or config.plugins.plutotv.country.value
-        if config.plugins.plutotv.live_tv_mode.value != "stitcher":
+        country = country or config.plugins.plutotvcockpit.country.value
+        if config.plugins.plutotvcockpit.live_tv_mode.value != "stitcher":
             return self._registerSourceChannel(channel_id)
         slot = self._nextStreamSlot()
         slot.boot(country, allow_stale=True)
@@ -264,6 +270,17 @@ class PlutoTVRequest(FailureTracker):
         # an empty token (cold-slot miss: cache absent at zap time).
 
         def _url_refresher(_slot=slot, _country=country, _ch=channel_id):
+            now = time.time()
+            if _slot.refreshedFor == _ch and now - _slot.refreshedAt < _REROLL_WINDOW:
+                # Asked again right after the last time: the URL it handed out was refused (401). The stitcher refuses
+                # the sessions of some of the addresses in the range sent as X-Forwarded-For, and one is kept until
+                # Enigma2 restarts. Draw another one and let every slot start over with it.
+                logger.debug("stream URL refused again for slot %s: new forwarded address for %s", _slot.index, _country)
+                rerollForwardIP(_country)
+                for _s in self._pool:
+                    _s.bootCache.pop(_country, None)
+            _slot.refreshedAt = now
+            _slot.refreshedFor = _ch
             _slot.boot(_country)  # blocks; safe – called from handler thread, not reactor
             _c = _slot.bootCache.get(_country, {})
             _token = _c.get('response', {}).get('sessionToken', '')
@@ -273,7 +290,7 @@ class PlutoTVRequest(FailureTracker):
             if _sp:
                 _u += f"&{_sp}"
             return _u
-        return LiveProxyUnmuxed.register_channel(channel_id, url, url_refresher=_url_refresher)
+        return LiveProxyUnmuxed.register_channel(channel_id, url, url_refresher=_url_refresher, refresh_on_failure=True)
 
     def _registerSourceChannel(self, channel_id):
         """The address of the stream proxy for a channel of the source JMP2 (setting "Stream source"): the proxy
@@ -289,7 +306,7 @@ class PlutoTVRequest(FailureTracker):
         Like buildStreamURL, a pool slot is used (never the metadata slot), round-robin: the channels of a bouquet
         share a few device identities. Blocks on the network the first time per slot and country (the token is cached
         for its life): for the download thread, not for the main thread."""
-        country = country or config.plugins.plutotv.country.value
+        country = country or config.plugins.plutotvcockpit.country.value
         slot = self._nextStreamSlot()
         key = (slot.index, country)
         if time.time() < self._bootFailedUntil.get(key, 0):
@@ -319,7 +336,7 @@ class PlutoTVRequest(FailureTracker):
 
     def _apiHeaders(self, country=None):
         """Build authorization headers for api.pluto.tv endpoints (VOD)."""
-        country = country or config.plugins.plutotv.country.value
+        country = country or config.plugins.plutotvcockpit.country.value
         token = self.boot(country).get('sessionToken', '')
         headers = {
             'accept': 'application/json, text/javascript, */*; q=0.01',
@@ -342,7 +359,7 @@ class PlutoTVRequest(FailureTracker):
             'origin': 'http://pluto.tv',
             'user-agent': USER_AGENT,
         }
-        if ip := pickForwardIP(country or config.plugins.plutotv.country.value):
+        if ip := pickForwardIP(country or config.plugins.plutotvcockpit.country.value):
             headers['X-Forwarded-For'] = ip
         return headers
 
@@ -352,7 +369,7 @@ class PlutoTVRequest(FailureTracker):
         if param is None:
             param = {}
         now = time.time()
-        if (country := country or config.plugins.plutotv.country.value) not in self.requestCache:
+        if (country := country or config.plugins.plutotvcockpit.country.value) not in self.requestCache:
             self.requestCache[country] = {}
         if url in self.requestCache[country] and self.requestCache[country][url][1] > (now - life):
             return self.requestCache[country][url][0]
@@ -378,7 +395,7 @@ class PlutoTVRequest(FailureTracker):
         Uses a pool slot so each concurrent stream gets its own clientID
         device identity, preventing Pluto from killing concurrent streams.
         """
-        country = country or config.plugins.plutotv.country.value
+        country = country or config.plugins.plutotvcockpit.country.value
         slot = self._nextStreamSlot()
         slot.boot(country)
         cache = slot.bootCache.get(country, {})
@@ -425,16 +442,16 @@ class PlutoTVRequest(FailureTracker):
         return StreamProxy.registerChannel("pluto", channel_id, url)
 
     def getVOD(self, epid, country=None):
-        country = country or config.plugins.plutotv.country.value
+        country = country or config.plugins.plutotvcockpit.country.value
         return self.getURL(self.SEASON_VOD % epid, header=self._apiHeaders(country), life=60 * 60, country=country)
 
     def getOndemand(self, country=None):
-        country = country or config.plugins.plutotv.country.value
+        country = country or config.plugins.plutotvcockpit.country.value
         return self.getURL(self.BASE_VOD, header=self._apiHeaders(country), life=60 * 60, country=country)
 
     def getChannels(self, country=None):
         """The channels of *country*; if there are none, failure(country) tells if a request failed."""
-        country = country or config.plugins.plutotv.country.value
+        country = country or config.plugins.plutotvcockpit.country.value
         self.clearFailure(country)
         channels = self._getChannels(country)
         if channels:
@@ -447,7 +464,7 @@ class PlutoTVRequest(FailureTracker):
         Falls back to the legacy api.pluto.tv endpoint if the new API returns
         no data (some countries like Finland are not on the new API).
         """
-        country = country or config.plugins.plutotv.country.value
+        country = country or config.plugins.plutotvcockpit.country.value
         headers = self._authHeaders(country)
         params = {'channelIds': '', 'offset': '0', 'limit': '1000', 'sort': 'number:asc'}
 
@@ -548,7 +565,7 @@ class PlutoTVRequest(FailureTracker):
         Falls back to the legacy api.pluto.tv endpoint if the new API returns
         no data (some countries like Finland are not on the new API).
         """
-        country = country or config.plugins.plutotv.country.value
+        country = country or config.plugins.plutotvcockpit.country.value
         headers = self._authHeaders(country)
 
         if not (channels := self.getChannels(country)):
