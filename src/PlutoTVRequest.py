@@ -3,6 +3,7 @@
 
 import datetime
 import re
+import threading
 import time
 import uuid
 
@@ -29,6 +30,7 @@ class _PlutoSlot:
         self.session = requests.Session()
         self.client_id = str(uuid.uuid4())
         self.bootCache = {}
+        self._bootLock = threading.Lock()   # one boot request at a time, see boot
         self.refreshedAt = 0.0   # when the stream proxy last asked for a fresh stream URL with this slot
         self.refreshedFor = None   # and for which channel
 
@@ -63,6 +65,16 @@ class _PlutoSlot:
             # will populate the cache asynchronously once connectivity recovers.
             return {}
 
+        with self._bootLock:
+            # The background refresh of buildStreamURL and the url_refresher of the stream proxy both boot a cold
+            # slot at the same time: the one that comes second uses the token of the first instead of starting
+            # another session.
+            cached = self.bootCache.get(country)
+            if cached and time.time() < cached["exp"] - 60:
+                return cached["response"]
+            return self._bootRequest(country)
+
+    def _bootRequest(self, country):
         headers = {
             'authority': 'boot.pluto.tv',
             'accept': '*/*',
@@ -238,23 +250,27 @@ class PlutoTVRequest(FailureTracker):
         slot = self._nextStreamSlot()
         slot.boot(country, allow_stale=True)
         cache = slot.bootCache.get(country, {})
-        # If this slot's token is absent or stale, schedule a background
-        # refresh so the next zap has a fresh token.  The url_refresher
-        # passed to register_channel handles the cold-slot case synchronously
-        # from the proxy handler thread when jwt= ends up in master_url.
-        now = time.time()
-        if not cache or now >= cache.get("exp", 0) - 60:
-            self._scheduleBackgroundRefresh(slot, country)
         token = cache.get('response', {}).get('sessionToken', '')
         stitcherUrl = cache.get('stitcherUrl', self.STITCHER_FALLBACK)
         stitcherParams = cache.get('stitcherParams', '')
-        url = (
-            f"{stitcherUrl}/v2/stitch/hls/channel/{channel_id}/master.m3u8"
-            f"?jwt={token}&masterJWTPassthrough=true"
-        )
-        if stitcherParams:
-            url += f"&{stitcherParams}"
-        logger.debug("buildStreamURL slot %s for %s", slot.index, channel_id)
+        # A token that is absent or stale is booted in the background right away: by the time the proxy needs the
+        # address, the boot is usually done (the url_refresher of the proxy waits for it, see _PlutoSlot.boot).
+        if not token or time.time() >= cache.get("exp", 0) - 60:
+            self._scheduleBackgroundRefresh(slot, country)
+        if token:
+            url = (
+                f"{stitcherUrl}/v2/stitch/hls/channel/{channel_id}/master.m3u8"
+                f"?jwt={token}&masterJWTPassthrough=true"
+            )
+            if stitcherParams:
+                url += f"&{stitcherParams}"
+        else:
+            # A cold slot (the first zap of each stream slot after a start) has no token and must not wait for the
+            # network here, on the main thread. The address is left empty: the stream proxy resolves it with the
+            # url_refresher on the worker thread that needs it first (it boots the slot there), instead of asking the
+            # stitcher with an empty jwt= first, getting a 401 and then calling the url_refresher.
+            url = ""
+        logger.debug("buildStreamURL slot %s for %s%s", slot.index, channel_id, "" if token else " (cold slot, resolved later)")
         # Route all live channels through the local HLS proxy so that demuxed
         # streams (EXT-X-MEDIA:TYPE=AUDIO with a separate audio-only TS) are
         # transparently merged into a single muxed TS.  The proxy is a no-op
@@ -266,8 +282,8 @@ class PlutoTVRequest(FailureTracker):
         # already-running stream.
         LiveProxyUnmuxed.start()
         # Pass a refresher so the proxy handler thread (safe to block) can
-        # obtain a valid JWT on demand when the channel was registered with
-        # an empty token (cold-slot miss: cache absent at zap time).
+        # obtain a valid JWT on demand: for a channel registered without an address (cold slot) and when
+        # the stitcher refuses the address it has.
 
         def _url_refresher(_slot=slot, _country=country, _ch=channel_id):
             now = time.time()
