@@ -33,6 +33,7 @@ class _PlutoSlot:
         self._bootLock = threading.Lock()   # one boot request at a time, see boot
         self.refreshedAt = 0.0   # when the stream proxy last asked for a fresh stream URL with this slot
         self.refreshedFor = None   # and for which channel
+        self.channel = None   # the live channel that was given this slot, see _nextStreamSlot
 
     @staticmethod
     def _tokenExpiry(token):
@@ -171,7 +172,7 @@ class PlutoTVRequest(FailureTracker):
     def bootCache(self, value):
         self._pool[0].bootCache = value
 
-    def _nextStreamSlot(self):
+    def _nextStreamSlot(self, channel_id=None):
         """Round-robin through pool slots for stream URLs - never slot 0.
 
         Slot 0 is reserved for metadata/API calls (see __init__'s own
@@ -189,9 +190,26 @@ class PlutoTVRequest(FailureTracker):
         sessionstart's bouquet-builder also boot()-ing slot 0 for
         multiple countries in quick succession, right as a GStreamer
         "Invalid manifest" error hit that same live stream.
+
+        A slot whose channel is still running - watched, or recorded after the viewer zapped away - is skipped: two
+        streams on one device identity end each other's session at the stitcher (the playlists of both come back empty
+        with an end marker), and a recording that restarts its stream makes it worse. Only when every slot is taken
+        does the round-robin pick the next one anyway. *channel_id* is the channel the slot is for, which doesn't count
+        as taking it, and is remembered for it.
         """
-        slot = self._pool[1 + (self._stream_index % (STREAM_POOL_SIZE - 1))]
-        self._stream_index += 1
+        count = STREAM_POOL_SIZE - 1
+        slot = None
+        for i in range(count):
+            candidate = self._pool[1 + ((self._stream_index + i) % count)]
+            if candidate.channel in (None, channel_id) or LiveProxyUnmuxed.active_channel_url(candidate.channel) is None:
+                slot = candidate
+                self._stream_index += i + 1
+                break
+        if slot is None:
+            slot = self._pool[1 + (self._stream_index % count)]
+            self._stream_index += 1
+        if channel_id:
+            slot.channel = channel_id
         return slot
 
     def boot(self, country=None):
@@ -247,7 +265,7 @@ class PlutoTVRequest(FailureTracker):
         country = country or config.plugins.plutotvcockpit.country.value
         if config.plugins.plutotvcockpit.live_tv_mode.value != "stitcher":
             return self._registerSourceChannel(channel_id)
-        slot = self._nextStreamSlot()
+        slot = self._nextStreamSlot(channel_id)
         slot.boot(country, allow_stale=True)
         cache = slot.bootCache.get(country, {})
         token = cache.get('response', {}).get('sessionToken', '')
@@ -390,7 +408,6 @@ class PlutoTVRequest(FailureTracker):
         if url in self.requestCache[country] and self.requestCache[country][url][1] > (now - life):
             return self.requestCache[country][url][0]
         try:
-            import threading
             if threading.current_thread() is threading.main_thread():
                 import traceback
                 logger.debug('WARNING: getURL(%r) called on main thread!', url)
