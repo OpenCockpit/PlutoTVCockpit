@@ -282,15 +282,29 @@ class PlutoTVDownloadBase(TVDownloadBase):
                 epplot = f"T{epseason} Ep.{epnumber} {epplot}"
 
             if epdur > 0:
-                # Pluto's own timeline entry id uniquely identifies this broadcast
-                # instance and is stable across guide refreshes. Enigma2's EPG
-                # cache falls back to (start & 0xFFFF) when no event id is given,
-                # which wraps every ~18h11m and collides between events on the
-                # same channel that are that far apart - hash the stable id
-                # instead so timers keep tracking the event they were created for.
-                item_id = str(item.get("_id") or episode.get("_id") or "")
-                event_id = (zlib.crc32(item_id.encode("utf-8")) & 0xFFFF) or 1 if item_id else 0
-                self.guideList[_id].append((title, epplot, start, epdur, genre, event_id))
+                self.guideList[_id].append((title, epplot, start, epdur, genre, 0))
+        self.guideList[_id] = self._withEventIds(_id, self.guideList[_id])
+
+    @staticmethod
+    def _withEventIds(channel_id, events):
+        """Gives each event of a channel its enigma2 event id, derived from the channel and the start of the event.
+
+        Enigma2 finds the event of a timer by this id first (the .eit file of a recording is written from it, and so is the title
+        of the recording in the movie list) and only falls back to the time if there is no event with that id, so it must be
+        the same for the same broadcast in every guide refresh, whichever API delivered it, and no two events of a channel may
+        share one: importing an event removes the event that has the same id from the cache, whatever time it has. Pluto's
+        own ids can not be used for this: the legacy API repeats the id of an episode in each of its broadcasts, and the
+        new one has none. The 16 bits of an id leave collisions between the ~40 events of a channel possible, so a taken
+        id moves on to the next free one (the events are taken in the order of their start)."""
+        used = set()
+        result = []
+        for title, plot, start, duration, genre, _old_id in sorted(events, key=lambda e: e[2]):
+            event_id = (zlib.crc32(f"{channel_id}|{int(round(start))}".encode("utf-8")) & 0xFFFF) or 1
+            while event_id in used:
+                event_id = event_id % 0xFFFF + 1
+            used.add(event_id)
+            result.append((title, plot, start, duration, genre, event_id))
+        return result
 
     def buildM3U(self, channel):
         # (number, _id, name, logo, url)
