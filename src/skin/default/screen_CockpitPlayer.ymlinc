@@ -5,5 +5,5 @@ screen:
   size: "1920,1080"
   children:
     - xmlinc:
-        file: "screenpart_PlayerTemplate.ymlinc"
+        file: "screenpart_Player.ymlinc"
         position: "38,860"

@@ -59,9 +59,10 @@ class PlutoTVCockpit(Screen, HelpableScreen):
         self.yellowLabel = _("TMDb Search") if self.mdb == "tmdb" else (_("IMDb Search") if self.mdb else "")
         self["key_green"] = Button()
         self["updated"] = StaticText()
-        self["key_menu"] = Button("Menu")
+        # the buttons bar shows an action key only if its source has a true boolean: StaticText with text, not Button
+        self["key_menu"] = StaticText(_("MENU"))
         self["key_blue"] = Button(_("Change country"))
-        self["key_text"] = Button()  # names the view the key switches to, see updateViewButton
+        self["key_text"] = StaticText()  # names the view the key switches to, see updateViewButton
         self["poster"] = Pixmap()
         self["posterBG"] = Label()
         self["info"] = StaticText()  # combined info for fluid layout, scrolled vertically by COCRunningText

@@ -8,12 +8,12 @@ convert:
       - "$md_body_large"
     fields:
       - icon:
-          position: "5,0"
-          size: "20,ih"
+          position: "6,0"
+          size: "32,ih"
           flags: BT_SCALE|BT_KEEP_ASPECT_RATIO|BT_VALIGN_CENTER
           value: 1
       - text:
-          position: "45,0"
-          size: "478,ih"
+          position: "50,0"
+          size: "e-87,ih"
           flags: RT_VALIGN_CENTER
           value: 2

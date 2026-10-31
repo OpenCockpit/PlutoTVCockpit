@@ -321,6 +321,12 @@ msgstr ""
 msgid "Do you want to resume playback at position: %d:%02d:%02d?"
 msgstr ""
 
+msgid "Do you want to resume this playback?"
+msgstr ""
+
+msgid "Resume position at %s"
+msgstr ""
+
 msgid "Afghanistan"
 msgstr ""
 

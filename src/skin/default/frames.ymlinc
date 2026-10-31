@@ -26,6 +26,12 @@
     name: "window_popup_header_height"
     value: "47"
 
+# the zPosition of the button bar: above the window it belongs to; a screen that has to cover it (the pictures of the
+# Slideshow, which shows the bar only while they are smaller than the screen) passes buttons_bar_z with the include
+- global:
+    name: "buttons_bar_z"
+    value: "10"
+
 # small
 - global:
     name: "window_small_width"
@@ -95,41 +101,6 @@
 - global:
     name: "window_medium_body_height"
     value: "$window_medium_height-$window_medium_trim_y"
-
-# wide
-- global:
-    name: "window_wide_width"
-    value: "1416"
-- global:
-    name: "window_wide_height"
-    value: "858"
-- global:
-    name: "window_wide_padding_x"
-    value: "24"
-- global:
-    name: "window_wide_padding_top"
-    value: "30"
-- global:
-    name: "window_wide_padding_bottom"
-    value: "20"
-- global:
-    name: "window_wide_body_x"
-    value: "$window_surface_x+$window_wide_padding_x"
-- global:
-    name: "window_wide_body_y"
-    value: "$window_header_height+$window_wide_padding_top"
-- global:
-    name: "window_wide_trim_x"
-    value: "2*$window_surface_x+2*$window_wide_padding_x"
-- global:
-    name: "window_wide_trim_y"
-    value: "$window_surface_trim+$window_wide_padding_top+$window_wide_padding_bottom"
-- global:
-    name: "window_wide_body_width"
-    value: "$window_wide_width-$window_wide_trim_x"
-- global:
-    name: "window_wide_body_height"
-    value: "$window_wide_height-$window_wide_trim_y"
 
 # large
 - global:

@@ -303,6 +303,12 @@ msgstr "EPG Information"
 msgid "Do you want to resume playback at position: %d:%02d:%02d?"
 msgstr "Soll Playback an Position %d:%02d:%02d fortgesetzt werden?"
 
+msgid "Do you want to resume this playback?"
+msgstr "Soll Playback fortgesetzt werden?"
+
+msgid "Resume position at %s"
+msgstr "An Position %s fortsetzen"
+
 msgid "Afghanistan"
 msgstr "Afghanistan"
 

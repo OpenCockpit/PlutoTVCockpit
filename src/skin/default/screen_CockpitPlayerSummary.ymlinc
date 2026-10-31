@@ -65,5 +65,5 @@ screen:
               type: "COCRecordPosition"
               text: "Position"
     - xmlinc:
-        file: "screenpart_endtimeremaining.ymlinc"
+        file: "screenpart_EndTimeRemaining.ymlinc"
         source: "parent.Service"
