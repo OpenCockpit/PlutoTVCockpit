@@ -34,6 +34,7 @@ class _PlutoSlot:
         self.refreshedAt = 0.0   # when the stream proxy last asked for a fresh stream URL with this slot
         self.refreshedFor = None   # and for which channel
         self.channel = None   # the live channel that was given this slot, see _nextStreamSlot
+        self.used = 0.0   # when it was last zapped to (time.monotonic()), see _freeStreamSlot
 
     @staticmethod
     def _tokenExpiry(token):
@@ -196,6 +197,8 @@ class PlutoTVRequest(FailureTracker):
         with an end marker), and a recording that restarts its stream makes it worse. Only when every slot is taken
         does the round-robin pick the next one anyway. *channel_id* is the channel the slot is for, which doesn't count
         as taking it, and is remembered for it.
+
+        When every slot is taken, the channel zapped to longest ago gives its slot up (see _freeStreamSlot).
         """
         count = STREAM_POOL_SIZE - 1
         slot = None
@@ -205,11 +208,52 @@ class PlutoTVRequest(FailureTracker):
                 slot = candidate
                 self._stream_index += i + 1
                 break
+        if slot is None and channel_id:
+            slot = self._freeStreamSlot(channel_id)
         if slot is None:
             slot = self._pool[1 + (self._stream_index % count)]
             self._stream_index += 1
         if channel_id:
             slot.channel = channel_id
+            slot.used = time.monotonic()
+        return slot
+
+    def _touchStreamSlot(self, channel_id):
+        """Note that *channel_id* was zapped to (again): it is the last one a slot is taken from."""
+        for slot in self._pool[1:]:
+            if slot.channel == channel_id:
+                slot.used = time.monotonic()
+
+    def _freeStreamSlot(self, channel_id):
+        """The slot of the channel that was zapped to longest ago, closed to make room, or None.
+
+        Every channel the viewer zaps away from keeps running while a recorder (TimeshiftCockpit records the last few
+        channels) or the idle reaper of the proxy - a minute after the last request - has not ended it: zapping fast
+        through more channels than there are slots finds every slot taken. Sharing one then ends the sessions of
+        both streams at the stitcher (an end marker in the playlist a few seconds after the start), and the
+        recorders restart the ended streams, which ends the next ones: logs of 16:21 (audio gone for good after the
+        timeline jumped) and of 16:39 and 16:43 (every zap of a series ended a stream).
+
+        What is given up is the channel of the slot used longest ago, closed at once. A channel that is not given up:
+        the one of the live slot (while a zap resolves its target that is the channel being left, which the zap
+        closes right after unless a recorder uses it; for another call, a recording that starts while a channel is
+        watched, it is the one being watched), and one that a record timer records - the user wants that one. A
+        timeshift is not: it follows the zapping and ends within seconds of it anyway, and its recorder is not
+        told to end earlier than the proxy ends it (the response ends, see RecordingProxyMuxed). Neither the
+        recorder registration of the proxy nor the idle time of a channel tell a timeshift that has just ended from
+        one that goes on: both stay as they were for the length of a segment.
+
+        None if every slot is the live channel's or a timer's: then the slot is shared as before.
+        """
+        live = StreamProxy.live_channel_id()
+        candidates = [slot for slot in self._pool[1:]
+                      if slot.channel not in (None, channel_id, live) and not StreamProxy.timer_records(slot.channel)]
+        if not candidates:
+            return None
+        slot = min(candidates, key=lambda candidate: candidate.used)
+        logger.debug("slot %s: closing %s (zapped to %.0fs ago) for %s, all stream slots were taken",
+                     slot.index, slot.channel, time.monotonic() - slot.used, channel_id)
+        LiveProxyUnmuxed.drop_channel(slot.channel)   # not just closed: a recorder would revive it on this slot
         return slot
 
     def boot(self, country=None):
@@ -261,6 +305,7 @@ class PlutoTVRequest(FailureTracker):
         """
         existing_url = LiveProxyUnmuxed.active_channel_url(channel_id)
         if existing_url is not None:
+            self._touchStreamSlot(channel_id)
             return existing_url
         country = country or config.plugins.plutotvcockpit.country.value
         if config.plugins.plutotvcockpit.live_tv_mode.value != "stitcher":
