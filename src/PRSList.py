@@ -6,11 +6,17 @@
 Instantiate directly - no per-plugin subclass needed:
 
     self["feedlist"] = PRSList([])                                             # Rakuten/Samsung: menu icon only
-    self["feedlist"] = PRSList([], icons=("menu.png", "series.png", "cine.png",
-                                          "cine_half.png", "cine_end.png"),
+    self["feedlist"] = PRSList([], icons=(("menu.png", "menu_selected.png"),
+                                          ("series.png", "series_selected.png"),
+                                          ("cine.png", "cine_selected.png"),
+                                          ("cine_half.png", "cine_half_selected.png"),
+                                          ("cine_end.png", "cine_end_selected.png")),
                                           resume_points=resumePointsInstance)  # Pluto: full VoD icon set
 
-*icons* names the plugin's own bundled skin/images/<file> files
+*icons* names the plugin's own bundled skin/images/<file> files, as (normal, selected) pairs: the selected row is
+light grey, where the white icons can hardly be seen, so it shows the dark <name>_selected.png instead (falling
+back to the normal one). The file names are literals at the call sites, as the build installs only the images
+whose name it finds in the sources.
 
 *resume_points* (a ResumePoints instance, see PlutoUtils/RakutenTVUtils/
 SamsungTVUtils), if given, enables picking between "cine"/"cine_half"/
@@ -56,27 +62,65 @@ def watchStatus(last, length):
 
 
 class PRSList(List):
-    def __init__(self, entries, icons=("menu.png",), resume_points=None):
-        icon_dir = f"/usr/lib/enigma2/python/Plugins/Extensions/{PLUGIN}/skin/images"
+    def __init__(self, entries, icons=(("menu.png", "menu_selected.png"),), resume_points=None):
         self._resume_points = resume_points
         self._durations = {}  # sid -> length in pts, from the listing
-        self._pixmaps = {}
+        self._pixmaps = {}  # icon name -> (normal, selected) pixmaps
+        self.selected_index = -1
 
-        for icon_file in icons:
-            icon_name = os.path.splitext(icon_file)[0]
-            fallback = os.path.join(icon_dir, icon_file)
-            # Namespaced under PLUGIN, not bare "icons/<file>" - the generic
-            # path collides with some images' own system icons of the same name
-            # (e.g. OpenATV ships its own icons/menu.png at the shared skin root,
-            # a legacy top-level SCOPE_GUISKIN fallback it still resolves through -
-            # silently replacing this plugin's 120x120 icon with OpenATV's 438x320
-            # main-menu graphic, which then renders as a tiny sliver once fit into
-            # this list's small icon box).
-            resolved = x if fileExists(x := resolveFilename(SCOPE_CURRENT_SKIN, f"icons/{PLUGIN}/{icon_file}")) else fallback
-            self._pixmaps[icon_name] = LoadPixmap(resolved) if fileExists(resolved) else None
+        for icon_file, selected_file in icons:
+            normal = self._loadIcon(icon_file)
+            self._pixmaps[os.path.splitext(icon_file)[0]] = (normal, self._loadIcon(selected_file) or normal)
 
         List.__init__(self)
         self.setList(entries)
+
+    @staticmethod
+    def _loadIcon(icon_file):
+        icon_dir = f"/usr/lib/enigma2/python/Plugins/Extensions/{PLUGIN}/skin/images"
+        fallback = os.path.join(icon_dir, icon_file)
+        # Namespaced under PLUGIN, not bare "icons/<file>" - the generic
+        # path collides with some images' own system icons of the same name
+        # (e.g. OpenATV ships its own icons/menu.png at the shared skin root,
+        # a legacy top-level SCOPE_GUISKIN fallback it still resolves through -
+        # silently replacing this plugin's 120x120 icon with OpenATV's 438x320
+        # main-menu graphic, which then renders as a tiny sliver once fit into
+        # this list's small icon box).
+        resolved = x if fileExists(x := resolveFilename(SCOPE_CURRENT_SKIN, f"icons/{PLUGIN}/{icon_file}")) else fallback
+        return LoadPixmap(resolved) if fileExists(resolved) else None
+
+    # The list can't pick the icon by selection, so the rows of the old and the new selection are rebuilt (like
+    # MovieCockpit's MovieList does).
+
+    def setList(self, entries):
+        # the rows are built unselected, and the list's own selection (it's reset by a new list) is marked afterwards
+        self.selected_index = -1
+        List.setList(self, entries)
+        self.setSelectedIndex(self.getIndex())
+
+    def setSelectedIndex(self, index):
+        old_index = self.selected_index
+        self.selected_index = index if index is not None and 0 <= index < len(self.list) else -1
+        for i in {old_index, self.selected_index}:
+            if 0 <= i < len(self.list):
+                self.modifyEntry(i, self._row(self.list[i], i == self.selected_index))
+
+    def selectionChanged(self, index):
+        self.setSelectedIndex(index)
+        List.selectionChanged(self, index)
+
+    def setConnectedGuiElement(self, guiElement):
+        # the initial selection is made before the list is connected, so selectionChanged isn't called for it
+        List.setConnectedGuiElement(self, guiElement)
+        self.setSelectedIndex(self.getIndex())
+
+    def _row(self, row, selected):
+        identity, _png, name, icon = row
+        return (identity, self._icon(icon, selected), name, icon)
+
+    def _icon(self, icon, selected):
+        normal, selected_icon = self._pixmaps.get(icon, (None, None))
+        return selected_icon if selected else normal
 
     # Components.Sources.List has no MenuList-style getSelectionIndex()/
     # moveToIndex() of its own (it exposes an "index" property instead) -
@@ -98,13 +142,11 @@ class PRSList(List):
     def listentry(self, name, data, _id, epid=0, duration=0):
         """*duration* (seconds, from the listing) is remembered per item, so
         refresh() - which only has the identity tuple - still knows it."""
-        png = None
-        if data == "menu":
-            png = self._pixmaps.get("menu")
-        elif data in {"series", "seasons"}:
-            png = self._pixmaps.get("series")
+        icon = "menu"
+        if data in {"series", "seasons"}:
+            icon = "series"
         elif data in {"movie", "episode"}:
-            png = self._pixmaps.get("cine")
+            icon = "cine"
             if self._resume_points is not None:
                 sid = epid if data == "episode" else _id
                 if duration:
@@ -112,8 +154,8 @@ class PRSList(List):
                 last, stored_length = self._resume_points.getResumePoint(sid)
                 # the listing's duration is reliable; the length stored with the resume point is often 0
                 status = watchStatus(last, self._durations.get(sid) or stored_length)
-                png = self._pixmaps.get(STATUS_ICONS[status]) or png
-        else:
-            png = self._pixmaps.get("menu")
+                if self._icon(STATUS_ICONS[status], False):
+                    icon = STATUS_ICONS[status]
 
-        return ((name, data, _id, epid), png, name)
+        # index 3 (the icon's name) isn't read by the skin's template: it is for rebuilding the row on selection
+        return ((name, data, _id, epid), self._icon(icon, False), name, icon)

@@ -50,7 +50,13 @@ class PlutoTVCockpit(Screen, HelpableScreen):
         self.service_center = ServiceCenter()
         self.last_service = None
 
-        self["feedlist"] = PRSList([], icons=("menu.png", "series.png", "cine.png", "cine_half.png", "cine_end.png"), resume_points=resumePointsInstance)
+        self["feedlist"] = PRSList([], icons=(
+            ("menu.png", "menu_selected.png"),
+            ("series.png", "series_selected.png"),
+            ("cine.png", "cine_selected.png"),
+            ("cine_half.png", "cine_half_selected.png"),
+            ("cine_end.png", "cine_end_selected.png"),
+        ), resume_points=resumePointsInstance)
         self["loading"] = Label(_("Loading data... Please wait"))
         self["vtitle"] = StaticText()
         self["key_red"] = Button(_("Exit"))
