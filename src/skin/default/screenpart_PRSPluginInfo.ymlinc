@@ -2,7 +2,6 @@
 - widget:
     backgroundColor: "md_surface"
     cornerRadius: "$radius_panel_large"
-    font: "Regular;0"
     foregroundColor: "md_surface"
     position: "1125,65"
     render: "Label"

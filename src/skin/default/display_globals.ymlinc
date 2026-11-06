@@ -1,4 +1,6 @@
 - xmlinc:
+    file: "radii.ymlinc"
+- xmlinc:
     file: "display_colors.ymlinc"
 - xmlinc:
     file: "display_fonts.ymlinc"

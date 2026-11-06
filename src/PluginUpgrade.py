@@ -5,6 +5,8 @@
 import os
 import re
 import subprocess
+from importlib.util import MAGIC_NUMBER
+from marshal import dumps
 
 from Components.Console import Console
 from Screens.MessageBox import MessageBox
@@ -40,6 +42,45 @@ def _isVersionNewer(candidate_version, current_version):
     if candidate_version == current_version:
         return False
     return _version_sort_key(candidate_version) > _version_sort_key(current_version)
+
+
+def compilePY(source, cfile=None, filename=None):
+    """Compiles the python file *source* to a .pyc: *cfile* (default: *source* + "c", next to it). True if it was written.
+
+    The images have no py_compile, but the importlib.util and marshal that it is made of: the .pyc is the magic number, the flags, the
+    time and the size of the source, and the code. It is compiled here, by the python of enigma2, so it is of the right version.
+    *filename* is the path the code gets as its co_filename (default: *source*), for a file that is installed somewhere else. A file with
+    an error is not written (and an existing *cfile* is not touched): the error is logged and False is returned."""
+    cfile = cfile or source + "c"
+    try:
+        with open(source, "rb") as pyfile:
+            code = compile(pyfile.read(), filename or source, "exec", dont_inherit=True)
+        info = os.stat(source)
+        header = MAGIC_NUMBER + (0).to_bytes(4, "little") + (int(info.st_mtime) & 0xFFFFFFFF).to_bytes(4, "little") + (info.st_size & 0xFFFFFFFF).to_bytes(4, "little")
+        temp = cfile + ".tmp"
+        with open(temp, "wb") as pycfile:
+            pycfile.write(header + dumps(code))
+        os.replace(temp, cfile)  # python reads a complete file, the old one or the new one
+    except (SyntaxError, ValueError, OSError) as err:
+        logger.error("compilePY(%s) failed: %s", source, err)
+        return False
+    return True
+
+
+def compilePlugin(plugin_dir=None):
+    """Compiles all the .py files in *plugin_dir* (default: the directory of this plugin) and its subdirectories to .pyc files, with
+    compilePY(): each next to its source, the sources stay. A file with an error doesn't stop the others. Returns the relative paths of
+    the files that could not be compiled: an empty list if all were."""
+    plugin_dir = plugin_dir or os.path.dirname(os.path.abspath(__file__))
+    failed = []
+    for base, directories, files in os.walk(plugin_dir):
+        directories[:] = sorted(d for d in directories if d != "__pycache__")
+        for name in sorted(files):
+            if name.endswith(".py"):
+                source = os.path.join(base, name)
+                if not compilePY(source):
+                    failed.append(os.path.relpath(source, plugin_dir))
+    return failed
 
 
 def _opkgListsDir():

@@ -12,3 +12,6 @@ colors:
     - color:
         name: "FdLcdAmber"
         value: "#fcc800"
+    - color:
+        name: "FdLcdWhite"
+        value: "#ffffff"
