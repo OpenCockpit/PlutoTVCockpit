@@ -1,0 +1,26 @@
+- widget:
+    font: "$F_bigger"
+    halign: "left"
+    position: "0,$screen_height-70"
+    render: "Label"
+    size: "200,70"
+    source: "$source"
+    transparent: "1"
+    valign: "center"
+    children:
+      - convert:
+          type: "COCServicePosition"
+          text: "EndTime,ShowNoSeconds"
+- widget:
+    font: "$F_bigger"
+    halign: "right"
+    position: "200,$screen_height-70"
+    render: "Label"
+    size: "$screen_width-4-200,70"
+    source: "$source"
+    transparent: "1"
+    valign: "center"
+    children:
+      - convert:
+          type: "COCServicePosition"
+          text: "Remaining,ShowNoSeconds"

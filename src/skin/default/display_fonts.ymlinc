@@ -1,0 +1,30 @@
+- fonts:
+    children:
+      - font:
+          filename: "nmsbd.ttf"
+          name: "FdLcD"
+          scale: "100"
+      - font:
+          filename: "OpenSans-Regular.ttf"
+          name: "FdLcDLight"
+          scale: "100"
+
+# symbolic font names
+- global:
+    name: "F_small"
+    value: "FdLcD;30"
+- global:
+    name: "F_medium"
+    value: "FdLcD;45"
+- global:
+    name: "F_big"
+    value: "FdLcD;55"
+- global:
+    name: "F_bigger"
+    value: "FdLcD;60"
+- global:
+    name: "F_huge"
+    value: "FdLcD;80"
+- global:
+    name: "F_giant"
+    value: "FdLcD;120"

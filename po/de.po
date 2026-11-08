@@ -1,0 +1,1063 @@
+# German Translation for PlutoTV.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-14 16:48+0200\n"
+"PO-Revision-Date: 2026-10-14 16:48+0200\n"
+"Last-Translator: xcentaurix\n"
+"Language-Team: xcentaurix\n"
+"Language: de\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Poedit 3.5\n"
+"X-Poedit-Basepath: ../src\n"
+"X-Poedit-SearchPath-0: .\n"
+
+msgid "Local"
+msgstr "Lokal"
+
+msgid "service name"
+msgstr "Servicename"
+
+msgid "service reference"
+msgstr "Servicereferenz"
+
+msgid "None"
+msgstr "Keine"
+
+msgid "Stitcher"
+msgstr "Orginal PlutoTV"
+
+msgid "JMP2"
+msgstr "JMP2"
+
+msgid "Yes"
+msgstr "Ja"
+
+msgid "No"
+msgstr "Nein"
+
+msgid "beginning"
+msgstr "Anfang"
+
+msgid "Remove picons"
+msgstr "Entferne Picons"
+
+msgid "PlutoTV Setup Actions"
+msgstr "PlutoTV-Konfiguration"
+
+msgid "Remove Live-TV Bouquet"
+msgstr "Entferne Live-TV-Bouquet"
+
+msgid "PlutoTV Setup"
+msgstr "PlutoTV-Konfiguration"
+
+msgid "VoD country"
+msgstr "VoD-Land"
+
+msgid "Select the country that the VoD list will be created for."
+msgstr "Auswahl des Landes, für das die VoD-Liste erstellt wird."
+
+msgid "Live-TV bouquet %s"
+msgstr "Live-TV-Bouquet %s"
+
+msgid "Country for which Live-TV bouquet %s will be created."
+msgstr "Für welches Land soll das Live-TV-Bouquet '%s' erstellt werden?"
+
+msgid "Stream proxy"
+msgstr "Stream Proxy"
+
+msgid "Play and record through StreamProxyCockpit, which looks the stream address up when a channel is played and keeps the ad breaks of the streams from disturbing playback and recordings. Off: the bouquet holds the addresses of the stream source below. The bouquet of each setting is kept, so changing it switches between them; one that doesn't exist yet, or is older than 5 hours, is generated."
+msgstr "Abspielen und Aufnehmen über StreamProxyCockpit. Ein: Es verhindert, dass die Werbeunterbrechungen der Streams Wiedergabe und Aufnahmen stören. Aus: Das Bouquet enthält die Adressen der unten gewählten Quelle."
+
+msgid "Stream source"
+msgstr "Stream-Quelle"
+
+msgid "Where the streams come from, with and without the stream proxy. Stitcher is the native Pluto server with a token of its own, JMP2 the jmp2.uk redirect. The bouquet is generated again when this is changed."
+msgstr "Woher die Streams kommen, mit und ohne Stream Proxy. Stitcher ist der Pluto-Server selbst mit eigenem Token, JMP2 die Weiterleitung von jmp2.uk. Das Bouquet wird bei einer Änderung neu erstellt. (Die Quellen können offline sein.)"
+
+msgid "Picon type"
+msgstr "Picon-Typ"
+
+msgid "Using service name picons means they will continue to work even if the service reference changes. Also, they can be shared between channels of the same name that don't have the same service references."
+msgstr "Picons mit Servicenamen funktionieren auch, wenn sich die Service-Referenz ändert. Sie können auch von Kanälen mit unterschiedlichen Service-Referenzen geteilt werden."
+
+msgid "Automatic update check"
+msgstr "Automatische Update-Überprüfung"
+
+msgid "Automatically check for a newer package update when the plugin GUI is opened."
+msgstr "Beim Öffnen des Plugins überprüfen, ob eine neuere Plugin-Version verfügbar ist."
+
+msgid "Data location"
+msgstr "Daten-Verzeichnis"
+
+msgid "Location the config data are stored in."
+msgstr "Verzeichnis der Konfigurationsdaten"
+
+msgid "Log level"
+msgstr "Log-Stufe"
+
+msgid "Select the level for debug logging."
+msgstr "Auswahl der Debug-Log-Stufe"
+
+msgid "Loading data... Please wait"
+msgstr "Lade Daten - bitte warten..."
+
+msgid "Exit"
+msgstr "Beenden"
+
+msgid "TMDb Search"
+msgstr "TMDb Suche"
+
+msgid "IMDb Search"
+msgstr "IMDb Suche"
+
+msgid "Change country"
+msgstr "Wähle VoD-Land"
+
+msgid "Go forward one level including starting playback"
+msgstr "Gehe eine Ebene forwärts mit Playback-Start"
+
+msgid "Go back one level including exiting"
+msgstr "Gehe eine Ebene zurück mit Exit"
+
+msgid "Create or update PlutoTV live bouquets"
+msgstr "Erstelle oder update PlutoTV Live-TV-Bouquets"
+
+msgid "Go back one level"
+msgstr "Gehe eine Ebene zurück"
+
+msgid "Open the plugin configuration screen"
+msgstr "Öffne die Plugin Konfiguration"
+
+msgid "Search for information in %s"
+msgstr "Suche nach Informationen in %s"
+
+msgid "The Movie Database"
+msgstr "The Movie Database (TMDB)"
+
+msgid "the Internet Movie Database"
+msgstr "Internet Movie Database"
+
+msgid "Load the VoD list of another country"
+msgstr "Lade VoD-Liste eines anderen Landes"
+
+msgid "VOD Menu"
+msgstr "VoD-Menü"
+
+msgid "PlutoTV"
+msgstr "PlutoTV"
+
+msgid "min"
+msgstr "Min"
+
+msgid "There is no data for %s. It may be caused by geo-blocking, or Pluto TV may not be available in your country."
+msgstr "Es konnten keine Daten für %s geladen werden. Dies könnte durch Geo-Blocking verursacht werden oder Pluto TV ist in Ihrem Land nicht verfügbar."
+
+msgid "Episode"
+msgstr "Episode"
+
+msgid "Season"
+msgstr "Staffel"
+
+msgid "Seasons"
+msgstr "Staffeln"
+
+msgid "All"
+msgstr "Alle"
+
+msgid "Select a Live-TV bouquet to update"
+msgstr "Live-TV Bouquet Auswahl"
+
+msgid ""
+"The Pluto TV bouquets for %s in your channel list have been updated.\n"
+"\n"
+"They will now be rebuilt automatically every 5 hours."
+msgstr ""
+"Die PlutoTV-Bouquets für %s in der Kanalliste wurden aktualisiert.\n"
+"\n"
+"Sie werden jetzt alle 5 Stunden neu erstellt."
+
+msgid "Update Live-TV Bouquet"
+msgstr "Live-TV-Bouquet aktualisieren"
+
+msgid "Live-TV Bouquet last updated:"
+msgstr "Letzter Live-TV-Bouquet Update:"
+
+msgid "Live-TV Bouquet needs updating. Press GREEN."
+msgstr "Live-TV-Bouquet benötigt Update."
+
+msgid "Create Live-TV Bouquet"
+msgstr "Erstelle Live-TV-Bouquet"
+
+msgid "Temporarily switch the VoD list to another country"
+msgstr "Wechsle vorübergehend zur VoD-Liste eines anderen Landes"
+
+msgid "A silent download is in progress."
+msgstr "Ein Download läuft im Hintergrund."
+
+msgid "picons"
+msgstr "Picons"
+
+msgid "Fetching picons..."
+msgstr "Picons werden heruntergeladen..."
+
+msgid "Live-TV update completed"
+msgstr "Update des Live-TV-Bouquets ist beendet."
+
+msgid "Processing data..."
+msgstr "Verarbeite Daten..."
+
+msgid "Waiting for Channel: "
+msgstr "Kanal: "
+
+msgid "Other"
+msgstr "Sonstige"
+
+msgid "The download is in progress. Exit now?"
+msgstr "Es ist ein Download aktiv. Jetzt verlassen?"
+
+msgid "PlutoTV updating"
+msgstr "PlutoTV-Update"
+
+msgid "Please wait..."
+msgstr "Bitte warten..."
+
+msgid "Updating: Pluto TV %s"
+msgstr "Update: PlutoTV %s"
+
+msgid "Pluto TV refused the request for %s (HTTP %s). It may be geo-blocked."
+msgstr "Pluto TV verweigerte den Request für %s (HTTP %s). Möglicherweise aufgrund von Geo-Blocking."
+
+msgid "Pluto TV could not be reached for %s%s. Try again later."
+msgstr "Pluto TV konnte nicht erreicht werden für %s%s. Später nochmal probieren."
+
+msgid "Pluto TV lists channels for %s, but the selected source has no stream address for them. Try another source."
+msgstr "Pluto TV listet Kanäle für %s, aber die ausgewählte Quelle hat keine Stream-Adresse(n). Andere Quelle probieren."
+
+msgid "Pluto TV has no channels for %s. It may not be available in your country."
+msgstr "Es konnten keine Daten für %s geladen werden. Dies könnte durch Geo-Blocking verursacht werden oder Pluto TV ist in Ihrem Land nicht verfügbar."
+
+msgid "PlutoTVCockpit"
+msgstr "PlutoTVCockpit"
+
+msgid "View video on demand and download a bouquet of live tv channels"
+msgstr "VoD Playback und Live-TV-Bouquet Download"
+
+msgid "Download PlutoTV bouquets, picons and EPG"
+msgstr "PlutoTV Bouquet, Picons und EPG Download"
+
+msgid "Silently download PlutoTV"
+msgstr "Download von PlutoTV im Hintergrund"
+
+msgid "Guide duration"
+msgstr "Dauer des Programmführers"
+
+msgid "%d hours"
+msgstr "%d Stunden"
+
+msgid "How many hours of programme guide are fetched. Pluto has about 28 hours of it; a longer guide is more data to download and import, so the update takes longer. It applies to the next update."
+msgstr "Wie viele Stunden Programmführer geladen werden. Pluto hat etwa 28 Stunden davon; ein längerer Programmführer bedeutet mehr Daten zum Laden und Importieren, das Update dauert also länger. Gilt ab dem nächsten Update."
+
+msgid "Category view"
+msgstr "Kategorie-Ansicht"
+
+msgid "Movie view"
+msgstr "Film-Ansicht"
+
+msgid "All movies"
+msgstr "Alle Filme"
+
+msgid "Switch between the category view and the list of all movies"
+msgstr "Zwischen Kategorie-Ansicht und Liste aller Filme umschalten"
+
+msgid "End"
+msgstr "Ende"
+
+msgid "Infobar/Play"
+msgstr "Infobar/Play"
+
+msgid "Play/Pause"
+msgstr "Play/Pause"
+
+msgid "Stop playback"
+msgstr "Stoppe Playback"
+
+msgid "Skip forward"
+msgstr "Springe vorwärts"
+
+msgid "Skip backward"
+msgstr "Springe zurück"
+
+msgid "EPG Info"
+msgstr "EPG Information"
+
+msgid "Do you want to resume playback at position: %d:%02d:%02d?"
+msgstr "Soll Playback an Position %d:%02d:%02d fortgesetzt werden?"
+
+msgid "Do you want to resume this playback?"
+msgstr "Soll Playback fortgesetzt werden?"
+
+msgid "Resume position at %s"
+msgstr "An Position %s fortsetzen"
+
+msgid "Afghanistan"
+msgstr "Afghanistan"
+
+msgid "Aland Islands"
+msgstr "Åland"
+
+msgid "Albania"
+msgstr "Albanien"
+
+msgid "Algeria"
+msgstr "Algerien"
+
+msgid "American Samoa"
+msgstr "Amerikanisch-Samoa"
+
+msgid "Andorra"
+msgstr "Andorra"
+
+msgid "Angola"
+msgstr "Angola"
+
+msgid "Anguilla"
+msgstr "Anguilla"
+
+msgid "Antarctica"
+msgstr "Antarktis"
+
+msgid "Antigua and Barbuda"
+msgstr "Antigua und Barbuda"
+
+msgid "Argentina"
+msgstr "Argentinien"
+
+msgid "Armenia"
+msgstr "Armenien"
+
+msgid "Aruba"
+msgstr "Aruba"
+
+msgid "Australia"
+msgstr "Australien"
+
+msgid "Austria"
+msgstr "Österreich"
+
+msgid "Azerbaijan"
+msgstr "Aserbaidschan"
+
+msgid "Bahamas"
+msgstr "Bahamas"
+
+msgid "Bahrain"
+msgstr "Bahrain"
+
+msgid "Bangladesh"
+msgstr "Bangladesch"
+
+msgid "Barbados"
+msgstr "Barbados"
+
+msgid "Belarus"
+msgstr "Weißrussland"
+
+msgid "Belgium"
+msgstr "Belgien"
+
+msgid "Belize"
+msgstr "Belize"
+
+msgid "Benin"
+msgstr "Benin"
+
+msgid "Bermuda"
+msgstr "Bermuda"
+
+msgid "Bhutan"
+msgstr "Bhutan"
+
+msgid "Bolivia (Plurinational State of)"
+msgstr "Bolivien"
+
+msgid "Bonaire, Sint Eustatius and Saba"
+msgstr "Bonaire, Sint Eustatius und Saba"
+
+msgid "Bosnia and Herzegovina"
+msgstr "Bosnien und Herzegowina"
+
+msgid "Botswana"
+msgstr "Botsuana"
+
+msgid "Bouvet Island"
+msgstr "Bouvetinsel"
+
+msgid "Brazil"
+msgstr "Brasilien"
+
+msgid "British Indian Ocean Territory"
+msgstr "Britisches Territorium im Indischen Ozean"
+
+msgid "Brunei Darussalam"
+msgstr "Brunei"
+
+msgid "Bulgaria"
+msgstr "Bulgarien"
+
+msgid "Burkina Faso"
+msgstr "Burkina Faso"
+
+msgid "Burundi"
+msgstr "Burundi"
+
+msgid "Cabo Verde"
+msgstr "Kap Verde"
+
+msgid "Cambodia"
+msgstr "Kambodscha"
+
+msgid "Cameroon"
+msgstr "Kamerun"
+
+msgid "Canada"
+msgstr "Kanada"
+
+msgid "Cayman Islands"
+msgstr "Kaimaninseln"
+
+msgid "Central African Republic"
+msgstr "Zentralafrikanische Republik"
+
+msgid "Chad"
+msgstr "Tschad"
+
+msgid "Chile"
+msgstr "Chile"
+
+msgid "China"
+msgstr "China"
+
+msgid "Christmas Island"
+msgstr "Weihnachtsinsel"
+
+msgid "Cocos (Keeling) Islands"
+msgstr "Kokosinseln"
+
+msgid "Colombia"
+msgstr "Kolumbien"
+
+msgid "Comoros"
+msgstr "Komoren"
+
+msgid "Congo"
+msgstr "Kongo"
+
+msgid "Congo (Democratic Republic of the)"
+msgstr "Demokratische Republik Kongo"
+
+msgid "Cook Islands"
+msgstr "Cookinseln"
+
+msgid "Costa Rica"
+msgstr "Costa Rica"
+
+msgid "Cote d'Ivoire"
+msgstr "Elfenbeinküste"
+
+msgid "Croatia"
+msgstr "Kroatien"
+
+msgid "Cuba"
+msgstr "Kuba"
+
+msgid "Curacao"
+msgstr "Curaçao"
+
+msgid "Cyprus"
+msgstr "Zypern"
+
+msgid "Czechia"
+msgstr "Tschechien"
+
+msgid "Denmark"
+msgstr "Dänemark"
+
+msgid "Djibouti"
+msgstr "Dschibuti"
+
+msgid "Dominica"
+msgstr "Dominica"
+
+msgid "Dominican Republic"
+msgstr "Dominikanische Republik"
+
+msgid "Ecuador"
+msgstr "Ecuador"
+
+msgid "Egypt"
+msgstr "Ägypten"
+
+msgid "El Salvador"
+msgstr "El Salvador"
+
+msgid "Equatorial Guinea"
+msgstr "Äquatorialguinea"
+
+msgid "Eritrea"
+msgstr "Eritrea"
+
+msgid "Estonia"
+msgstr "Estland"
+
+msgid "Ethiopia"
+msgstr "Äthiopien"
+
+msgid "Falkland Islands (Malvinas)"
+msgstr "Falklandinseln"
+
+msgid "Faroe Islands"
+msgstr "Färöer"
+
+msgid "Fiji"
+msgstr "Fidschi"
+
+msgid "Finland"
+msgstr "Finnland"
+
+msgid "France"
+msgstr "Frankreich"
+
+msgid "French Guiana"
+msgstr "Französisch-Guayana"
+
+msgid "French Polynesia"
+msgstr "Französisch-Polynesien"
+
+msgid "French Southern Territories"
+msgstr "Französische Süd- und Antarktisgebiete"
+
+msgid "Gabon"
+msgstr "Gabun"
+
+msgid "Gambia"
+msgstr "Gambia"
+
+msgid "Georgia"
+msgstr "Georgien"
+
+msgid "Germany"
+msgstr "Deutschland"
+
+msgid "Ghana"
+msgstr "Ghana"
+
+msgid "Gibraltar"
+msgstr "Gibraltar"
+
+msgid "Greece"
+msgstr "Griechenland"
+
+msgid "Greenland"
+msgstr "Grönland"
+
+msgid "Grenada"
+msgstr "Grenada"
+
+msgid "Guadeloupe"
+msgstr "Guadeloupe"
+
+msgid "Guam"
+msgstr "Guam"
+
+msgid "Guatemala"
+msgstr "Guatemala"
+
+msgid "Guernsey"
+msgstr "Guernsey"
+
+msgid "Guinea"
+msgstr "Guinea"
+
+msgid "Guinea-Bissau"
+msgstr "Guinea-Bissau"
+
+msgid "Guyana"
+msgstr "Guyana"
+
+msgid "Haiti"
+msgstr "Haiti"
+
+msgid "Heard Island and McDonald Islands"
+msgstr "Heard und McDonaldinseln"
+
+msgid "Holy See"
+msgstr "Heiliger Stuhl"
+
+msgid "Honduras"
+msgstr "Honduras"
+
+msgid "Hong Kong"
+msgstr "Hongkong"
+
+msgid "Hungary"
+msgstr "Ungarn"
+
+msgid "Iceland"
+msgstr "Island"
+
+msgid "India"
+msgstr "Indien"
+
+msgid "Indonesia"
+msgstr "Indonesien"
+
+msgid "Iran (Islamic Republic of)"
+msgstr "Iran"
+
+msgid "Iraq"
+msgstr "Irak"
+
+msgid "Ireland"
+msgstr "Irland"
+
+msgid "Isle of Man"
+msgstr "Insel Man"
+
+msgid "Israel"
+msgstr "Israel"
+
+msgid "Italy"
+msgstr "Italien"
+
+msgid "Jamaica"
+msgstr "Jamaika"
+
+msgid "Japan"
+msgstr "Japan"
+
+msgid "Jersey"
+msgstr "Jersey"
+
+msgid "Jordan"
+msgstr "Jordanien"
+
+msgid "Kazakhstan"
+msgstr "Kasachstan"
+
+msgid "Kenya"
+msgstr "Kenia"
+
+msgid "Kiribati"
+msgstr "Kiribati"
+
+msgid "Korea (Democratic People's Republic of)"
+msgstr "Nordkorea"
+
+msgid "Korea (Republic of)"
+msgstr "Südkorea"
+
+msgid "Kuwait"
+msgstr "Kuwait"
+
+msgid "Kyrgyzstan"
+msgstr "Kirgisistan"
+
+msgid "Lao People's Democratic Republic"
+msgstr "Laos"
+
+msgid "Latvia"
+msgstr "Lettland"
+
+msgid "Lebanon"
+msgstr "Libanon"
+
+msgid "Lesotho"
+msgstr "Lesotho"
+
+msgid "Liberia"
+msgstr "Liberia"
+
+msgid "Libya"
+msgstr "Libyen"
+
+msgid "Liechtenstein"
+msgstr "Liechtenstein"
+
+msgid "Lithuania"
+msgstr "Litauen"
+
+msgid "Luxembourg"
+msgstr "Luxemburg"
+
+msgid "Macao"
+msgstr "Macau"
+
+msgid "Macedonia (the former Yugoslav Republic of)"
+msgstr "Nordmazedonien"
+
+msgid "Madagascar"
+msgstr "Madagaskar"
+
+msgid "Malawi"
+msgstr "Malawi"
+
+msgid "Malaysia"
+msgstr "Malaysia"
+
+msgid "Maldives"
+msgstr "Malediven"
+
+msgid "Mali"
+msgstr "Mali"
+
+msgid "Malta"
+msgstr "Malta"
+
+msgid "Marshall Islands"
+msgstr "Marshallinseln"
+
+msgid "Martinique"
+msgstr "Martinique"
+
+msgid "Mauritania"
+msgstr "Mauretanien"
+
+msgid "Mauritius"
+msgstr "Mauritius"
+
+msgid "Mayotte"
+msgstr "Mayotte"
+
+msgid "Mexico"
+msgstr "Mexiko"
+
+msgid "Micronesia (Federated States of)"
+msgstr "Mikronesien"
+
+msgid "Moldova (Republic of)"
+msgstr "Moldau"
+
+msgid "Monaco"
+msgstr "Monaco"
+
+msgid "Mongolia"
+msgstr "Mongolei"
+
+msgid "Montenegro"
+msgstr "Montenegro"
+
+msgid "Montserrat"
+msgstr "Montserrat"
+
+msgid "Morocco"
+msgstr "Marokko"
+
+msgid "Mozambique"
+msgstr "Mosambik"
+
+msgid "Myanmar"
+msgstr "Myanmar"
+
+msgid "Namibia"
+msgstr "Namibia"
+
+msgid "Nauru"
+msgstr "Nauru"
+
+msgid "Nepal"
+msgstr "Nepal"
+
+msgid "Netherlands"
+msgstr "Niederlande"
+
+msgid "New Caledonia"
+msgstr "Neukaledonien"
+
+msgid "New Zealand"
+msgstr "Neuseeland"
+
+msgid "Nicaragua"
+msgstr "Nicaragua"
+
+msgid "Niger"
+msgstr "Niger"
+
+msgid "Nigeria"
+msgstr "Nigeria"
+
+msgid "Niue"
+msgstr "Niue"
+
+msgid "Norfolk Island"
+msgstr "Norfolkinsel"
+
+msgid "Northern Mariana Islands"
+msgstr "Nördliche Marianen"
+
+msgid "Norway"
+msgstr "Norwegen"
+
+msgid "Oman"
+msgstr "Oman"
+
+msgid "Pakistan"
+msgstr "Pakistan"
+
+msgid "Palau"
+msgstr "Palau"
+
+msgid "Palestine, State of"
+msgstr "Palästina"
+
+msgid "Panama"
+msgstr "Panama"
+
+msgid "Papua New Guinea"
+msgstr "Papua-Neuguinea"
+
+msgid "Paraguay"
+msgstr "Paraguay"
+
+msgid "Peru"
+msgstr "Peru"
+
+msgid "Philippines"
+msgstr "Philippinen"
+
+msgid "Pitcairn"
+msgstr "Pitcairninseln"
+
+msgid "Poland"
+msgstr "Polen"
+
+msgid "Portugal"
+msgstr "Portugal"
+
+msgid "Puerto Rico"
+msgstr "Puerto Rico"
+
+msgid "Qatar"
+msgstr "Katar"
+
+msgid "Reunion"
+msgstr "Réunion"
+
+msgid "Romania"
+msgstr "Rumänien"
+
+msgid "Russian Federation"
+msgstr "Russland"
+
+msgid "Rwanda"
+msgstr "Ruanda"
+
+msgid "Saint Barthelemy"
+msgstr "Saint-Barthélemy"
+
+msgid "Saint Helena, Ascension and Tristan da Cunha"
+msgstr "St. Helena, Ascension und Tristan da Cunha"
+
+msgid "Saint Kitts and Nevis"
+msgstr "St. Kitts und Nevis"
+
+msgid "Saint Lucia"
+msgstr "St. Lucia"
+
+msgid "Saint Martin (French part)"
+msgstr "Saint-Martin (französischer Teil)"
+
+msgid "Saint Pierre and Miquelon"
+msgstr "Saint-Pierre und Miquelon"
+
+msgid "Saint Vincent and the Grenadines"
+msgstr "St. Vincent und die Grenadinen"
+
+msgid "Samoa"
+msgstr "Samoa"
+
+msgid "San Marino"
+msgstr "San Marino"
+
+msgid "Sao Tome and Principe"
+msgstr "São Tomé und Príncipe"
+
+msgid "Saudi Arabia"
+msgstr "Saudi-Arabien"
+
+msgid "Senegal"
+msgstr "Senegal"
+
+msgid "Serbia"
+msgstr "Serbien"
+
+msgid "Seychelles"
+msgstr "Seychellen"
+
+msgid "Sierra Leone"
+msgstr "Sierra Leone"
+
+msgid "Singapore"
+msgstr "Singapur"
+
+msgid "Sint Maarten (Dutch part)"
+msgstr "Sint Maarten (niederländischer Teil)"
+
+msgid "Slovakia"
+msgstr "Slowakei"
+
+msgid "Slovenia"
+msgstr "Slowenien"
+
+msgid "Solomon Islands"
+msgstr "Salomonen"
+
+msgid "Somalia"
+msgstr "Somalia"
+
+msgid "South Africa"
+msgstr "Südafrika"
+
+msgid "South Georgia and the South Sandwich Islands"
+msgstr "Südgeorgien und die Südlichen Sandwichinseln"
+
+msgid "South Sudan"
+msgstr "Südsudan"
+
+msgid "Spain"
+msgstr "Spanien"
+
+msgid "Sri Lanka"
+msgstr "Sri Lanka"
+
+msgid "Sudan"
+msgstr "Sudan"
+
+msgid "Suriname"
+msgstr "Suriname"
+
+msgid "Svalbard and Jan Mayen"
+msgstr "Svalbard und Jan Mayen"
+
+msgid "Swaziland"
+msgstr "Swasiland"
+
+msgid "Sweden"
+msgstr "Schweden"
+
+msgid "Switzerland"
+msgstr "Schweiz"
+
+msgid "Syrian Arab Republic"
+msgstr "Syrien"
+
+msgid "Taiwan"
+msgstr "Taiwan"
+
+msgid "Tajikistan"
+msgstr "Tadschikistan"
+
+msgid "Tanzania, United Republic of"
+msgstr "Tansania"
+
+msgid "Thailand"
+msgstr "Thailand"
+
+msgid "Timor-Leste"
+msgstr "Osttimor"
+
+msgid "Togo"
+msgstr "Togo"
+
+msgid "Tokelau"
+msgstr "Tokelau"
+
+msgid "Tonga"
+msgstr "Tonga"
+
+msgid "Trinidad and Tobago"
+msgstr "Trinidad und Tobago"
+
+msgid "Tunisia"
+msgstr "Tunesien"
+
+msgid "Turkey"
+msgstr "Türkei"
+
+msgid "Turkmenistan"
+msgstr "Turkmenistan"
+
+msgid "Turks and Caicos Islands"
+msgstr "Turks- und Caicosinseln"
+
+msgid "Tuvalu"
+msgstr "Tuvalu"
+
+msgid "Uganda"
+msgstr "Uganda"
+
+msgid "Ukraine"
+msgstr "Ukraine"
+
+msgid "United Arab Emirates"
+msgstr "Vereinigte Arabische Emirate"
+
+msgid "United Kingdom"
+msgstr "Vereinigtes Königreich"
+
+msgid "United States of America"
+msgstr "Vereinigte Staaten von Amerika"
+
+msgid "United States Minor Outlying Islands"
+msgstr "Kleinere Amerikanische Überseeinseln"
+
+msgid "Uruguay"
+msgstr "Uruguay"
+
+msgid "Uzbekistan"
+msgstr "Usbekistan"
+
+msgid "Vanuatu"
+msgstr "Vanuatu"
+
+msgid "Venezuela (Bolivarian Republic of)"
+msgstr "Venezuela"
+
+msgid "Viet Nam"
+msgstr "Vietnam"
+
+msgid "Virgin Islands (British)"
+msgstr "Britische Jungferninseln"
+
+msgid "Virgin Islands (U.S.)"
+msgstr "Amerikanische Jungferninseln"
+
+msgid "Wallis and Futuna"
+msgstr "Wallis und Futuna"
+
+msgid "Western Sahara"
+msgstr "Westsahara"
+
+msgid "Yemen"
+msgstr "Jemen"
+
+msgid "Zambia"
+msgstr "Sambia"
+
+msgid "Zimbabwe"
+msgstr "Simbabwe"
+
+msgid "%s has been updated. Restart Enigma2 now to use the new version?"
+msgstr "Für %s wurde eine neue Version installiert. Soll Enigma2 neu gestartet werden, um die neue Version zu laden?"
+
+msgid "A newer %s package is available. Do you want to install it now?"
+msgstr "Es ist ein neues %s Package verfügbar. Soll es jetzt installiert werden?"

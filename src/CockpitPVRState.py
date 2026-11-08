@@ -1,0 +1,105 @@
+# Copyright (C) 2018-2026 by xcentaurix
+# License: GNU General Public License v3.0
+
+# pylint: disable=no-member
+
+
+from Screens.Screen import Screen
+from Components.Label import Label
+from Components.Pixmap import Pixmap
+from Components.config import config
+from Tools.LoadPixmap import LoadPixmap
+from .__init__ import _
+from .Debug import logger
+from .SkinUtils import getSkinPath
+
+
+class ScreenPVRState(Screen):
+
+    def __init__(self, session):
+        Screen.__init__(self, session)
+        self.skinName = "ScreenPVRState"
+        self["state"] = Label()
+        self["state_pic"] = Pixmap()
+
+
+class CockpitPVRState():
+
+    def __init__(self):
+        self.on_play_state_changed = self.onPlayStateChanged[:]
+        self.onPlayStateChanged = [self.playStateChanged]
+        self.pvr_state_dialog = self.session.instantiateDialog(ScreenPVRState)
+        # self.pvr_state_dialog.neverAnimate()
+        self.show_state_pic = True
+
+        self.onShow.append(self.mayShow)
+        self.onHide.append(self.pvr_state_dialog.hide)
+        self.onClose.append(self.delPvrState)
+
+    def playStateChanged(self, state):
+        logger.info("state: %s", state)
+        play_state = state[3]
+        logger.debug("play_state: %s", play_state)
+        state_pic = "dvr_stop.svg"
+        factor = ""
+        if play_state == ">":
+            state_pic = "dvr_play.svg"
+        elif play_state == "||":
+            state_pic = "dvr_pause.svg"
+        elif play_state == "END":
+            state_pic = "dvr_stop.svg"
+            factor = _("End")
+        elif play_state.startswith(">>"):
+            factor = play_state.split(" ")[1]
+            state_pic = "dvr_forward.svg"
+        elif play_state.startswith("<<"):
+            state_pic = "dvr_backward.svg"
+            factor = play_state.split(" ")[1]
+        elif play_state.startswith("/"):
+            state_pic = "dvr_play.svg"
+            factor = "1" + play_state + "x"
+
+        pic_path = getSkinPath("images/dvr_controls/" + state_pic)
+        # Load SVG with proper scaling to fit the widget (100x100 in the skin, smaller where the skin is scaled down)
+        instance = self.pvr_state_dialog["state_pic"].instance
+        size = instance.size() if instance else None
+        ptr = LoadPixmap(pic_path, cached=False, width=size and size.width() or 100, height=size and size.height() or 100, scaletoFit=1)
+        if ptr and instance:
+            self.pvr_state_dialog["state_pic"].instance.setPixmap(ptr)
+            self.pvr_state_dialog["state_pic"].show()
+            logger.debug("Pixmap set and shown: %s (scaletoFit)", state_pic)
+        else:
+            logger.warning("Failed to load pixmap: %s or instance not ready", pic_path)
+        self.pvr_state_dialog["state"].setText(factor)
+
+        self.updatePVRState()
+
+    def showPVRStatePic(self, show):
+        """Allow (or suppress, e.g. while skipping) the state icon. It is brought up to date at once: an icon that
+        was suppressed while the state changed (pause, fast forward, ...) has to come back when it is allowed again,
+        nothing else shows it until the next change of the state."""
+        self.show_state_pic = show
+        self.updatePVRState()
+
+    def updatePVRState(self):
+        if self.pvr_state_dialog is None:
+            return
+        logger.debug("seekstate: %s, show_state_pic: %s", self.seekstate, self.show_state_pic)
+        if not self.show_state_pic or (not config.usage.show_infobar_on_skip.value and self.seekstate in (self.SEEK_STATE_PLAY, self.SEEK_STATE_EOF)):
+            logger.debug("Hiding PVR state dialog")
+            self.pvr_state_dialog.hide()
+        else:
+            self.mayShow()
+
+    def delPvrState(self):
+        logger.info("...")
+        self.onPlayStateChanged = self.on_play_state_changed[:]
+        self.session.deleteDialog(self.pvr_state_dialog)
+        self.pvr_state_dialog = None
+
+    def mayShow(self):
+        logger.info("execing: %s, seekstate: %s", self.execing, self.seekstate)
+        # also called when the infobar is shown (onShow), which must not bring up an icon that is suppressed
+        if self.execing and self.show_state_pic and self.seekstate != self.SEEK_STATE_PLAY:
+            logger.debug("Showing PVR state dialog")
+            self.pvr_state_dialog.show()
