@@ -21,6 +21,9 @@ msgstr ""
 "X-Poedit-Basepath: ../src\n"
 "X-Poedit-SearchPath-0: .\n"
 
+msgid "VOD Country Selection"
+msgstr "VOD-Land-Auswahl"
+
 msgid "Local"
 msgstr "Lokal"
 

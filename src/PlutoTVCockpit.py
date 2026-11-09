@@ -534,7 +534,8 @@ class PlutoTVCockpit(Screen, HelpableScreen):
         self.session.openWithCallback(
             switchCountryCallback,
             ChoiceBox,
-            title=_("Temporarily switch the VoD list to another country"),
+            title=_("VOD Country Selection"),
+            text=_("Temporarily switch the VoD list to another country"),
             list=list(zip(config.plugins.plutotvcockpit.country.description, config.plugins.plutotvcockpit.country.choices)),
             selection=config.plugins.plutotvcockpit.country.choices.index(self.country),
             keys=[]
