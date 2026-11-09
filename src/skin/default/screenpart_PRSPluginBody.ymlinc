@@ -9,7 +9,6 @@
     zPosition: "1"
 - widget:
     backgroundColorSelected: "$backgroundColorSelected"
-    enableWrapAround: "1"
     foregroundColorSelected: "$foregroundColorSelected"
     itemCornerRadiusSelected: "$radius_item"
     position: "0,0"
@@ -17,7 +16,6 @@
     scrollbarMode: "showNever"
     size: "$width-1122,eval(($height-30)/$list_item_height*$list_item_height)"
     source: "feedlist"
-    transparent: "1"
     zPosition: "5"
     children:
       - xmlinc:

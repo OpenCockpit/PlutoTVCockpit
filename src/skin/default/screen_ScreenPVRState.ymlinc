@@ -1,6 +1,5 @@
 screen:
   name: "ScreenPVRState"
-  backgroundColor: "md_transparent"
   position: "center,center"
   size: "100,160"
   zPosition: "1000"

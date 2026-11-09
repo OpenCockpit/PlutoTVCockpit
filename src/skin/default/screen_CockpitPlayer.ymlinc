@@ -1,5 +1,4 @@
 screen:
-  backgroundColor: "md_transparent"
   name: "CockpitPlayer"
   position: "center,center"
   size: "1920,1080"

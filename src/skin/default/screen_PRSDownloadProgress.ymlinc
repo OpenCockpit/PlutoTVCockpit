@@ -1,6 +1,5 @@
 screen:
   name: "PRSDownloadProgress"
-  backgroundColor: "md_transparent"
   position: "60,60"
   size: "620,200"
   children:

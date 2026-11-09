@@ -32,6 +32,57 @@ def loadNoDataLocations(path):
         return set()
 
 
+_SHUTDOWN = threading.Event()   # set when Enigma2 shuts down: the threads of the download that wait for the reactor give up
+
+
+class ShutdownAbort(BaseException):
+    """Raised in the download thread when Enigma2 shuts down. Not an Exception: the download goes on to its next location when a
+    location fails (except Exception), and now it has to end, all the way up."""
+
+
+def _setShutdown():
+    _SHUTDOWN.set()
+
+
+# "before": the reactor runs this while it still runs its calls, then joins the thread pool (during shutdown)
+reactor.addSystemEventTrigger("before", "shutdown", _setShutdown)
+
+
+def callOnReactor(function, *args, **kwargs):
+    """What threads.blockingCallFromThread(reactor, ...) does (*function* runs in the reactor thread, the result or the exception comes
+    back here), except that it gives up with ShutdownAbort when Enigma2 shuts down. When the reactor stops it joins its thread pool and
+    runs no more calls: a thread of the pool that waits for the reactor then waits for ever, and the join waits for the thread - the
+    shutdown hung, after a restart in the middle of the download of the bouquets."""
+    if _SHUTDOWN.is_set():
+        raise ShutdownAbort()
+    done = threading.Event()
+    outcome = []
+
+    def run():
+        try:
+            outcome.append((True, function(*args, **kwargs)))
+        except BaseException as error:
+            outcome.append((False, error))
+        done.set()
+
+    reactor.callFromThread(run)
+    while not done.wait(0.5):
+        if _SHUTDOWN.is_set():
+            raise ShutdownAbort()
+    succeeded, value = outcome[0]
+    if succeeded:
+        return value
+    raise value
+
+
+def startThread(target):
+    """*target* in a thread of its own, a daemon. Not in the thread pool of the reactor (threads.deferToThread): the reactor joins the
+    pool when Enigma2 shuts down, and the download takes minutes - a restart would wait for the end of it."""
+    thread = threading.Thread(target=target, name=getattr(target, "__name__", "thread"), daemon=True)
+    thread.start()
+    return thread
+
+
 _CLAIM_LOCK = threading.Lock()
 UPDATE_INTERVAL_MINUTES = 60 * 5  # between the silent updates; a stored bouquet variant older than this is stale
 BOUQUET_DIR = "/etc/enigma2/"
@@ -473,7 +524,7 @@ class TVDownloadBase:
             self._bouquetsChanged = False
             self.ccGenerator = self.cc()
             self.piconFetcher = PiconFetcher(self._picons_config(), self)
-            threads.deferToThread(self._downloadThread)
+            startThread(self._downloadThread)
         except Exception:
             self._setDownloadActive(False)   # the claim, nothing runs
             raise
@@ -482,6 +533,9 @@ class TVDownloadBase:
         """Run the entire download workflow in a background thread."""
         try:
             self._managerThread()
+        except ShutdownAbort:
+            logger.info("Enigma2 is shutting down: the download is stopped")
+            self._setDownloadActive(False)
         except Exception as e:
             logger.error("Error in download thread: %s", e)
             self._setDownloadActive(False)
@@ -520,7 +574,7 @@ class TVDownloadBase:
 
     def manager(self):
         """Legacy entry point - redirects to threaded version."""
-        threads.deferToThread(self._managerThread)
+        startThread(self._managerThread)
 
     def _downloadBouquetThread(self, cc):
         self.bouquet = []
@@ -646,7 +700,7 @@ class TVDownloadBase:
                 # writes. Not waiting, the patch could read the old bouquet before it was replaced and write that
                 # back over the new one: Enigma2 then runs with the new addresses until the next restart, and loads
                 # the old ones from the file then (lazy addresses of the stream proxy replaced by direct ones).
-                threads.blockingCallFromThread(reactor, eDVBDB.getInstance().addOrUpdateBouquet, bouquet_name, bouquet_file, self.bouquet, False)
+                callOnReactor(eDVBDB.getInstance().addOrUpdateBouquet, bouquet_name, bouquet_file, self.bouquet, False)
                 patchBouquetName(bouquet_path, bouquet_name)
                 self._afterBouquetWritten(self.bouquetCC, bouquet_name)
                 self._storeVariants(self.bouquetCC, self.bouquetProxy)

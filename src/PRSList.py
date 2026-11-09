@@ -101,7 +101,7 @@ class PRSList(List):
     def setSelectedIndex(self, index):
         old_index = self.selected_index
         self.selected_index = index if index is not None and 0 <= index < len(self.list) else -1
-        for i in {old_index, self.selected_index}:
+        for i in dict.fromkeys((old_index, self.selected_index)):  # both rows, once if they are the same
             if 0 <= i < len(self.list):
                 self.modifyEntry(i, self._row(self.list[i], i == self.selected_index))
 
