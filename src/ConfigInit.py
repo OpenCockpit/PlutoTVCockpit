@@ -2,7 +2,7 @@
 # Copyright (C) 2021 by Team OpenSPA
 # License: GNU General Public License v3.0
 
-from Components.config import ConfigDirectory, ConfigSelection, ConfigYesNo, config
+from Components.config import ConfigDirectory, ConfigSelection, ConfigText, ConfigYesNo, config
 
 from . import _
 from . import Debug  # noqa: F401, pylint: disable=unused-import
@@ -39,6 +39,17 @@ if config.plugins.plutotvcockpit.content.stored_values.get("live_tv_mode") == "m
     # i.mjh.nz was a third source: its playlist is gone, and it listed the same channels with the same JMP2 addresses.
     # Changed before the setting is created: a stored value that is not one of its choices makes it raise.
     config.plugins.plutotvcockpit.content.stored_values["live_tv_mode"] = "jmp2"
+# On: a VoD title is recorded to a file while it plays and played from there, which gives all of Enigma2's seek
+# functions (the stream of the proxy is a sliding window). It is a temporary recording in the movie directory: deleted when
+# the player is left, unless the record key made it permanent. Off, or if it can't be started: the stream is played.
+config.plugins.plutotvcockpit.vod_record = ConfigYesNo(default=True)
+# The view of the VoD list that the TEXT key switches to: off the categories, on one list of all titles. Not offered in
+# the setup screen: the key stores it, and the next time the list opens in the view it was left in.
+config.plugins.plutotvcockpit.movie_view = ConfigYesNo(default=False)
+# The entry that was selected in the list of each view (the name of the category, the id of the title in the list of all
+# titles): selected again when the list is shown. Not offered in the setup screen either.
+config.plugins.plutotvcockpit.last_category = ConfigText(default="", fixed_size=False)
+config.plugins.plutotvcockpit.last_movie = ConfigText(default="", fixed_size=False)
 config.plugins.plutotvcockpit.live_tv_mode = ConfigSelection(default="stitcher", choices=[("stitcher", _("Stitcher")), ("jmp2", _("JMP2"))])
 config.plugins.plutotvcockpit.auto_update_check = ConfigSelection(default="yes", choices=[("yes", _("Yes")), ("no", _("No"))])
 config.plugins.plutotvcockpit.config_folder = ConfigDirectory(default="/etc/enigma2")

@@ -6,7 +6,7 @@ from time import time
 from .Debug import logger
 from .CutListUtils import secondsToPts, ptsToSeconds
 from .ServiceUtils import SID_DVB
-from .RecordingUtils import isRecording
+from .RecordingUtils import getDownloadRecordingJob, isRecording
 from .CockpitSmartSeek import CockpitSmartSeek
 from .CockpitEvent import CockpitEvent
 
@@ -81,8 +81,12 @@ class CockpitSeek(CockpitSmartSeek, CockpitEvent):
         position = 0
         if self.service_started:
             if self.isRecording():
-                before, offset, _, _, recording_start_time = self.getEventInfo()
-                position = secondsToPts(int(time()) - recording_start_time - offset + before)
+                before, offset, length, _, recording_start_time = self.getEventInfo()
+                if job := getDownloadRecordingJob(self.path):
+                    # a recording that is downloaded, not broadcast: it is written at its own speed, not in real time
+                    position = secondsToPts(length * job.getProgress() / 100)
+                else:
+                    position = secondsToPts(int(time()) - recording_start_time - offset + before)
         logger.debug("recording_position: %ss (%s)", ptsToSeconds(position), position)
         return position
 

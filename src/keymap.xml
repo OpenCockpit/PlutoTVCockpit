@@ -42,6 +42,7 @@
 		<key id="KEY_PVR" mapto="VIDEOL" flags="l" />
 		<key id="KEY_PVR" mapto="VIDEOS" flags="b" />
 		<key id="KEY_RADIO" mapto="RADIO" flags="m" />
+		<key id="KEY_RECORD" mapto="RECORD" flags="m" />
 		<key id="KEY_RED" mapto="RED" flags="m" />
 		<key id="KEY_RED" mapto="REDS" flags="b" />
 		<key id="KEY_RED" mapto="REDL" flags="l" />

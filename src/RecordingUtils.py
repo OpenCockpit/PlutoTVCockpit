@@ -11,7 +11,7 @@ import NavigationInstance
 from Screens.InfoBar import InfoBar
 from Plugins.SystemPlugins.JobCockpit.JobCockpit import JobCockpit
 from .Debug import logger
-from .JobUtils import getPendingJobs
+from .JobUtils import getPendingJob, getPendingJobs
 
 
 def getTimerFilename(timer):
@@ -110,12 +110,28 @@ def isTimeshiftRecording(path=""):
     return is_timeshift_recording
 
 
+def getDownloadRecordingJob(path=""):
+    """The pending job that records *path* by downloading it (not a timer, not a timeshift), None if there is none.
+
+    The jobs of MediathekCockpit's downloads (job manager "MTC"), and the jobs of any plugin that sets is_recording on
+    its job: a recording of a stream that is written while it is played. A job has the target_path of the recording and
+    getProgress(), the percent that is written. The plugins are separate modules to each other, the job supervisor is
+    what they share."""
+    if not path:
+        return None
+    job = getPendingJob("MTC", path)
+    if job is None:
+        for pending in getPendingJobs():
+            if getattr(pending, "is_recording", False) and getattr(pending, "target_path", None) == path:
+                job = pending
+                break
+    return job
+
+
 def isDownloadRecording(path=""):
-    jobs = getPendingJobs("MTC")
-    for job in jobs:
-        if job.target_path == path:
-            logger.info("download recording path: %s", path)
-            return True
+    if getDownloadRecordingJob(path) is not None:
+        logger.info("download recording path: %s", path)
+        return True
     return False
 
 

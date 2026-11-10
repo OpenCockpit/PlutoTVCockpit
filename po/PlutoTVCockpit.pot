@@ -300,6 +300,33 @@ msgstr ""
 msgid "Switch between the category view and the list of all movies"
 msgstr ""
 
+msgid "Record VoD while playing"
+msgstr ""
+
+msgid ""
+"Record a VoD title to a file in your movie directory while it plays and play "
+"the file, so that skipping and rewinding work all over the title. Press "
+"Record to keep it: the recording then goes on to the end of the title when "
+"you leave the player. Otherwise the file is deleted when you leave the "
+"player. Off, or if the recording can't be started: the stream is played, "
+"which can only be rewound about two minutes and not skipped ahead in."
+msgstr ""
+
+msgid "Buffering stream..."
+msgstr ""
+
+msgid "Record the movie"
+msgstr ""
+
+msgid "The movie is being recorded."
+msgstr ""
+
+msgid "The recording goes on when the player is left."
+msgstr ""
+
+msgid "The movie is already being recorded."
+msgstr ""
+
 msgid "End"
 msgstr ""
 

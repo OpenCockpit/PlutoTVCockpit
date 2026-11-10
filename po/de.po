@@ -282,6 +282,27 @@ msgstr "Alle Filme"
 msgid "Switch between the category view and the list of all movies"
 msgstr "Zwischen Kategorie-Ansicht und Liste aller Filme umschalten"
 
+msgid "Record VoD while playing"
+msgstr "VoD beim Abspielen aufnehmen"
+
+msgid "Record a VoD title to a file in your movie directory while it plays and play the file, so that skipping and rewinding work all over the title. Press Record to keep it: the recording then goes on to the end of the title when you leave the player. Otherwise the file is deleted when you leave the player. Off, or if the recording can't be started: the stream is played, which can only be rewound about two minutes and not skipped ahead in."
+msgstr "Einen VoD-Titel beim Abspielen in eine Datei im Film-Verzeichnis aufnehmen und die Datei abspielen, damit Springen und Zurückspulen im ganzen Titel funktionieren. Mit der Aufnahmetaste behalten: Die Aufnahme läuft dann beim Verlassen des Players bis zum Ende des Titels weiter. Sonst wird die Datei beim Verlassen des Players gelöscht. Aus, oder wenn die Aufnahme nicht gestartet werden kann: Der Stream wird abgespielt, der sich nur etwa zwei Minuten zurückspulen und nicht vorspringen lässt."
+
+msgid "Buffering stream..."
+msgstr "Stream wird gepuffert..."
+
+msgid "Record the movie"
+msgstr "Film aufnehmen"
+
+msgid "The movie is being recorded."
+msgstr "Der Film wird aufgenommen."
+
+msgid "The recording goes on when the player is left."
+msgstr "Die Aufnahme läuft weiter, wenn der Player verlassen wird."
+
+msgid "The movie is already being recorded."
+msgstr "Der Film wird bereits aufgenommen."
+
 msgid "End"
 msgstr "Ende"
 

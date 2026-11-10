@@ -3,12 +3,12 @@
 
 import os
 import re
-from time import strftime, localtime
+from time import strftime, localtime, monotonic
 from urllib.parse import quote
 from twisted.internet import threads
 
 from Components.ActionMap import HelpableActionMap
-from Components.config import config
+from Components.config import config, configfile
 from Components.Button import Button
 from Components.Label import Label
 from Components.Sources.StaticText import StaticText
@@ -34,6 +34,10 @@ from .PRSList import PRSList
 from .PlutoSetup import PlutoSetup
 from .PRSCockpitPlayer import PRSCockpitPlayer
 from .PRSServiceCenter import ServiceCenter
+from .VodPlayer import VodPlayer
+from .VodRecording import VodRecording
+
+VOD_RECORDING_START_TIMEOUT = 40   # s the recording gets to have a few seconds of the asset on disk before the stream is played instead
 
 _utils = PRSUtils(config.plugins.plutotvcockpit)
 downloadPoster = _utils.downloadPoster
@@ -114,7 +118,7 @@ class PlutoTVCockpit(Screen, HelpableScreen):
             -1
         )
 
-        self.movieView = False  # False: categories, True: one list of all titles, sorted alphabetically
+        self.movieView = config.plugins.plutotvcockpit.movie_view.value  # False: categories, True: one list of all titles, sorted alphabetically; as it was left
         self.updateViewButton()
         self.updatebutton()
 
@@ -124,6 +128,11 @@ class PlutoTVCockpit(Screen, HelpableScreen):
         self.updateDataTimer = eTimer()
         self.updateDataTimer.callback.append(self.update_data_delayed)
         self.country = config.plugins.plutotvcockpit.country.value
+        self.vodRecording = None   # the recording of the VOD asset that plays (or is about to), see VodRecording
+        self.vodRecordingTimer = eTimer()
+        self.vodRecordingTimer.callback.append(self.vodRecordingCheck)
+        self.onClose.append(self.stopVodRecording)
+        self.onClose.append(self.saveSelection)
         self.initialise()
         self.onLayoutFinish.append(self.getCategories)
 
@@ -133,6 +142,7 @@ class PlutoTVCockpit(Screen, HelpableScreen):
         self.allfilms = []
         self.menu = []
         self.history = []
+        self.categoryName = ""   # the category that is open, in the category view
         self.chapters = {}
         self.numSeasons = 0
         self.vinfo = ""
@@ -261,7 +271,10 @@ class PlutoTVCockpit(Screen, HelpableScreen):
     def toggleView(self):
         if not self.menu or self["loading"].visible:  # nothing loaded yet, or a request is running
             return
+        self.storeSelection()   # of the view that is left; the other one shows what was selected in it
         self.movieView = not self.movieView
+        config.plugins.plutotvcockpit.movie_view.value = self.movieView
+        self.saveViewSettings()
         self.updateViewButton()
         self.history = []
         self.vinfo = ""
@@ -286,7 +299,52 @@ class PlutoTVCockpit(Screen, HelpableScreen):
             entries = [self["feedlist"].listentry(key.decode("utf-8"), "menu", "") for key in self.menu]
         self["feedlist"].setList(entries)
         self["feedlist"].moveToIndex(0)
+        self.selectStored()
         self.title = _("PlutoTV") + " - " + self.titlemenu
+
+    def selectStored(self):
+        """Select the entry of the list of the current view that was selected when it was left."""
+        if self.movieView:
+            wanted = config.plugins.plutotvcockpit.last_movie.value
+            ids = [film[0] for film in self.films]
+        else:
+            wanted = config.plugins.plutotvcockpit.last_category.value
+            ids = [key.decode("utf-8") for key in self.menu]
+        if wanted and wanted in ids:
+            self["feedlist"].moveToIndex(ids.index(wanted))
+
+    def storeSelection(self):
+        """Remember the entry of the list of the current view that the selection is in: the category, or the title in
+        the list of all titles. Inside a category or a series that is the one it was opened from."""
+        try:
+            if not (selection := self.getSelection()):
+                return
+            _index, name, __type, _id = selection
+            if self.movieView:
+                if __type in {"movie", "series"}:
+                    item = _id
+                elif __type in {"seasons", "episode"} and 0 <= getattr(self, "_series_index", -1) < len(self.films):
+                    item = self.films[self._series_index][0]
+                else:
+                    return
+                config.plugins.plutotvcockpit.last_movie.value = item
+            else:
+                item = name if __type == "menu" else self.categoryName
+                if item:
+                    config.plugins.plutotvcockpit.last_category.value = item
+        except Exception as exc:  # pylint: disable=broad-except  # remembering the selection must not stop the screen from closing
+            logger.debug("selection not stored: %s", exc)
+
+    def saveSelection(self):
+        """Store the selection and write the settings that remember the view and the selection."""
+        self.storeSelection()
+        self.saveViewSettings()
+
+    @staticmethod
+    def saveViewSettings():
+        for element in (config.plugins.plutotvcockpit.movie_view, config.plugins.plutotvcockpit.last_movie, config.plugins.plutotvcockpit.last_category):
+            element.save()
+        configfile.save()
 
     def buildlist(self, category):
         name = category["name"].encode("utf-8")
@@ -352,6 +410,7 @@ class PlutoTVCockpit(Screen, HelpableScreen):
         menu = []
         menuact = self.titlemenu
         if __type == "menu":
+            self.categoryName = name
             self.films = self.lvod[self.menu[index]]
             menu = self.filmEntries(self.films)
             self["feedlist"].moveToIndex(0)
@@ -447,9 +506,75 @@ class PlutoTVCockpit(Screen, HelpableScreen):
             if "m3u8" in url.lower() or "127.0.0.1" in url:
                 self.service_center.setMovie(self._play_name, self._play_description, self._play_duration)
                 self.last_service = self.session.nav.getCurrentlyPlayingServiceOrGroup()
-                self.session.openWithCallback(self._playerClosed, PRSCockpitPlayer, reference, self._play_sid, resumePointsInstance, self.service_center, config.plugins.plutotvcockpit)
+                if config.plugins.plutotvcockpit.vod_record.value and self.startVodRecording(reference):
+                    return   # vodRecordingCheck opens the player on the file
+                self.openPlayer(reference)
+
+    def openPlayer(self, reference):
+        """Play the HLS stream of the proxy."""
+        self.session.openWithCallback(self._playerClosed, PRSCockpitPlayer, reference, self._play_sid, resumePointsInstance, self.service_center, config.plugins.plutotvcockpit)
+
+    def openFilePlayer(self, recording):
+        """Play the file that is recorded (see VodRecording) with the regular player of the recordings."""
+        self.session.openWithCallback(self._playerClosed, VodPlayer, recording.reference(), self._play_sid, resumePointsInstance, self.service_center, config.plugins.plutotvcockpit, recording)
+
+    def startVodRecording(self, reference):
+        """Record the asset to a file and play that (see VodRecording) instead of the HLS stream of the proxy. False
+        if it can't be recorded: the stream is played then."""
+        self.stopVodRecording()
+        recording = VodRecording()
+        try:
+            started = recording.start(reference, self._play_name, self._play_duration, self._play_description)
+        except Exception as exc:  # pylint: disable=broad-except  # whatever goes wrong, the title still plays
+            logger.error("the recording can't be started: %s", exc, exc_info=True)
+            started = False
+        if not started:
+            recording.stop(keep_channel=True)
+            return False
+        self.vodRecording = recording
+        self.vodRecordingReference = reference
+        self.vodRecordingDeadline = monotonic() + VOD_RECORDING_START_TIMEOUT
+        self["loading"].setText(_("Buffering stream..."))
+        self["loading"].show()
+        self.vodRecordingTimer.start(250, False)
+        return True
+
+    def endBuffering(self):
+        """Hide the message of the wait for the first seconds of the recording, and give the label its text for the
+        loading of the lists back."""
+        self["loading"].hide()
+        self["loading"].setText(_("Loading data... Please wait"))
+
+    def vodRecordingCheck(self):
+        recording = self.vodRecording
+        if recording is None:
+            self.vodRecordingTimer.stop()
+        elif recording.ready():
+            self.vodRecordingTimer.stop()
+            self.endBuffering()
+            logger.debug("%s bytes recorded, playing %s", recording.size(), recording.path)
+            self.openFilePlayer(recording)
+        elif monotonic() > self.vodRecordingDeadline:
+            # nothing (or too little) came: play the stream, the way it was done before
+            self.vodRecordingTimer.stop()
+            logger.debug("%s bytes recorded after %s s, playing the stream", recording.size(), VOD_RECORDING_START_TIMEOUT)
+            self.stopVodRecording(keep_channel=True)
+            self.endBuffering()
+            self.openPlayer(self.vodRecordingReference)
+
+    def stopVodRecording(self, keep_channel=False):
+        """Let go of the recording of the asset: a temporary one is stopped, its file deleted and the channel of the
+        proxy closed (not with *keep_channel*: the stream of it is played next); one that was made permanent with the
+        record key goes on to the end of the asset (see VodRecording.stop)."""
+        self.vodRecordingTimer.stop()
+        recording, self.vodRecording = self.vodRecording, None
+        if recording:
+            recording.stop(keep_channel)
 
     def _playerClosed(self, *_args):
+        if self.vodRecording:
+            self.session.nav.stopService()   # the file must not play on while it is deleted
+        self.stopVodRecording()
         self.session.nav.playService(self.last_service)
         self["feedlist"].refresh()  # pick up the resume point saved on leaving the player
 
