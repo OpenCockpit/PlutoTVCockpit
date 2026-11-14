@@ -27,6 +27,14 @@ EXT_PLAYLIST = [".m3u"]
 ALL_VIDEO = EXT_TS + EXT_M2TS + EXT_DVD + EXT_VIDEO + EXT_BLU
 ALL_MEDIA = ALL_VIDEO + EXT_PICTURE + EXT_MUSIC + EXT_PLAYLIST
 
+# MediaCockpit lists what it can show and play: no disc images and no Blu-ray index (a DVD or Blu-ray service is not part of its
+# dependencies, and the slideshow plays with GStreamer), but more picture formats (ePicLoad reads them) and music formats
+# (GStreamer plays them).
+MDC_EXT_VIDEO = EXT_TS + EXT_M2TS + EXT_VIDEO
+MDC_EXT_PICTURE = EXT_PICTURE + [".bmp", ".gif"]
+MDC_EXT_MUSIC = EXT_MUSIC + [".flac", ".ogg", ".oga", ".opus", ".m4a", ".aac", ".wav"]
+MDC_ALL_MEDIA = MDC_EXT_VIDEO + MDC_EXT_PICTURE + MDC_EXT_MUSIC + EXT_PLAYLIST
+
 
 # DEFAULT_VIDEO_PID = 0x44
 # DEFAULT_AUDIO_PID = 0x45
