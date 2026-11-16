@@ -135,6 +135,33 @@ def isDownloadRecording(path=""):
     return False
 
 
+def getDownloadRecordings():
+    """The paths that are recorded by a download job now (see getDownloadRecordingJob)."""
+    paths = []
+    for job in getPendingJobs("MTC") + [pending for pending in getPendingJobs() if getattr(pending, "is_recording", False)]:
+        path = getattr(job, "target_path", None)
+        if path and path not in paths:
+            paths.append(path)
+    return paths
+
+
+def getActiveRecordingPaths():
+    """Every file that is being recorded now: by a timer, as a timeshift, by a download."""
+    return getLiveRecordings() + getTimeshiftRecordings() + getDownloadRecordings()
+
+
+def getRecordingsBelow(folder):
+    """The recordings that are running in a folder, or in the folders below it. (isRecording(path) is about one file: a folder with a
+    recording in it was not seen, so it could be moved to another disk, which copies the file that is being written and removes it.)"""
+    prefix = folder.rstrip("/") + "/"
+    return [path for path in getActiveRecordingPaths() if path.startswith(prefix)]
+
+
+def isRecordingIn(path):
+    """path is a recording that runs, or a folder with one in it."""
+    return bool(isRecording(path) or getRecordingsBelow(path))
+
+
 def isStreamRecording(path=""):
     jobs = getPendingJobs("TMP")
     for job in jobs:

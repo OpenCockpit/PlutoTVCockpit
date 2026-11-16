@@ -1,4 +1,4 @@
-# Copyright (C) 2026 by xcentaurix
+# Copyright (C) 2018-2026 by xcentaurix
 # Copyright (C) 2021 by Team OpenSPA
 # License: GNU General Public License v3.0
 

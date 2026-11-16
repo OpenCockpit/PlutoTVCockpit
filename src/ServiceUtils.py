@@ -6,34 +6,14 @@ import os
 from enigma import eServiceReference, loadPNG
 from Components.Renderer.Picon import getPiconName
 from .Debug import logger
+from .MediaTypes import EXT_TS, EXT_M2TS, EXT_DVD, EXT_VIDEO, EXT_BLU, EXT_PICTURE, EXT_MUSIC, EXT_PLAYLIST  # noqa: F401  # pylint: disable=unused-import
+from .MediaTypes import ALL_VIDEO, ALL_MEDIA, MDC_EXT_VIDEO, MDC_EXT_PICTURE, MDC_EXT_MUSIC, MDC_ALL_MEDIA  # noqa: F401  # pylint: disable=unused-import
 
 
 SID_DVB = eServiceReference.idDVB  # eServiceFactoryDVB::id  enum{id = 0x0001}; - standard enigma2
 SID_DVD = 0x1111  # eServiceFactoryDVD::id  enum{id = 0x1111}; - not in standard enigma2
 SID_M2TS = 0x0003  # eServiceFactoryM2TS::id enum{id = 0x0003}; - not in standard enigma2
 SID_GST = 0x1001  # eServiceFactoryGST::id  enum{id = 0x1001}; - not in standard enigma2
-
-
-EXT_TS = [".ts", ".trp"]
-EXT_M2TS = [".m2ts"]
-EXT_DVD = [".ifo", ".iso", ".img"]
-EXT_VIDEO = [".avi", ".divx", ".f4v", ".flv", ".m4v", ".mkv", ".mov", ".mp4", ".mpeg", ".mpg", ".mts", ".vob", ".wmv", ".asf", ".stream", ".webm"]
-EXT_BLU = [".bdmv"]
-
-EXT_PICTURE = [".jpg", ".jpeg", ".png"]
-EXT_MUSIC = [".mp3", ".wma"]
-EXT_PLAYLIST = [".m3u"]
-
-ALL_VIDEO = EXT_TS + EXT_M2TS + EXT_DVD + EXT_VIDEO + EXT_BLU
-ALL_MEDIA = ALL_VIDEO + EXT_PICTURE + EXT_MUSIC + EXT_PLAYLIST
-
-# MediaCockpit lists what it can show and play: no disc images and no Blu-ray index (a DVD or Blu-ray service is not part of its
-# dependencies, and the slideshow plays with GStreamer), but more picture formats (ePicLoad reads them) and music formats
-# (GStreamer plays them).
-MDC_EXT_VIDEO = EXT_TS + EXT_M2TS + EXT_VIDEO
-MDC_EXT_PICTURE = EXT_PICTURE + [".bmp", ".gif"]
-MDC_EXT_MUSIC = EXT_MUSIC + [".flac", ".ogg", ".oga", ".opus", ".m4a", ".aac", ".wav"]
-MDC_ALL_MEDIA = MDC_EXT_VIDEO + MDC_EXT_PICTURE + MDC_EXT_MUSIC + EXT_PLAYLIST
 
 
 # DEFAULT_VIDEO_PID = 0x44

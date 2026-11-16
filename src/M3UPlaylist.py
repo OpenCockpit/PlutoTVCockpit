@@ -1,4 +1,4 @@
-# Copyright (C) 2026 by xcentaurix
+# Copyright (C) 2018-2026 by xcentaurix
 
 """Shared Extended-M3U provider channel-list writer for FAST-channel TV Cockpit
 plugins (Pluto TV, Rakuten TV, Samsung TV Plus, ...).

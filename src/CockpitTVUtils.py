@@ -1,4 +1,4 @@
-# Copyright (C) 2026 by xcentaurix
+# Copyright (C) 2018-2026 by xcentaurix
 
 import os
 from pickle import load as pickle_load, dump as pickle_dump
