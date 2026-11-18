@@ -141,12 +141,13 @@ class PlutoTVDownloadBase(TVDownloadBase):
                     self.bouquetCC = cc
                     self.bouquetProxy = self._proxyEnabled()
                     self.tsid = self.TSIDS.get(cc, "0")
-                    self.usedServiceIds = set()
+                    self._beginServiceIds()
                     self.channelsList.clear()
                     self.categories.clear()
                     self._clearPluginState()
                     for channel in sorted(self._fetchChannels(cc), key=lambda x: x["number"]):
                         self.buildM3U(channel)
+                    self._saveServiceIds()
                     self.categories.sort(key=str.casefold)
                     for channels_in_group in self.channelsList.values():
                         channels_in_group.sort(key=lambda ch: ch[2].casefold())
@@ -221,6 +222,12 @@ class PlutoTVDownloadBase(TVDownloadBase):
             cls._epgDrainScheduled = True
         reactor.callFromThread(self._drainEpgImport)
 
+    # A single importEvents() call for a whole channel (up to ~100 events) blocked the main thread for 100-350 ms
+    # (logged as "importEvents took ..."), which is long enough to show the busy spinner. A channel is imported in
+    # chunks of this many events instead; the rest goes back to the front of the queue. importEvents() appends to
+    # what the channel already has (the Samsung/Rakuten plugins import one event per call).
+    _EPG_CHUNK = 8
+
     def _drainEpgImport(self):
         cls = PlutoTVDownloadBase
         deadline = time.monotonic() + 0.015
@@ -230,6 +237,9 @@ class PlutoTVDownloadBase(TVDownloadBase):
                     cls._epgDrainScheduled = False
                     return
                 sref, events = cls._epgPending.popleft()
+                if len(events) > cls._EPG_CHUNK:
+                    cls._epgPending.appendleft((sref, events[cls._EPG_CHUNK:]))
+                    events = events[:cls._EPG_CHUNK]
             started = time.monotonic()
             try:
                 eEPGCache.getInstance().importEvents(sref, events)
@@ -323,17 +333,8 @@ class PlutoTVDownloadBase(TVDownloadBase):
         else:
             sid = int(channel["number"])
 
-        if sid <= 0:
-            sid = (zlib.crc32(_id.encode("utf-8")) & 0xFFFF) or 1
-
-        if sid in self.usedServiceIds:
-            sid = (zlib.crc32(_id.encode("utf-8")) & 0xFFFF) or 1
-            while sid in self.usedServiceIds:
-                sid = (sid + 1) & 0xFFFF
-                if sid == 0:
-                    sid = 1
-
-        self.usedServiceIds.add(sid)
+        # the id the channel had (see TVDownloadBase._assignServiceId), else the number of Pluto TV
+        sid = self._assignServiceId(_id, sid, crc_on_collision=True)
         number = f"{sid:X}"
 
         self.channelsList[group].append((str(number), _id, channel["name"], logo, _id))

@@ -1,11 +1,13 @@
 # Copyright (C) 2018-2026 by xcentaurix
 
+import json
 import os
 import re
 import shutil
 import threading
 import time
 import traceback
+import zlib
 from collections import deque
 from io import BytesIO
 
@@ -30,6 +32,36 @@ def loadNoDataLocations(path):
             return {line.strip() for line in f if line.strip()}
     except OSError:
         return set()
+
+
+_SID_LOCK = threading.Lock()
+SID_RETENTION_SECONDS = 90 * 24 * 3600   # a channel that has not been listed for this long gives up its service id
+
+
+def loadServiceIds(path):
+    """The service ids that were given to channels: {tsid: {channel id: [sid, last time it was listed]}}. {} if there is no (valid) file."""
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+    except (OSError, ValueError):
+        return {}
+    result = {}
+    if isinstance(data, dict):
+        for tsid, channels in data.items():
+            if not isinstance(channels, dict):
+                continue
+            result[tsid] = {cid: [entry[0], entry[1]] for cid, entry in channels.items()
+                            if isinstance(entry, list) and len(entry) == 2 and isinstance(entry[0], int) and 0 < entry[0] <= 0xFFFF
+                            and isinstance(entry[1], (int, float))}
+    return result
+
+
+def saveServiceIds(path, data):
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    tmp = path + ".tmp"
+    with open(tmp, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=0, sort_keys=True)
+    os.replace(tmp, path)     # a partly written file never replaces the good one
 
 
 _SHUTDOWN = threading.Event()   # set when Enigma2 shuts down: the threads of the download that wait for the reactor give up
@@ -456,6 +488,63 @@ class TVDownloadBase:
         except OSError:
             pass
 
+    # ------------------------------------------------------------------
+    # Service ids of the channels
+    #
+    # The service id is part of a service reference, and so of what Enigma2 compares to find a service (the playing one in the
+    # channel list or the EPG, a timer, the last service, a recording's .meta, the picon name). It used to be the number that
+    # the provider gives the channel, and a provider renumbers its channels: the next update of the bouquet then gave the
+    # channel another reference, and everything that held the old one (the service that is playing, in the first place: the
+    # EPG then opened on the first channel of the bouquet) no longer found it. A channel keeps the id that it got: it is
+    # remembered per location in <plugin>.sids, next to the .nodata file. A channel that is new gets the one it always got
+    # (the number of the provider, or the next free one if that is taken), so the first run after an update of the plugin
+    # makes the same ids as before.
+    # ------------------------------------------------------------------
+
+    def _sidsFile(self):
+        return os.path.splitext(self.NODATA_FILE)[0] + ".sids"
+
+    def _beginServiceIds(self):
+        """Start giving service ids to the channels of the location self.tsid (call it where the channels are numbered afresh)."""
+        self.usedServiceIds = set()
+        with _SID_LOCK:
+            self._sidKnown = loadServiceIds(self._sidsFile()).get(self.tsid, {})
+        self._sidReserved = {entry[0] for entry in self._sidKnown.values()}   # also the ones of channels that are not listed now
+        self._sidAssigned = {}
+
+    def _assignServiceId(self, channel_id, number, crc_on_collision=False):
+        """The service id of a channel: the one it had, else *number* (the one of the provider) or, if that is taken, the next free one.
+        *crc_on_collision*: a hash of the channel id before the next free one (what the Pluto TV plugin always did)."""
+        known = self._sidKnown.get(channel_id)
+        if known and known[0] not in self.usedServiceIds and channel_id not in self._sidAssigned:
+            sid = known[0]
+        else:
+            def taken(value):
+                return value in self.usedServiceIds or value in self._sidReserved
+            crc = (zlib.crc32(channel_id.encode("utf-8")) & 0xFFFF) or 1
+            sid = number if number > 0 else crc
+            if taken(sid) and crc_on_collision:
+                sid = crc
+            while taken(sid):
+                sid = (sid + 1) & 0xFFFF or 1
+        self._sidAssigned.setdefault(channel_id, sid)
+        self.usedServiceIds.add(sid)
+        return sid
+
+    def _saveServiceIds(self):
+        """Remember the ids that were given since _beginServiceIds (and the ones of channels that were listed lately)."""
+        now = time.time()
+        try:
+            with _SID_LOCK:
+                data = loadServiceIds(self._sidsFile())
+                location = {cid: entry for cid, entry in self._sidKnown.items() if now - entry[1] < SID_RETENTION_SECONDS}
+                for cid, sid in self._sidAssigned.items():
+                    location[cid] = [sid, now]
+                data[self.tsid] = location
+                saveServiceIds(self._sidsFile(), data)
+        except OSError as e:
+            logger.error("%s: failed to save the service ids: %s", self.tsid, e)
+
     def _loadNoDataLocations(self):
         return loadNoDataLocations(self.NODATA_FILE)
 
@@ -582,7 +671,7 @@ class TVDownloadBase:
         self.bouquetCC = cc
         self.bouquetProxy = self._proxyEnabled()   # the setting this bouquet is built for, even if it is changed meanwhile
         self.tsid = self.TSIDS.get(cc, "0")
-        self.usedServiceIds = set()
+        self._beginServiceIds()
         reactor.callFromThread(self.stop)
         self.channelsList.clear()
         self.categories.clear()
@@ -605,6 +694,7 @@ class TVDownloadBase:
         channels = sorted(self._fetchChannels(cc), key=lambda x: x["number"])
         for channel in channels:
             self.buildM3U(channel)
+        self._saveServiceIds()
 
         # Sort categories alphabetically, and channels within each category by name
         self.categories.sort(key=str.casefold)
