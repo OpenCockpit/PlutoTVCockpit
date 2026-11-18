@@ -68,7 +68,7 @@ class VodPlayer(CockpitPlayer):
             if self.seekstate == self.SEEK_STATE_PLAY:
                 logger.debug("end of file in play, waiting for the recording to grow")
                 return
-        InfoBarSeek._InfoBarSeek__evEOF(self)   # pylint: disable=protected-access
+        InfoBarSeek._InfoBarSeek__evEOF(self)
 
     def leavePlayer(self):
         length = self.getLength()
