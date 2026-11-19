@@ -31,3 +31,6 @@ This repository has no control over the streams, links, or the legality of the c
 
 ## Installation
 - https://OpenCockpit.github.io/PlutoTVCockpit
+
+## Wiki
+- https://github.com/OpenCockpit/PlutoTVCockpit/wiki
