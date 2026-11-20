@@ -4,10 +4,6 @@
           filename: "nmsbd.ttf"
           name: "FdLcD"
           scale: "100"
-      - font:
-          filename: "OpenSans-Regular.ttf"
-          name: "FdLcDLight"
-          scale: "100"
 
 # symbolic font names
 - global:
