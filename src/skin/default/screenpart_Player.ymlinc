@@ -6,7 +6,7 @@ screen:
         position: "0,0"
     - widget:
         backgroundColor: "md_surface"
-        font: "md_headline_medium"
+        font: "$md_headline_medium"
         noWrap: "1"
         position: "362,75"
         render: "Label"
@@ -20,7 +20,7 @@ screen:
               text: "Name"
     - widget:
         backgroundColor: "md_surface"
-        font: "md_headline_small_emphasized"
+        font: "$md_headline_small_emphasized"
         foregroundColor: "md_on_surface"
         halign: "center"
         position: "667,4"
@@ -35,7 +35,7 @@ screen:
               text: "Position"
     - widget:
         backgroundColor: "md_surface"
-        font: "md_headline_small_emphasized"
+        font: "$md_headline_small_emphasized"
         halign: "center"
         position: "857,4"
         render: "Label"
@@ -49,7 +49,7 @@ screen:
               text: "Length"
     - widget:
         backgroundColor: "md_surface"
-        font: "md_headline_small_emphasized"
+        font: "$md_headline_small_emphasized"
         foregroundColor: "md_on_surface"
         halign: "center"
         position: "1047,4"
@@ -112,7 +112,7 @@ screen:
               text: "Position"
     - widget:
         backgroundColor: "md_surface"
-        font: "md_display_medium_emphasized"
+        font: "$md_display_medium_emphasized"
         foregroundColor: "md_on_surface"
         halign: "center"
         position: "1552,65"

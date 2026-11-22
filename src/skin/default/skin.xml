@@ -109,7 +109,7 @@
 		<eLabel backgroundColor="md_surface_container_highest" position="380,915" size="1485,2" zPosition="-9"/>
 		<eLabel backgroundColor="md_surface_container_highest" position="1630,930" size="2,100" zPosition="-9"/>
 		<widget alphatest="blend" name="player_icon" position="160,915" size="90,90" zPosition="3"/>
-		<widget backgroundColor="md_surface" font="md_title_medium_emphasized" foregroundColor="md_on_surface" halign="center" position="1590,990" render="Label" size="320,35" source="global.CurrentTime" transparent="1" valign="top" zPosition="20">
+		<widget backgroundColor="md_surface" font="RobotoMedium;30" foregroundColor="md_on_surface" halign="center" position="1590,990" render="Label" size="320,35" source="global.CurrentTime" transparent="1" valign="top" zPosition="20">
 			<convert type="ClockToText">Format: %d %B</convert>
 		</widget>
 		<widget alphatest="blend" path="icons/audioicon" position="1605,860" render="AudioIcon" size="85,50" source="session.CurrentService" zPosition="10">
@@ -150,16 +150,16 @@
 		<widget alphatest="blend" pixmap="icons/rec2.png" position="1290,880" render="Pixmap" size="49,22" source="session.RecordState" zPosition="2">
 			<convert type="ConditionalShowHide">Blink,4000,1000</convert>
 		</widget>
-		<widget backgroundColor="md_surface" font="md_headline_medium" noWrap="1" position="400,935" render="Label" size="1120,50" source="Service" transparent="1" valign="center">
+		<widget backgroundColor="md_surface" font="Roboto;40" noWrap="1" position="400,935" render="Label" size="1120,50" source="Service" transparent="1" valign="center">
 			<convert type="COCEventName">Name</convert>
 		</widget>
-		<widget backgroundColor="md_surface" font="md_headline_small_emphasized" foregroundColor="md_on_surface" halign="center" position="705,864" render="Label" size="180,51" source="Service" transparent="1" valign="center">
+		<widget backgroundColor="md_surface" font="RobotoMedium;36" foregroundColor="md_on_surface" halign="center" position="705,864" render="Label" size="180,51" source="Service" transparent="1" valign="center">
 			<convert type="COCServicePosition">Position</convert>
 		</widget>
-		<widget backgroundColor="md_surface" font="md_headline_small_emphasized" halign="center" position="895,864" render="Label" size="180,51" source="Service" transparent="1" valign="center">
+		<widget backgroundColor="md_surface" font="RobotoMedium;36" halign="center" position="895,864" render="Label" size="180,51" source="Service" transparent="1" valign="center">
 			<convert type="COCServicePosition">Length</convert>
 		</widget>
-		<widget backgroundColor="md_surface" font="md_headline_small_emphasized" foregroundColor="md_on_surface" halign="center" position="1085,864" render="Label" size="180,51" source="Service" transparent="1" valign="center">
+		<widget backgroundColor="md_surface" font="RobotoMedium;36" foregroundColor="md_on_surface" halign="center" position="1085,864" render="Label" size="180,51" source="Service" transparent="1" valign="center">
 			<convert type="COCServicePosition">Remaining,Negate</convert>
 		</widget>
 		<eLabel backgroundColor="md_surface_container" position="400,1010" size="1170,4" transparent="0" zPosition="1"/>
@@ -172,7 +172,7 @@
 		<widget alphatest="blend" cornerRadius="6" foregroundColor="md_outline" position="400,1005" render="Progress" size="1170,12" source="Service" transparent="1" zPosition="4">
 			<convert type="COCBeforeTSPosition">Position</convert>
 		</widget>
-		<widget backgroundColor="md_surface" font="md_display_medium_emphasized" foregroundColor="md_on_surface" halign="center" position="1590,925" render="Label" size="320,60" source="Service" transparent="1" valign="top" zPosition="20">
+		<widget backgroundColor="md_surface" font="RobotoMedium;60" foregroundColor="md_on_surface" halign="center" position="1590,925" render="Label" size="320,60" source="Service" transparent="1" valign="top" zPosition="20">
 			<convert type="COCServicePosition">EndTime,ShowNoSeconds</convert>
 		</widget>
 	</screen>

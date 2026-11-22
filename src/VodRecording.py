@@ -38,6 +38,7 @@ from . import _
 from .Debug import logger
 from .FileUtils import deleteFile, deleteFiles, writeFile
 from .ParserMetaFile import ParserMetaFile
+from .RecordingLed import startRecordingLed, stopRecordingLed
 from .RecordingUtils import calcRecordingFilename
 from .Version import ID
 
@@ -230,6 +231,9 @@ class VodRecording():
         # the job is what MovieCockpit (another plugin) sees: the recording is marked as being recorded, is kept from
         # being deleted or moved, and its progress is shown in the list and in the player
         JobSupervisor.getInstance().getJobManager(ID).AddJob(VodRecordingJob(self))
+        # the recording is written by a simulated record service of the proxy: Enigma2 does not count it, so the front panel
+        # led would not blink for it (see finish)
+        startRecordingLed(self)
         return True
 
     def progress(self):
@@ -282,6 +286,7 @@ class VodRecording():
         if self.done:
             return
         self.done = True
+        stopRecordingLed(self)
         complete = StreamProxy.vod_recording_complete(self.channel_id)
         size = self.size()
         self.stopRecorder()

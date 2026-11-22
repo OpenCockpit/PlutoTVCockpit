@@ -31,7 +31,7 @@ screen:
         zPosition: "3"
     - widget:
         backgroundColor: "md_surface"
-        font: "md_title_medium_emphasized"
+        font: "$md_title_medium_emphasized"
         foregroundColor: "md_on_surface"
         halign: "center"
         position: "1552,130"
