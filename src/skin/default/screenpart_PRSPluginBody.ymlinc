@@ -1,6 +1,8 @@
 # The list fills the left of the body, from the top edge to the bottom edge, with its pager at the bottom. The poster, the title and the
 # description (screenpart_PRSPluginInfo) sit at the right end of the body: they are one block 1685 px wide, placed at $width-1685.
 # The list ends 45 px (the gap between the poster and the description) before the poster.
+- param: {name: "width"}
+- param: {name: "height"}
 - eLabel:
     backgroundColor: "md_surface"
     cornerRadius: "$radius_panel_large"

@@ -4,7 +4,7 @@
 
 import os
 from enigma import eServiceReference, loadPNG
-from Components.Renderer.Picon import getPiconName
+from Components.Renderer.Picon import getPiconName, piconLocator, invalidateListPicons
 from .Debug import logger
 from .MediaTypes import EXT_TS, EXT_M2TS, EXT_DVD, EXT_VIDEO, EXT_BLU, EXT_PICTURE, EXT_MUSIC, EXT_PLAYLIST  # noqa: F401  # pylint: disable=unused-import
 from .MediaTypes import ALL_VIDEO, ALL_MEDIA, MDC_EXT_VIDEO, MDC_EXT_PICTURE, MDC_EXT_MUSIC, MDC_ALL_MEDIA  # noqa: F401  # pylint: disable=unused-import
@@ -35,6 +35,17 @@ def getService(path, name=""):
         # service.setData(1, DEFAULT_AUDIO_PID)
     service.setName(name)
     return service
+
+
+def announcePiconDirectory(path):
+    """Picons were put into *path*: let enigma2 know. It only searches the picon folders it has found on a mounted drive (a folder
+    needs a picon to be found: a new one is not searched before a re-mount), and the service lists keep what they have shown
+    for a service. Must be called in the main thread."""
+    try:
+        piconLocator.addSearchPath(path)
+        invalidateListPicons()
+    except Exception as e:
+        logger.error("path: %s, exception: %s", path, e)
 
 
 def getPicon(service_reference):

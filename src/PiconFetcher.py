@@ -10,6 +10,7 @@ from twisted.internet import reactor
 from Tools.Directories import fileExists, sanitizeFilename
 from .Version import PLUGIN
 from .Variables import USER_AGENT
+from .ServiceUtils import announcePiconDirectory
 
 
 # On this image, Python's certifi package ships a CA bundle frozen at build
@@ -74,6 +75,8 @@ class PiconFetcher:
                            for url, fn in self.piconList}
                 done, _ = concurrent.futures.wait(futures, timeout=_PICON_BATCH_TIMEOUT)
             print(f"[{self.plugin_name} PiconFetcher] fetched {len(done)}/{len(futures)} picons")
+            # fetchPicons runs in a thread of the download
+            reactor.callFromThread(announcePiconDirectory, self.piconDir)
 
     def removeall(self):
         """Remove all symlinks and downloaded picons created by this plugin."""
@@ -220,18 +223,18 @@ class PiconFetcher:
 
     @staticmethod
     def getPiconPath():
+        """The folder the picons are put into: enigma2 knows the folders its Picon renderer looks in (the picon folders of
+        the mounted partitions, see PiconLocator). The first writable one that is not the system folder is used, so that the
+        picons do not fill the flash; the active folder or the system one if there is none."""
         _SYSTEM = "/usr/share/enigma2/picon"
         try:
-            from Components.Renderer.Picon import lastPiconPath, searchPaths
-        except ImportError:
-            try:
-                from Components.Renderer.Picon import piconLocator
-                lastPiconPath = piconLocator.activePiconPath
-                searchPaths = piconLocator.searchPaths
-            except ImportError:
-                lastPiconPath = None
-                searchPaths = None
-        for p in (searchPaths or []):
+            from Components.Renderer.Picon import piconLocator
+            search_paths = piconLocator.searchPaths
+            active_path = piconLocator.activePiconPath
+        except (ImportError, AttributeError):
+            search_paths = []
+            active_path = None
+        for p in search_paths:
             if p != _SYSTEM and os.path.isdir(p) and os.access(p, os.W_OK):
                 return p
-        return lastPiconPath or _SYSTEM
+        return active_path or _SYSTEM
