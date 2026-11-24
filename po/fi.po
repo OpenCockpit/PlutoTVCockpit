@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-18 17:09+0300\n"
-"PO-Revision-Date: 2026-10-18 17:16+0300\n"
+"POT-Creation-Date: 2026-11-24 11:02+0200\n"
+"PO-Revision-Date: 2026-11-24 11:49+0200\n"
 "Last-Translator: Orlandox\n"
 "Language-Team: Orlandox\n"
 "Language: fi\n"
@@ -867,6 +867,12 @@ msgstr "Striimipalvelin"
 msgid "Play and record through StreamProxyCockpit, which looks the stream address up when a channel is played and keeps the ad breaks of the streams from disturbing playback and recordings. Off: the bouquet holds the addresses of the stream source below. The bouquet of each setting is kept, so changing it switches between them; one that doesn't exist yet, or is older than 5 hours, is generated."
 msgstr "Toista ja tallenna StreamProxyCockpitin kautta, joka etsii striimin osoitteen kanavaa toistettaessa ja estää striimien mainoskatkoja häiritsemästä toistoa ja tallennuksia. Pois päältä: suosikkilista sisältää alla olevan striimilähteen osoitteet. Kunkin asetuksen suosikkilista säilytetään, joten sen muuttaminen vaihtaa niiden välillä; sellainen, jota ei vielä ole olemassa tai joka on yli 5 tuntia vanha, luodaan."
 
+msgid "Record VoD while playing"
+msgstr "Tallenna VoD-sisältöä toiston aikana"
+
+msgid "Record a VoD title to a file in your movie directory while it plays and play the file, so that skipping and rewinding work all over the title. Press Record to keep it: the recording then goes on to the end of the title when you leave the player. Otherwise the file is deleted when you leave the player. Off, or if the recording can't be started: the stream is played, which can only be rewound about two minutes and not skipped ahead in."
+msgstr "VoD-sisältö voidaan tallentaa tiedostoksi elokuvahakemistoon toiston aikana. Kun tiedostoa toistetaan, siinä voi kelata eteen- ja taaksepäin koko sisällön mitalta. Valitse ”Tallenna” säilyttääksesi sisällön – tällöin tallennus jatkuu sisällön loppuun saakka, vaikka poistuisit toistotilasta. Muussa tapauksessa tiedosto poistetaan, kun poistut toistotilasta. Jos tallennusta ei aloiteta (tai sitä ei voida aloittaa), sisältö toistetaan striiminä; tällöin sitä voi kelata taaksepäin vain noin kaksi minuuttia, eikä eteenpäin kelaaminen ole mahdollista."
+
 msgid "Stream source"
 msgstr "Striimin lähde"
 
@@ -915,6 +921,9 @@ msgstr "TMDb-haku"
 msgid "IMDb Search"
 msgstr "IMDB-haku"
 
+msgid "MENU"
+msgstr "MENU"
+
 msgid "Change country"
 msgstr "Vaihda maa"
 
@@ -945,6 +954,9 @@ msgstr "the Internet Movie Database"
 msgid "Load the VoD list of another country"
 msgstr "Lataa toisen maan VoD-lista"
 
+msgid "Switch between the category view and the list of all movies"
+msgstr "Vaihda luokkanäkymän ja kaikkien elokuvien luettelon välillä"
+
 msgid "VOD Menu"
 msgstr "VOD-Menu"
 
@@ -957,6 +969,15 @@ msgstr "min"
 msgid "There is no data for %s. It may be caused by geo-blocking, or Pluto TV may not be available in your country."
 msgstr "Kohteesta %s ei ole tietoja. Tämä voi johtua geoblokkaauksesta, tai Pluto TV ei ehkä ole saatavilla maassasi."
 
+msgid "Category view"
+msgstr "Luokkanäkymä"
+
+msgid "Movie view"
+msgstr "Elokuvanäkymä"
+
+msgid "All movies"
+msgstr "Kaikki elokuvat"
+
 msgid "Episode"
 msgstr "Jakso"
 
@@ -965,6 +986,9 @@ msgstr "Kausi"
 
 msgid "Seasons"
 msgstr "Kaudet"
+
+msgid "Buffering stream..."
+msgstr "Striimiä puskuroidaan..."
 
 msgid "All"
 msgstr "Kaikki"
@@ -992,6 +1016,9 @@ msgstr "Live-TV -suosikkilista on päivitettävä. Paina VIHREÄÄ."
 
 msgid "Create Live-TV Bouquet"
 msgstr "Luo Live-TV -suosikkilista"
+
+msgid "VOD Country Selection"
+msgstr "VOD-maan valinta"
 
 msgid "Temporarily switch the VoD list to another country"
 msgstr "Vaihda VoD-lista väliaikaisesti toiseen maahan"
@@ -1047,14 +1074,20 @@ msgstr "Haluatko jatkaa tätä toistoa?"
 msgid "Resume position at %s"
 msgstr "Jatka paikasta %s"
 
-msgid "Category view"
-msgstr "Luokkanäkymä"
+msgid "Record the movie"
+msgstr "Tallenna elokuva"
 
-msgid "Movie view"
-msgstr "Elokuvanäkymä"
+msgid "The movie is being recorded."
+msgstr "Elokuvaa tallennetaan."
 
-msgid "All movies"
-msgstr "Kaikki elokuvat"
+msgid "The recording goes on when the player is left."
+msgstr "Tallennus jatkuu, kun toistotilasta poistutaan."
 
-msgid "Switch between the category view and the list of all movies"
-msgstr "Vaihda luokkanäkymän ja kaikkien elokuvien luettelon välillä"
+msgid "The movie is already being recorded."
+msgstr "Elokuvaa ollaan jo tallentamassa."
+
+msgid "Recording"
+msgstr "Tallennetaan"
+
+msgid "CockpitActions"
+msgstr "Cockpit Toiminnot"
