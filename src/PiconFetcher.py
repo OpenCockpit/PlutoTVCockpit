@@ -10,7 +10,6 @@ from twisted.internet import reactor
 from Tools.Directories import fileExists, sanitizeFilename
 from .Version import PLUGIN
 from .Variables import USER_AGENT
-from .ServiceUtils import announcePiconDirectory
 
 
 # On this image, Python's certifi package ships a CA bundle frozen at build
@@ -75,8 +74,6 @@ class PiconFetcher:
                            for url, fn in self.piconList}
                 done, _ = concurrent.futures.wait(futures, timeout=_PICON_BATCH_TIMEOUT)
             print(f"[{self.plugin_name} PiconFetcher] fetched {len(done)}/{len(futures)} picons")
-            # fetchPicons runs in a thread of the download
-            reactor.callFromThread(announcePiconDirectory, self.piconDir)
 
     def removeall(self):
         """Remove all symlinks and downloaded picons created by this plugin."""
