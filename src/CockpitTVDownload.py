@@ -2,13 +2,13 @@
 
 import json
 import os
+import queue
 import re
 import shutil
 import threading
 import time
 import traceback
 import zlib
-from collections import deque
 from io import BytesIO
 
 from Screens.MessageBox import MessageBox
@@ -922,6 +922,56 @@ class TVDownloadSilentMixin:
         logger.debug("There is no data for %s (%s), it is possible that %s is not available in your %s.", cc, reason, self.FRIENDLY_NAME, self.LOCATION_WORD)
 
 
+_EPG_IMPORT_QUEUE = queue.SimpleQueue()
+_EPG_IMPORT_THREAD = []   # the one worker, started by the first job
+_EPG_IMPORT_LOCK = threading.Lock()
+
+
+def _epgImportWorker():
+    while True:
+        job = _EPG_IMPORT_QUEUE.get()
+        try:
+            job()
+        except Exception as e:   # pylint: disable=broad-except
+            logger.error("EPG import job failed: %s", e)
+
+
+def _queueEpgJob(job):
+    with _EPG_IMPORT_LOCK:
+        if not _EPG_IMPORT_THREAD:
+            thread = threading.Thread(target=_epgImportWorker, name="EPGImport", daemon=True)
+            thread.start()
+            _EPG_IMPORT_THREAD.append(thread)
+    _EPG_IMPORT_QUEUE.put(job)
+
+
+def queueEpgImport(epgcache, log_prefix, sref, events, on_failure=None):
+    """Import *events* of the service *sref* into *epgcache* on the EPG import thread, in the order of the calls.
+
+    eEPGCache.importEvents() releases the Python lock but takes the lock of the EPG cache on the calling thread, which
+    the EIT reader and every EPG lookup hold as well: on the main thread a single call took 230-560 ms (logged as
+    "importEvents took ..."), which shows the busy spinner. Chunking the events doesn't help (one event per call took
+    just as long), so the calls are made on a thread of their own and the main thread never waits for the lock.
+    *on_failure* is called (on that thread) if the import raised."""
+    def job():
+        started = time.monotonic()
+        try:
+            epgcache.importEvents(sref, events)
+        except Exception as e:   # pylint: disable=broad-except
+            logger.error("%s: importEvents failed for %s: %s", log_prefix, sref, e)
+            if on_failure:
+                on_failure()
+        elapsed = time.monotonic() - started
+        if elapsed > 0.1:   # would have been a main thread stall (busy spinner) of this length
+            logger.debug("%s: importEvents took %.0f ms for %s (EPG import thread)", log_prefix, elapsed * 1000, sref)
+    _queueEpgJob(job)
+
+
+def queueEpgImportDone(callback):
+    """Call *callback* on the EPG import thread once everything queued before it has been imported."""
+    _queueEpgJob(callback)
+
+
 def importXMLTVGuide(epgcache, log_prefix, path, xmltv_bytes, channels_map):
     """Import EPG events from an XMLTV byte blob into eEPGCache via EPGImport's
     converter, using a pre-built {channel_id: service_ref} mapping.
@@ -956,8 +1006,10 @@ def importXMLTVGuide(epgcache, log_prefix, path, xmltv_bytes, channels_map):
     try:
         xmltv_parser = XMLTVConverter(channels_map, {})
         evt_cnt = 0
-        fail_cnt = [0]  # mutable cell - _drain is a nested closure, can't rebind a plain int from inside it
-        pending = deque()
+        fail_cnt = [0]  # mutable cell - changed by the EPG import thread, can't rebind a plain int from there
+
+        def _countFailure():
+            fail_cnt[0] += 1
 
         def _logSummary():
             if fail_cnt[0]:
@@ -965,35 +1017,16 @@ def importXMLTVGuide(epgcache, log_prefix, path, xmltv_bytes, channels_map):
             else:
                 logger.debug("%s: %s EPG events imported", log_prefix, evt_cnt)
 
-        def _drain():
-            # Import for a few ms per reactor iteration. One callFromThread per event made twisted run
-            # all of them in a single iteration (seconds for a full guide), which blocked the main
-            # thread and showed the "busy" spinner.
-            deadline = time.monotonic() + 0.015
-            while pending:
-                sref, event = pending.popleft()
-                started = time.monotonic()
-                try:
-                    epgcache.importEvents(sref, [event])
-                except Exception as e:
-                    fail_cnt[0] += 1
-                    logger.error("%s: importEvents failed for %s: %s", log_prefix, sref, e)
-                if time.monotonic() - started > 0.1:   # a main thread stall (busy spinner) of this length
-                    logger.debug("%s: importEvents took %.0f ms for %s", log_prefix, (time.monotonic() - started) * 1000, sref)
-                if time.monotonic() >= deadline:
-                    reactor.callLater(0.01, _drain)
-                    return
-            # Reported after the last event, so it is the real outcome instead of the enumerate-time
-            # event count, which used to log "imported" even when importEvents() itself threw.
-            _logSummary()
-
         for item in xmltv_parser.enumFile(BytesIO(xmltv_bytes)):
             if not item:
                 continue
-            pending.append(item)
+            sref, event = item
+            queueEpgImport(epgcache, log_prefix, sref, [event], _countFailure)
             evt_cnt += 1
 
-        reactor.callFromThread(_drain)
+        # Reported after the last event, so it is the real outcome instead of the enumerate-time
+        # event count, which used to log "imported" even when importEvents() itself threw.
+        queueEpgImportDone(_logSummary)
     except Exception as e:
         logger.error("%s: EPG import error: %s", log_prefix, e)
     return True

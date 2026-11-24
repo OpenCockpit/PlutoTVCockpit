@@ -3,10 +3,8 @@
 
 import datetime
 import os
-import threading
 import time
 import zlib
-from collections import deque
 
 from Components.ActionMap import ActionMap
 from Components.config import config
@@ -16,7 +14,7 @@ from Screens.MessageBox import MessageBox
 from Screens.Screen import Screen
 from Plugins.SystemPlugins.StreamProxyCockpit.LiveProxyUnmuxed import PROXY_HOST, PROXY_PORT
 from enigma import eEPGCache, eTimer
-from twisted.internet import reactor, threads
+from twisted.internet import threads
 
 # for localized messages
 from . import _
@@ -24,7 +22,7 @@ from .Debug import logger
 from .ConfigInit import COUNTRY_NAMES, TSIDS, getselectedcountries
 from .PlutoTVRequest import plutoRequest
 from .Variables import TIMER_FILE, NODATA_FILE, BOUQUET_FILE, BOUQUET_NAME, CHANNELLIST_FILE, XMLTV_FILE
-from .CockpitTVDownload import TVDownloadBase, TVDownloadScreenMixin, TVDownloadSilentMixin, FAIL_GEO, FAIL_NETWORK, FAIL_NOSTREAM
+from .CockpitTVDownload import TVDownloadBase, TVDownloadScreenMixin, TVDownloadSilentMixin, queueEpgImport, FAIL_GEO, FAIL_NETWORK, FAIL_NOSTREAM
 from .M3UPlaylist import writeM3UPlaylist
 from .XMLTVWriter import writeXMLTVFile
 
@@ -206,50 +204,9 @@ class PlutoTVDownloadBase(TVDownloadBase):
 
         return ref, stream_url, ch_name, ch_logourl
 
-    # One callFromThread per channel made twisted run all of them (hundreds of channels, thousands of events) in
-    # a single reactor iteration, which blocks the main thread and shows the "busy" spinner. The channels are
-    # queued here and imported on the reactor thread in short batches instead.
-    _epgPending = deque()
-    _epgLock = threading.Lock()
-    _epgDrainScheduled = False
-
     def _queueEpgImport(self, sref, events):
-        cls = PlutoTVDownloadBase
-        with cls._epgLock:
-            cls._epgPending.append((sref, events))
-            if cls._epgDrainScheduled:
-                return
-            cls._epgDrainScheduled = True
-        reactor.callFromThread(self._drainEpgImport)
-
-    # A single importEvents() call for a whole channel (up to ~100 events) blocked the main thread for 100-350 ms
-    # (logged as "importEvents took ..."), which is long enough to show the busy spinner. A channel is imported in
-    # chunks of this many events instead; the rest goes back to the front of the queue. importEvents() appends to
-    # what the channel already has (the Samsung/Rakuten plugins import one event per call).
-    _EPG_CHUNK = 8
-
-    def _drainEpgImport(self):
-        cls = PlutoTVDownloadBase
-        deadline = time.monotonic() + 0.015
-        while True:
-            with cls._epgLock:
-                if not cls._epgPending:
-                    cls._epgDrainScheduled = False
-                    return
-                sref, events = cls._epgPending.popleft()
-                if len(events) > cls._EPG_CHUNK:
-                    cls._epgPending.appendleft((sref, events[cls._EPG_CHUNK:]))
-                    events = events[:cls._EPG_CHUNK]
-            started = time.monotonic()
-            try:
-                eEPGCache.getInstance().importEvents(sref, events)
-            except Exception as e:
-                logger.error("importEvents failed for %s: %s", sref, e)
-            if time.monotonic() - started > 0.1:   # a main thread stall (busy spinner) of this length
-                logger.debug("importEvents took %.0f ms for %s (%d events)", (time.monotonic() - started) * 1000, sref, len(events))
-            if time.monotonic() >= deadline:
-                reactor.callLater(0.01, self._drainEpgImport)
-                return
+        # imported on the EPG import thread, not the main thread (see queueEpgImport)
+        queueEpgImport(eEPGCache.getInstance(), "PTV", sref, events)
 
     def buildGuide(self, event):
         # (title, summary, start, duration, genre, event_id)
