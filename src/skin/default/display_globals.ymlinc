@@ -3,3 +3,12 @@
 - xmlinc:
     file: "display_fonts.ymlinc"
 
+- global:
+    name: "imagepath"
+    value: "~"
+- global:
+    name: "width"
+    value: 392
+- global:
+    name: "height"
+    value: 240
